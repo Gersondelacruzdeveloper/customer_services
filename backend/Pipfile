@@ -11,8 +11,8 @@ psycopg = {extras = ["binary"], version = "*"}
 djangorestframework-simplejwt = "*"
 gunicorn = "*"
 dj-database-url = "*"
-whitenoise = "*"
 django-cors-headers = "*"
+whitenoise = "*"
 
 [dev-packages]
 

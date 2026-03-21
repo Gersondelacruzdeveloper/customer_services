@@ -48,6 +48,7 @@ export default function SatisfactionQuestionnaire() {
   const [guides, setGuides] = useState<OptionItem[]>([]);
   const [excursions, setExcursions] = useState<OptionItem[]>([]);
   const [operators, setOperators] = useState<OptionItem[]>([]);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -132,7 +133,7 @@ export default function SatisfactionQuestionnaire() {
         comments: form.comments,
       });
 
-      setMessage("Survey saved successfully.");
+      setSubmitted(true);
 
       setForm({
         excursion: "",
@@ -155,6 +156,41 @@ export default function SatisfactionQuestionnaire() {
       setLoading(false);
     }
   };
+
+
+if (submitted) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 to-slate-100 px-4">
+      <div className="max-w-md rounded-3xl bg-white p-8 text-center shadow-xl">
+        
+        <img
+          src="https://ecoadventurespc.com/wp-content/uploads/2018/12/cropped-logo1.png"
+          className="mx-auto mb-4 h-16"
+        />
+
+        <h1 className="text-2xl font-bold text-slate-900">
+          Thank You! 🙌
+        </h1>
+
+        <p className="mt-3 text-slate-600">
+          Your feedback has been successfully submitted.
+        </p>
+
+        <p className="mt-2 text-sm text-slate-500">
+          We truly appreciate your time and help to improve our services.
+        </p>
+
+        <button
+          onClick={() => setSubmitted(false)}
+          className="mt-6 rounded-xl bg-slate-900 px-6 py-3 text-white"
+        >
+          Submit another response
+        </button>
+      </div>
+    </div>
+  );
+}
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 px-4 py-6">
