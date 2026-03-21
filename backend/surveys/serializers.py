@@ -1,5 +1,11 @@
 from rest_framework import serializers
 from .models import Hotel, Guide, Excursion, TourOperator, Survey
+from django.contrib.auth.models import User
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "is_staff", "is_superuser"]
 
 class HotelSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,5 +1,12 @@
-import React, { useState } from "react";
-import { addSurvey } from "../lib/surveyStorage";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  getExcursions,
+  getGuides,
+  getHotels,
+  getOperators,
+  submitSurvey,
+  type OptionItem,
+} from "../lib/api";
 
 const ratings = [
   { value: 1, label: "Poor", emoji: "😞" },
@@ -11,24 +18,9 @@ const ratings = [
 const categories = [
   { key: "punctuality", label: "Punctuality", icon: "🕒" },
   { key: "transport", label: "Transport", icon: "🚌" },
-  { key: "guide", label: "Guide", icon: "🧑‍🏫" },
+  { key: "guide_rating", label: "Guide", icon: "🧑‍🏫" },
   { key: "food", label: "Food", icon: "🍽️" },
 ] as const;
-
-// 👇 Suggested data (later this will come from Django)
-const hotelOptions = [
-  "Hard Rock",
-  "Majestic",
-  "Riu Bambu",
-  "Riu Palace",
-  "Barceló Bávaro",
-  "Melia Caribe Beach",
-  "Lopesan Costa Bávaro",
-];
-
-const guideOptions = ["Carlos", "Luis", "Maria", "Pedro"];
-const excursionOptions = ["Saona Island", "Samana", "Buggies"];
-const operatorOptions = ["Eco Adventures", "Coming2", "TUI", "Amstar"];
 
 type RatingKey = (typeof categories)[number]["key"];
 
@@ -44,65 +36,130 @@ export default function SatisfactionQuestionnaire() {
     guideName: "",
     punctuality: 0,
     transport: 0,
-    guide: 0,
+    guide_rating: 0,
     food: 0,
     comments: "",
   });
 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [hotels, setHotels] = useState<OptionItem[]>([]);
+  const [guides, setGuides] = useState<OptionItem[]>([]);
+  const [excursions, setExcursions] = useState<OptionItem[]>([]);
+  const [operators, setOperators] = useState<OptionItem[]>([]);
+
+  useEffect(() => {
+    Promise.all([
+      getHotels(),
+      getGuides(),
+      getExcursions(),
+      getOperators(),
+    ])
+      .then(([hotelsData, guidesData, excursionsData, operatorsData]) => {
+        setHotels(hotelsData);
+        setGuides(guidesData);
+        setExcursions(excursionsData);
+        setOperators(operatorsData);
+      })
+      .catch(() => {
+        setMessage("Failed to load form options.");
+      });
+  }, []);
+
+  const hotelId = useMemo(
+    () => hotels.find((item) => item.name === form.hotel)?.id ?? null,
+    [hotels, form.hotel]
+  );
+
+  const guideId = useMemo(
+    () => guides.find((item) => item.name === form.guideName)?.id ?? null,
+    [guides, form.guideName]
+  );
+
+  const excursionId = useMemo(
+    () => excursions.find((item) => item.name === form.excursion)?.id ?? null,
+    [excursions, form.excursion]
+  );
+
+  const operatorId = useMemo(
+    () => operators.find((item) => item.name === form.tourOperator)?.id ?? null,
+    [operators, form.tourOperator]
+  );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleRatingChange = (name: RatingKey, value: number) => {
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage("");
 
-    const survey = {
-      id: crypto.randomUUID(),
-      ...form,
-      participants: Number(form.participants) || 0,
-      createdAt: new Date().toISOString(),
-    };
+    if (!hotelId || !guideId || !excursionId || !operatorId) {
+      setMessage("Please select valid options from the suggestion lists.");
+      return;
+    }
 
-    addSurvey(survey);
+    setLoading(true);
 
-    setMessage("Survey saved successfully.");
+    try {
+      await submitSurvey({
+        excursion: excursionId,
+        hotel: hotelId,
+        date: form.date,
+        participants: Number(form.participants) || 0,
+        client_name: form.clientName,
+        room_no: form.roomNo,
+        tour_operator: operatorId,
+        guide: guideId,
+        punctuality: form.punctuality,
+        transport: form.transport,
+        guide_rating: form.guide_rating,
+        food: form.food,
+        comments: form.comments,
+      });
 
-    setForm({
-      excursion: "",
-      hotel: "",
-      date: "",
-      participants: "",
-      clientName: "",
-      roomNo: "",
-      tourOperator: "",
-      guideName: "",
-      punctuality: 0,
-      transport: 0,
-      guide: 0,
-      food: 0,
-      comments: "",
-    });
+      setMessage("Survey saved successfully.");
 
-    setTimeout(() => setMessage(""), 2500);
+      setForm({
+        excursion: "",
+        hotel: "",
+        date: "",
+        participants: "",
+        clientName: "",
+        roomNo: "",
+        tourOperator: "",
+        guideName: "",
+        punctuality: 0,
+        transport: 0,
+        guide_rating: 0,
+        food: 0,
+        comments: "",
+      });
+    } catch {
+      setMessage("Failed to save survey.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 px-4 py-6">
       <div className="mx-auto max-w-6xl">
-        <form
-          onSubmit={handleSubmit}
-          className="rounded-3xl bg-white shadow-xl"
-        >
-          {/* HEADER */}
+        <form onSubmit={handleSubmit} className="rounded-3xl bg-white shadow-xl">
           <div className="rounded-t-3xl bg-slate-900 p-6 text-white">
             <div className="flex items-center gap-4">
               <img
@@ -110,36 +167,26 @@ export default function SatisfactionQuestionnaire() {
                 className="h-14 w-14"
               />
               <div>
-                <h1 className="text-xl font-bold">
-                  Customer Satisfaction Survey
-                </h1>
-                <p className="text-sm text-slate-300">
-                  Help us improve our service
-                </p>
+                <h1 className="text-xl font-bold">Customer Satisfaction Survey</h1>
+                <p className="text-sm text-slate-300">Help us improve our service</p>
               </div>
             </div>
           </div>
 
-          {/* FORM */}
-          <div className="p-6 space-y-6">
-            {/* TOP FIELDS */}
+          <div className="space-y-6 p-6">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <AutocompleteField
                 label="Excursion"
                 value={form.excursion}
-                onChange={(v) =>
-                  setForm((p) => ({ ...p, excursion: v }))
-                }
-                options={excursionOptions}
+                onChange={(v) => setForm((p) => ({ ...p, excursion: v }))}
+                options={excursions.map((x) => x.name)}
               />
 
               <AutocompleteField
                 label="Hotel"
                 value={form.hotel}
-                onChange={(v) =>
-                  setForm((p) => ({ ...p, hotel: v }))
-                }
-                options={hotelOptions}
+                onChange={(v) => setForm((p) => ({ ...p, hotel: v }))}
+                options={hotels.map((x) => x.name)}
               />
 
               <Field
@@ -177,60 +224,40 @@ export default function SatisfactionQuestionnaire() {
               <AutocompleteField
                 label="Tour Operator"
                 value={form.tourOperator}
-                onChange={(v) =>
-                  setForm((p) => ({ ...p, tourOperator: v }))
-                }
-                options={operatorOptions}
+                onChange={(v) => setForm((p) => ({ ...p, tourOperator: v }))}
+                options={operators.map((x) => x.name)}
               />
 
               <AutocompleteField
                 label="Guide"
                 value={form.guideName}
-                onChange={(v) =>
-                  setForm((p) => ({ ...p, guideName: v }))
-                }
-                options={guideOptions}
+                onChange={(v) => setForm((p) => ({ ...p, guideName: v }))}
+                options={guides.map((x) => x.name)}
               />
             </div>
 
-            {/* RATINGS */}
             <div className="space-y-4">
               {categories.map((item) => (
-                <div
-                  key={item.key}
-                  className="rounded-2xl border p-4"
-                >
+                <div key={item.key} className="rounded-2xl border p-4">
                   <p className="mb-3 font-semibold">
                     {item.icon} {item.label}
                   </p>
 
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     {ratings.map((r) => {
-                      const selected =
-                        form[item.key] === r.value;
+                      const selected = form[item.key] === r.value;
 
                       return (
                         <button
                           key={r.value}
                           type="button"
-                          onClick={() =>
-                            handleRatingChange(
-                              item.key,
-                              r.value
-                            )
-                          }
+                          onClick={() => handleRatingChange(item.key, r.value)}
                           className={`rounded-xl border p-3 text-center ${
-                            selected
-                              ? "bg-slate-900 text-white"
-                              : "bg-white"
+                            selected ? "bg-slate-900 text-white" : "bg-white"
                           }`}
                         >
-                          <div className="text-xl">
-                            {r.emoji}
-                          </div>
-                          <div className="text-sm">
-                            {r.label}
-                          </div>
+                          <div className="text-xl">{r.emoji}</div>
+                          <div className="text-sm">{r.label}</div>
                         </button>
                       );
                     })}
@@ -239,11 +266,8 @@ export default function SatisfactionQuestionnaire() {
               ))}
             </div>
 
-            {/* COMMENTS */}
             <div>
-              <label className="block mb-2 font-semibold">
-                Comments
-              </label>
+              <label className="mb-2 block font-semibold">Comments</label>
               <textarea
                 name="comments"
                 value={form.comments}
@@ -253,16 +277,14 @@ export default function SatisfactionQuestionnaire() {
               />
             </div>
 
-            {/* SUBMIT */}
-            <div className="flex justify-between items-center">
-              {message && (
-                <p className="text-green-600 text-sm">
-                  {message}
-                </p>
-              )}
+            <div className="flex items-center justify-between">
+              {message && <p className="text-sm text-green-600">{message}</p>}
 
-              <button className="bg-slate-900 text-white px-6 py-3 rounded-xl">
-                Save Survey
+              <button
+                disabled={loading}
+                className="rounded-xl bg-slate-900 px-6 py-3 text-white disabled:opacity-60"
+              >
+                {loading ? "Saving..." : "Save Survey"}
               </button>
             </div>
           </div>
@@ -272,20 +294,22 @@ export default function SatisfactionQuestionnaire() {
   );
 }
 
-/* ---------- COMPONENTS ---------- */
-
 function Field({
   label,
   name,
   value,
   onChange,
   type = "text",
-}: any) {
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+}) {
   return (
     <div>
-      <label className="block mb-1 text-sm font-semibold">
-        {label}
-      </label>
+      <label className="mb-1 block text-sm font-semibold">{label}</label>
       <input
         type={type}
         name={name}
@@ -302,18 +326,21 @@ function AutocompleteField({
   value,
   onChange,
   options,
-}: any) {
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+}) {
   const [open, setOpen] = useState(false);
 
-  const filtered = options.filter((o: string) =>
+  const filtered = options.filter((o) =>
     o.toLowerCase().includes(value.toLowerCase())
   );
 
   return (
     <div className="relative">
-      <label className="block mb-1 text-sm font-semibold">
-        {label}
-      </label>
+      <label className="mb-1 block text-sm font-semibold">{label}</label>
 
       <input
         value={value}
@@ -327,12 +354,12 @@ function AutocompleteField({
       />
 
       {open && filtered.length > 0 && (
-        <div className="absolute z-10 w-full bg-white border rounded-xl mt-1 shadow">
-          {filtered.map((o: string) => (
+        <div className="absolute z-10 mt-1 w-full rounded-xl border bg-white shadow">
+          {filtered.map((o) => (
             <div
               key={o}
               onMouseDown={() => onChange(o)}
-              className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+              className="cursor-pointer px-3 py-2 hover:bg-gray-100"
             >
               {o}
             </div>

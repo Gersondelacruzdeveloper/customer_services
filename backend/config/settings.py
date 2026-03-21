@@ -77,11 +77,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DEPLOYED = env.bool("DEPLOYED", default=False)
+if DEPLOYED:
+    DATABASES = {"default": env.dj_db_url("DATABASE_URL")}
+else:
+    DATABASES = {
+    "default": {
+        'ENGINE': env.str("LOCAL_DB_ENGINE"),
+        'NAME': env.str("LOCAL_DB_NAME"),
+        'USER': env.str("LOCAL_DB_USER"),
+        'PASSWORD': env.str("LOCAL_DB_PASSWORD"),
+         "HOST": "127.0.0.1",
+        'PORT': env.str("LOCAL_DB_PORT"),
     }
 }
 
