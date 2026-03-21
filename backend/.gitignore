@@ -1,0 +1,94 @@
+# =========================
+# Python / Django
+# =========================
+*.py[cod]
+*.so
+__pycache__/
+*.sqlite3
+*.log
+*.pot
+*.egg-info/
+local_settings.py
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.pyre/
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Static/media/generated
+staticfiles/
+static/
+media/
+processed/
+checkpoints_v2/
+train-model/
+results/
+
+# Celery beat schedule file
+celerybeat-schedule
+*.sql
+
+# Migrations (compiled caches)
+**/migrations/__pycache__/
+**/migrations/*.pyc
+
+# =========================
+# Node / Vite / React
+# =========================
+node_modules/
+dist/
+build/
+.vite/
+*.env.local
+
+# =========================
+# System & IDE files
+# =========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# =========================
+# Sensitive/Custom
+# =========================
+.env
+.env.*
+googleTTSCredentials.json
+
+*.wav
+*.pem
+*.rdb
+*.zip
+
+cert.crt
+cert.key
+
+# =========================
+# Docker-related files
+# =========================
+.dockerignore
+docker-compose.yml
+Dockerfile
+entrypoint.sh
+Makefile
+
+# =========================
+# AWS/CI/CD artifacts
+# =========================
+task-output.json
+untagged-images.json
