@@ -1,4 +1,4 @@
-import { Link, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import SatisfactionQuestionnaire from "./pages/SatisfactionQuestionnaire";
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/Login";
@@ -9,13 +9,13 @@ import ManageOptionsPage from "./pages/ManageOptionsPage";
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = localStorage.getItem("access");
     const me = localStorage.getItem("me");
-
     setIsLoggedIn(!!token && !!me);
-  }, []);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("access");
