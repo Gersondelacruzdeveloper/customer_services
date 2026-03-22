@@ -7,24 +7,32 @@ import {
   submitSurvey,
   type OptionItem,
 } from "../lib/api";
+import { getText } from "../lib/i18n";
+import type { SupportedLanguage } from "../lib/translations";
 
-const ratings = [
-  { value: 1, label: "Poor", emoji: "😞" },
-  { value: 2, label: "Fair", emoji: "😐" },
-  { value: 3, label: "Good", emoji: "🙂" },
-  { value: 4, label: "Excellent", emoji: "😍" },
-] as const;
+export default function SatisfactionQuestionnaire({
+  lang,
+}: {
+  lang: SupportedLanguage;
+}) {
+  const t = getText(lang);
 
-const categories = [
-  { key: "punctuality", label: "Punctuality", icon: "🕒" },
-  { key: "transport", label: "Transport", icon: "🚌" },
-  { key: "guide_rating", label: "Guide", icon: "🧑‍🏫" },
-  { key: "food", label: "Food", icon: "🍽️" },
-] as const;
+  const ratings = [
+    { value: 1, label: t.poor, emoji: "😞" },
+    { value: 2, label: t.fair, emoji: "😐" },
+    { value: 3, label: t.good, emoji: "🙂" },
+    { value: 4, label: t.excellent, emoji: "😍" },
+  ] as const;
 
-type RatingKey = (typeof categories)[number]["key"];
+  const categories = [
+    { key: "punctuality", label: t.punctuality, icon: "🕒" },
+    { key: "transport", label: t.transport, icon: "🚌" },
+    { key: "guide_rating", label: t.guideRating, icon: "🧑‍🏫" },
+    { key: "food", label: t.food, icon: "🍽️" },
+  ] as const;
 
-export default function SatisfactionQuestionnaire() {
+  type RatingKey = (typeof categories)[number]["key"];
+
   const [form, setForm] = useState({
     excursion: "",
     hotel: "",
@@ -51,12 +59,7 @@ export default function SatisfactionQuestionnaire() {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      getHotels(),
-      getGuides(),
-      getExcursions(),
-      getOperators(),
-    ])
+    Promise.all([getHotels(), getGuides(), getExcursions(), getOperators()])
       .then(([hotelsData, guidesData, excursionsData, operatorsData]) => {
         setHotels(hotelsData);
         setGuides(guidesData);
@@ -64,9 +67,9 @@ export default function SatisfactionQuestionnaire() {
         setOperators(operatorsData);
       })
       .catch(() => {
-        setMessage("Failed to load form options.");
+        setMessage(t.failedToLoadOptions);
       });
-  }, []);
+  }, [t.failedToLoadOptions]);
 
   const hotelId = useMemo(
     () => hotels.find((item) => item.name === form.hotel)?.id ?? null,
@@ -110,7 +113,7 @@ export default function SatisfactionQuestionnaire() {
     setMessage("");
 
     if (!hotelId || !guideId || !excursionId || !operatorId) {
-      setMessage("Please select valid options from the suggestion lists.");
+      setMessage(t.pleaseSelectValidOptions);
       return;
     }
 
@@ -151,46 +154,37 @@ export default function SatisfactionQuestionnaire() {
         comments: "",
       });
     } catch {
-      setMessage("Failed to save survey.");
+      setMessage(t.failedToSaveSurvey);
     } finally {
       setLoading(false);
     }
   };
 
+  if (submitted) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 to-slate-100 px-4">
+        <div className="max-w-md rounded-3xl bg-white p-8 text-center shadow-xl">
+          <img
+            src="https://ecoadventurespc.com/wp-content/uploads/2018/12/cropped-logo1.png"
+            className="mx-auto mb-4 h-16"
+          />
 
-if (submitted) {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 to-slate-100 px-4">
-      <div className="max-w-md rounded-3xl bg-white p-8 text-center shadow-xl">
-        
-        <img
-          src="https://ecoadventurespc.com/wp-content/uploads/2018/12/cropped-logo1.png"
-          className="mx-auto mb-4 h-16"
-        />
+          <h1 className="text-2xl font-bold text-slate-900">{t.thankYou}</h1>
 
-        <h1 className="text-2xl font-bold text-slate-900">
-          Thank You! 🙌
-        </h1>
+          <p className="mt-3 text-slate-600">{t.feedbackSubmitted}</p>
 
-        <p className="mt-3 text-slate-600">
-          Your feedback has been successfully submitted.
-        </p>
+          <p className="mt-2 text-sm text-slate-500">{t.appreciateHelp}</p>
 
-        <p className="mt-2 text-sm text-slate-500">
-          We truly appreciate your time and help to improve our services.
-        </p>
-
-        <button
-          onClick={() => setSubmitted(false)}
-          className="mt-6 rounded-xl bg-slate-900 px-6 py-3 text-white"
-        >
-          Submit another response
-        </button>
+          <button
+            onClick={() => setSubmitted(false)}
+            className="mt-6 rounded-xl bg-slate-900 px-6 py-3 text-white"
+          >
+            {t.submitAnotherResponse}
+          </button>
+        </div>
       </div>
-    </div>
-  );
-}
-
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 px-4 py-6">
@@ -203,8 +197,8 @@ if (submitted) {
                 className="h-14 w-14"
               />
               <div>
-                <h1 className="text-xl font-bold">Customer Satisfaction Survey</h1>
-                <p className="text-sm text-slate-300">Help us improve our service</p>
+                <h1 className="text-xl font-bold">{t.customerSatisfactionSurvey}</h1>
+                <p className="text-sm text-slate-300">{t.helpUsImproveService}</p>
               </div>
             </div>
           </div>
@@ -212,21 +206,21 @@ if (submitted) {
           <div className="space-y-6 p-6">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <AutocompleteField
-                label="Excursion"
+                label={t.excursion}
                 value={form.excursion}
                 onChange={(v) => setForm((p) => ({ ...p, excursion: v }))}
                 options={excursions.map((x) => x.name)}
               />
 
               <AutocompleteField
-                label="Hotel"
+                label={t.hotel}
                 value={form.hotel}
                 onChange={(v) => setForm((p) => ({ ...p, hotel: v }))}
                 options={hotels.map((x) => x.name)}
               />
 
               <Field
-                label="Date"
+                label={t.date}
                 name="date"
                 type="date"
                 value={form.date}
@@ -234,7 +228,7 @@ if (submitted) {
               />
 
               <Field
-                label="Participants"
+                label={t.participants}
                 name="participants"
                 type="number"
                 value={form.participants}
@@ -244,28 +238,28 @@ if (submitted) {
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <Field
-                label="Customer Name"
+                label={t.customerName}
                 name="clientName"
                 value={form.clientName}
                 onChange={handleChange}
               />
 
               <Field
-                label="Room Number"
+                label={t.roomNumber}
                 name="roomNo"
                 value={form.roomNo}
                 onChange={handleChange}
               />
 
               <AutocompleteField
-                label="Tour Operator"
+                label={t.tourOperator}
                 value={form.tourOperator}
                 onChange={(v) => setForm((p) => ({ ...p, tourOperator: v }))}
                 options={operators.map((x) => x.name)}
               />
 
               <AutocompleteField
-                label="Guide"
+                label={t.guide}
                 value={form.guideName}
                 onChange={(v) => setForm((p) => ({ ...p, guideName: v }))}
                 options={guides.map((x) => x.name)}
@@ -303,7 +297,7 @@ if (submitted) {
             </div>
 
             <div>
-              <label className="mb-2 block font-semibold">Comments</label>
+              <label className="mb-2 block font-semibold">{t.comments}</label>
               <textarea
                 name="comments"
                 value={form.comments}
@@ -320,7 +314,7 @@ if (submitted) {
                 disabled={loading}
                 className="rounded-xl bg-slate-900 px-6 py-3 text-white disabled:opacity-60"
               >
-                {loading ? "Saving..." : "Save Survey"}
+                {loading ? t.saving : t.saveSurvey}
               </button>
             </div>
           </div>

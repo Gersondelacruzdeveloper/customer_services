@@ -19,7 +19,7 @@ export default function Dashboard() {
     const token = localStorage.getItem("access");
 
     if (!token) {
-      setError("Missing login token.");
+      setError("Falta el token de inicio de sesión.");
       setLoading(false);
       return;
     }
@@ -29,7 +29,7 @@ export default function Dashboard() {
         setStats(data);
       })
       .catch(() => {
-        setError("Failed to load dashboard.");
+        setError("Error al cargar el panel.");
       })
       .finally(() => {
         setLoading(false);
@@ -37,11 +37,15 @@ export default function Dashboard() {
   }, []);
 
   if (loading) {
-    return <div className="p-6">Loading dashboard...</div>;
+    return <div className="p-6">Cargando panel...</div>;
   }
 
   if (error || !stats) {
-    return <div className="p-6 text-red-600">{error || "No data available."}</div>;
+    return (
+      <div className="p-6 text-red-600">
+        {error || "No hay datos disponibles."}
+      </div>
+    );
   }
 
   return (
@@ -63,10 +67,10 @@ export default function Dashboard() {
                   Eco Adventures
                 </p>
                 <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
-                  Customer Insights Dashboard
+                  Panel de análisis de clientes
                 </h1>
                 <p className="mt-1 text-sm text-slate-500">
-                  Guide performance, hotel volume, excursion demand, and customer satisfaction.
+                  Rendimiento de guías, volumen de hoteles, demanda de excursiones y satisfacción del cliente.
                 </p>
               </div>
             </div>
@@ -74,22 +78,30 @@ export default function Dashboard() {
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <StatCard title="Total Surveys" value={stats.totalSurveys} />
-          <StatCard title="Total Participants" value={stats.totalParticipants} />
+          <StatCard title="Total de encuestas" value={stats.totalSurveys} />
+          <StatCard title="Total de participantes" value={stats.totalParticipants} />
           <StatCard
-            title="Best Guide"
+            title="Mejor guía"
             value={stats.happiestGuide?.name || "-"}
-            subtitle={stats.happiestGuide ? `Average score ${stats.happiestGuide.score} / 4` : undefined}
+            subtitle={
+              stats.happiestGuide
+                ? `Promedio ${stats.happiestGuide.score} / 4`
+                : undefined
+            }
           />
           <StatCard
-            title="Top Hotel"
+            title="Hotel destacado"
             value={stats.topHotel?.name || "-"}
-            subtitle={stats.topHotel ? `${stats.topHotel.value} surveys received` : undefined}
+            subtitle={
+              stats.topHotel
+                ? `${stats.topHotel.value} encuestas recibidas`
+                : undefined
+            }
           />
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <ChartCard title="Guide Performance">
+          <ChartCard title="Rendimiento de guías">
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={stats.guidePerformance}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -101,7 +113,7 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </ChartCard>
 
-          <ChartCard title="Customers by Hotel">
+          <ChartCard title="Clientes por hotel">
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={stats.hotelCounts}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -115,7 +127,7 @@ export default function Dashboard() {
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-6 xl:grid-cols-3">
-          <ChartCard title="Popular Excursions" className="xl:col-span-2">
+          <ChartCard title="Excursiones populares" className="xl:col-span-2">
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={stats.excursionCounts}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -129,14 +141,14 @@ export default function Dashboard() {
 
           <div className="rounded-3xl border border-slate-200/70 bg-white/90 p-6 shadow-lg">
             <h2 className="mb-5 text-lg font-semibold text-slate-900">
-              Category Averages
+              Promedios por categoría
             </h2>
 
             <div className="space-y-4">
-              <AverageRow label="Punctuality" value={stats.categoryAverages.punctuality} />
-              <AverageRow label="Transport" value={stats.categoryAverages.transport} />
-              <AverageRow label="Guide" value={stats.categoryAverages.guide} />
-              <AverageRow label="Food" value={stats.categoryAverages.food} />
+              <AverageRow label="Puntualidad" value={stats.categoryAverages.punctuality} />
+              <AverageRow label="Transporte" value={stats.categoryAverages.transport} />
+              <AverageRow label="Guía" value={stats.categoryAverages.guide} />
+              <AverageRow label="Comida" value={stats.categoryAverages.food} />
             </div>
           </div>
         </div>
@@ -144,7 +156,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <div className="rounded-3xl border border-slate-200/70 bg-white/90 p-6 shadow-lg">
             <h2 className="mb-5 text-lg font-semibold text-slate-900">
-              Guide Ranking
+              Ranking de guías
             </h2>
 
             <div className="space-y-3">
@@ -161,7 +173,7 @@ export default function Dashboard() {
                     <div>
                       <p className="font-semibold text-slate-900">{guide.name}</p>
                       <p className="text-sm text-slate-500">
-                        {guide.total} survey{guide.total !== 1 ? "s" : ""}
+                        {guide.total} {guide.total !== 1 ? "encuestas" : "encuesta"}
                       </p>
                     </div>
                   </div>
@@ -176,13 +188,13 @@ export default function Dashboard() {
 
           <div className="rounded-3xl border border-slate-200/70 bg-white/90 p-6 shadow-lg">
             <h2 className="mb-5 text-lg font-semibold text-slate-900">
-              Recent Comments
+              Comentarios recientes
             </h2>
 
             <div className="space-y-3">
               {stats.comments.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
-                  No comments yet.
+                  Aún no hay comentarios.
                 </div>
               ) : (
                 stats.comments.map((item, index) => (

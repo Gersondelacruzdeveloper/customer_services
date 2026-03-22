@@ -49,7 +49,7 @@ function CrudSection({
       <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-bold text-slate-900 sm:text-xl">{title}</h2>
         <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 sm:text-sm">
-          {items.length} items
+          {items.length} artículos
         </span>
       </div>
 
@@ -57,7 +57,7 @@ function CrudSection({
         <input
           value={newValue}
           onChange={(e) => setNewValue(e.target.value)}
-          placeholder={`Add new ${title.toLowerCase().slice(0, -1)}`}
+          placeholder={`Agregar nuevo ${title.toLowerCase().slice(0, -1)}`}
           className="w-full flex-1 rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-400"
         />
         <button
@@ -66,14 +66,14 @@ function CrudSection({
           disabled={loading || !newValue.trim()}
           className="w-full rounded-2xl bg-slate-900 px-5 py-3 font-semibold text-white disabled:opacity-50 sm:w-auto"
         >
-          Add
+          Agregar
         </button>
       </div>
 
       <div className="space-y-3">
         {items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-500 sm:text-base">
-            No items yet
+            Aún no hay artículos
           </div>
         ) : (
           items.map((item) => (
@@ -100,7 +100,7 @@ function CrudSection({
                       }}
                       className="w-full rounded-xl bg-emerald-600 px-4 py-2 text-white"
                     >
-                      Save
+                      Guardar
                     </button>
 
                     <button
@@ -111,7 +111,7 @@ function CrudSection({
                       }}
                       className="w-full rounded-xl bg-slate-200 px-4 py-2 text-slate-700"
                     >
-                      Cancel
+                      Cancelar
                     </button>
                   </div>
                 </div>
@@ -130,21 +130,21 @@ function CrudSection({
                       }}
                       className="w-full rounded-xl bg-blue-600 px-4 py-2 text-white sm:w-auto"
                     >
-                      Edit
+                      Editar
                     </button>
 
                     <button
                       type="button"
                       onClick={async () => {
                         const confirmed = window.confirm(
-                          `Delete "${item.name}"?`
+                          `¿Eliminar "${item.name}"?`
                         );
                         if (!confirmed) return;
                         await onDelete(item.id);
                       }}
                       className="w-full rounded-xl bg-red-600 px-4 py-2 text-white sm:w-auto"
                     >
-                      Delete
+                      Eliminar
                     </button>
                   </div>
                 </div>
@@ -188,7 +188,7 @@ export default function ManageOptionsPage() {
       setExcursions(excursionsData);
       setOperators(operatorsData);
     } catch {
-      setMessage("Failed to load data.");
+      setMessage("Error al cargar los datos.");
     }
   };
 
@@ -209,7 +209,7 @@ export default function ManageOptionsPage() {
       setMessage(successMessage);
     } catch (error) {
       console.error(error);
-      setMessage("Something went wrong.");
+      setMessage("Algo salió mal.");
     } finally {
       setLoading(false);
     }
@@ -227,11 +227,11 @@ export default function ManageOptionsPage() {
             />
             <div>
               <h1 className="text-xl font-bold sm:text-2xl">
-                Manage Survey Options
+                Gestionar opciones de la encuesta
               </h1>
               <p className="mt-1 text-sm text-slate-300">
-                Create, edit, and delete Hotels, Guides, Excursions, and Tour
-                Operators
+                Crear, editar y eliminar hoteles, guías, excursiones y
+                operadores turísticos
               </p>
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function ManageOptionsPage() {
 
         <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
           <CrudSection
-            title="Hotels"
+            title="Hoteles"
             items={hotels}
             newValue={newHotel}
             setNewValue={setNewHotel}
@@ -255,22 +255,22 @@ export default function ManageOptionsPage() {
               await runAction(async () => {
                 await createHotel(newHotel.trim(), token);
                 setNewHotel("");
-              }, "Hotel created successfully.");
+              }, "Hotel creado correctamente.");
             }}
             onUpdate={async (id, name) => {
               await runAction(async () => {
                 await updateHotel(id, name.trim(), token);
-              }, "Hotel updated successfully.");
+              }, "Hotel actualizado correctamente.");
             }}
             onDelete={async (id) => {
               await runAction(async () => {
                 await deleteHotel(id, token);
-              }, "Hotel deleted successfully.");
+              }, "Hotel eliminado correctamente.");
             }}
           />
 
           <CrudSection
-            title="Guides"
+            title="Guías"
             items={guides}
             newValue={newGuide}
             setNewValue={setNewGuide}
@@ -280,22 +280,22 @@ export default function ManageOptionsPage() {
               await runAction(async () => {
                 await createGuide(newGuide.trim(), token);
                 setNewGuide("");
-              }, "Guide created successfully.");
+              }, "Guía creada correctamente.");
             }}
             onUpdate={async (id, name) => {
               await runAction(async () => {
                 await updateGuide(id, name.trim(), token);
-              }, "Guide updated successfully.");
+              }, "Guía actualizada correctamente.");
             }}
             onDelete={async (id) => {
               await runAction(async () => {
                 await deleteGuide(id, token);
-              }, "Guide deleted successfully.");
+              }, "Guía eliminada correctamente.");
             }}
           />
 
           <CrudSection
-            title="Excursions"
+            title="Excursiones"
             items={excursions}
             newValue={newExcursion}
             setNewValue={setNewExcursion}
@@ -305,22 +305,22 @@ export default function ManageOptionsPage() {
               await runAction(async () => {
                 await createExcursion(newExcursion.trim(), token);
                 setNewExcursion("");
-              }, "Excursion created successfully.");
+              }, "Excursión creada correctamente.");
             }}
             onUpdate={async (id, name) => {
               await runAction(async () => {
                 await updateExcursion(id, name.trim(), token);
-              }, "Excursion updated successfully.");
+              }, "Excursión actualizada correctamente.");
             }}
             onDelete={async (id) => {
               await runAction(async () => {
                 await deleteExcursion(id, token);
-              }, "Excursion deleted successfully.");
+              }, "Excursión eliminada correctamente.");
             }}
           />
 
           <CrudSection
-            title="Tour Operators"
+            title="Operadores turísticos"
             items={operators}
             newValue={newOperator}
             setNewValue={setNewOperator}
@@ -330,17 +330,17 @@ export default function ManageOptionsPage() {
               await runAction(async () => {
                 await createOperator(newOperator.trim(), token);
                 setNewOperator("");
-              }, "Tour operator created successfully.");
+              }, "Operador turístico creado correctamente.");
             }}
             onUpdate={async (id, name) => {
               await runAction(async () => {
                 await updateOperator(id, name.trim(), token);
-              }, "Tour operator updated successfully.");
+              }, "Operador turístico actualizado correctamente.");
             }}
             onDelete={async (id) => {
               await runAction(async () => {
                 await deleteOperator(id, token);
-              }, "Tour operator deleted successfully.");
+              }, "Operador turístico eliminado correctamente.");
             }}
           />
         </div>
