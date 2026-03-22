@@ -10,11 +10,11 @@ import {
 import { getText } from "../lib/i18n";
 import type { SupportedLanguage } from "../lib/translations";
 
-export default function SatisfactionQuestionnaire({
-  lang,
-}: {
+type Props = {
   lang: SupportedLanguage;
-}) {
+};
+
+export default function SatisfactionQuestionnaire({ lang }: Props) {
   const t = getText(lang);
 
   const ratings = [

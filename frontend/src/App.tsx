@@ -121,12 +121,12 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<SatisfactionQuestionnaire lang={lang} />} />
-        <Route path="/login" element={<LoginPage lang={lang} />} />
+        <Route path="/login" element={<LoginPage  />} />
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard lang={lang} />
+              <Dashboard  />
             </ProtectedRoute>
           }
         />
@@ -134,7 +134,7 @@ export default function App() {
           path="/manage-options"
           element={
             <ProtectedRoute>
-              <ManageOptionsPage lang={lang} />
+              <ManageOptionsPage />
             </ProtectedRoute>
           }
         />
