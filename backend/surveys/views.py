@@ -8,6 +8,10 @@ from django.db.models import Avg, Count
 
 from .permissions import IsStaffUser
 
+class StaffOnlyPermission(permissions.IsAuthenticated):
+    def has_permission(self, request, view):
+        return super().has_permission(request, view) and request.user.is_staff
+
 
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
@@ -17,26 +21,65 @@ class MeView(APIView):
         return Response(serializer.data)
     
 
-class HotelListView(generics.ListAPIView):
+class HotelListCreateView(generics.ListCreateAPIView):
     queryset = Hotel.objects.all().order_by("name")
     serializer_class = HotelSerializer
 
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [StaffOnlyPermission()]
 
-class GuideListView(generics.ListAPIView):
+class HotelDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Hotel.objects.all()
+    serializer_class = HotelSerializer
+    permission_classes = [StaffOnlyPermission]
+
+
+class GuideListCreateView(generics.ListCreateAPIView):
     queryset = Guide.objects.all().order_by("name")
     serializer_class = GuideSerializer
 
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [StaffOnlyPermission()]
 
-class ExcursionListView(generics.ListAPIView):
+class GuideDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Guide.objects.all()
+    serializer_class = GuideSerializer
+    permission_classes = [StaffOnlyPermission]
+
+class ExcursionListCreateView(generics.ListCreateAPIView):
     queryset = Excursion.objects.all().order_by("name")
     serializer_class = ExcursionSerializer
 
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [StaffOnlyPermission()]
 
-class TourOperatorListView(generics.ListAPIView):
+class ExcursionDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Excursion.objects.all()
+    serializer_class = ExcursionSerializer
+    permission_classes = [StaffOnlyPermission]
+
+
+class TourOperatorListCreateView(generics.ListCreateAPIView):
     queryset = TourOperator.objects.all().order_by("name")
     serializer_class = TourOperatorSerializer
 
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return []
+        return [StaffOnlyPermission()]
 
+
+class TourOperatorDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TourOperator.objects.all()
+    serializer_class = TourOperatorSerializer
+    permission_classes = [StaffOnlyPermission]
+    
 class SurveyCreateView(generics.CreateAPIView):
     queryset = Survey.objects.all()
     serializer_class = SurveySerializer

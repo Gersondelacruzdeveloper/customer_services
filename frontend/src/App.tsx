@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useEffect, useState } from "react";
+import ManageOptionsPage from "./pages/ManageOptionsPage";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -26,26 +27,32 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50">
-      {/* NAVBAR */}
       <nav className="border-b bg-white/80 backdrop-blur shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          {/* LEFT */}
           <div className="flex items-center gap-6">
             <Link to="/" className="text-lg font-bold text-slate-900">
               Survey Form
             </Link>
 
             {isLoggedIn && (
-              <Link
-                to="/dashboard"
-                className="text-sm font-semibold text-slate-700 hover:text-black"
-              >
-                Dashboard
-              </Link>
+              <>
+                <Link
+                  to="/dashboard"
+                  className="text-sm font-semibold text-slate-700 hover:text-black"
+                >
+                  Dashboard
+                </Link>
+
+                <Link
+                  to="/manage-options"
+                  className="text-sm font-semibold text-slate-700 hover:text-black"
+                >
+                  Manage Options
+                </Link>
+              </>
             )}
           </div>
 
-          {/* RIGHT */}
           <div className="flex items-center gap-3">
             {!isLoggedIn ? (
               <Link
@@ -66,7 +73,6 @@ export default function App() {
         </div>
       </nav>
 
-      {/* ROUTES */}
       <Routes>
         <Route path="/" element={<SatisfactionQuestionnaire />} />
         <Route path="/login" element={<LoginPage />} />
@@ -75,6 +81,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/manage-options"
+          element={
+            <ProtectedRoute>
+              <ManageOptionsPage />
             </ProtectedRoute>
           }
         />

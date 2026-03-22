@@ -1,7 +1,7 @@
 const API_BASE =
   (import.meta as ImportMeta & { env: { VITE_API_URL?: string } }).env.VITE_API_URL ||
   "https://ecoadventures-backend-a5a2f60ff421.herokuapp.com/api";
-  
+
 type LoginResponse = {
   access: string;
   refresh: string;
@@ -50,6 +50,30 @@ export type DashboardStats = {
   }[];
 };
 
+type MeResponse = {
+  id: number;
+  username: string;
+  email: string;
+  is_staff: boolean;
+  is_superuser: boolean;
+};
+
+type SurveyPayload = {
+  excursion: number | null;
+  hotel: number | null;
+  date: string;
+  participants: number;
+  client_name: string;
+  room_no: string;
+  tour_operator: number | null;
+  guide: number | null;
+  punctuality: number;
+  transport: number;
+  guide_rating: number;
+  food: number;
+  comments: string;
+};
+
 async function handleJson<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const text = await res.text();
@@ -58,6 +82,21 @@ async function handleJson<T>(res: Response): Promise<T> {
 
   return res.json();
 }
+
+function authHeaders(token: string) {
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+function bearerHeader(token: string) {
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+/* -------------------- Auth -------------------- */
 
 export async function login(username: string, password: string) {
   const res = await fetch(`${API_BASE}/token/`, {
@@ -73,55 +112,133 @@ export async function login(username: string, password: string) {
 
 export async function getMe(token: string) {
   const res = await fetch(`${API_BASE}/me/`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: bearerHeader(token),
   });
 
-  return handleJson<{
-    id: number;
-    username: string;
-    email: string;
-    is_staff: boolean;
-    is_superuser: boolean;
-  }>(res);
+  return handleJson<MeResponse>(res);
 }
 
-export async function getHotels() {
-  const res = await fetch(`${API_BASE}/hotels/`);
+/* -------------------- Generic CRUD helpers -------------------- */
+
+async function listOptions(resource: string) {
+  const res = await fetch(`${API_BASE}/${resource}/`);
   return handleJson<OptionItem[]>(res);
+}
+
+async function createOption(resource: string, name: string, token: string) {
+  const res = await fetch(`${API_BASE}/${resource}/`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: JSON.stringify({ name }),
+  });
+
+  return handleJson<OptionItem>(res);
+}
+
+async function updateOption(
+  resource: string,
+  id: number,
+  name: string,
+  token: string
+) {
+  const res = await fetch(`${API_BASE}/${resource}/${id}/`, {
+    method: "PATCH",
+    headers: authHeaders(token),
+    body: JSON.stringify({ name }),
+  });
+
+  return handleJson<OptionItem>(res);
+}
+
+async function deleteOption(resource: string, id: number, token: string) {
+  const res = await fetch(`${API_BASE}/${resource}/${id}/`, {
+    method: "DELETE",
+    headers: bearerHeader(token),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || "Delete failed");
+  }
+}
+
+/* -------------------- Public lists -------------------- */
+
+export async function getHotels() {
+  return listOptions("hotels");
 }
 
 export async function getGuides() {
-  const res = await fetch(`${API_BASE}/guides/`);
-  return handleJson<OptionItem[]>(res);
+  return listOptions("guides");
 }
 
 export async function getExcursions() {
-  const res = await fetch(`${API_BASE}/excursions/`);
-  return handleJson<OptionItem[]>(res);
+  return listOptions("excursions");
 }
 
 export async function getOperators() {
-  const res = await fetch(`${API_BASE}/operators/`);
-  return handleJson<OptionItem[]>(res);
+  return listOptions("operators");
 }
 
-export async function submitSurvey(payload: {
-  excursion: number | null;
-  hotel: number | null;
-  date: string;
-  participants: number;
-  client_name: string;
-  room_no: string;
-  tour_operator: number | null;
-  guide: number | null;
-  punctuality: number;
-  transport: number;
-  guide_rating: number;
-  food: number;
-  comments: string;
-}) {
+/* -------------------- Hotels CRUD -------------------- */
+
+export async function createHotel(name: string, token: string) {
+  return createOption("hotels", name, token);
+}
+
+export async function updateHotel(id: number, name: string, token: string) {
+  return updateOption("hotels", id, name, token);
+}
+
+export async function deleteHotel(id: number, token: string) {
+  return deleteOption("hotels", id, token);
+}
+
+/* -------------------- Guides CRUD -------------------- */
+
+export async function createGuide(name: string, token: string) {
+  return createOption("guides", name, token);
+}
+
+export async function updateGuide(id: number, name: string, token: string) {
+  return updateOption("guides", id, name, token);
+}
+
+export async function deleteGuide(id: number, token: string) {
+  return deleteOption("guides", id, token);
+}
+
+/* -------------------- Excursions CRUD -------------------- */
+
+export async function createExcursion(name: string, token: string) {
+  return createOption("excursions", name, token);
+}
+
+export async function updateExcursion(id: number, name: string, token: string) {
+  return updateOption("excursions", id, name, token);
+}
+
+export async function deleteExcursion(id: number, token: string) {
+  return deleteOption("excursions", id, token);
+}
+
+/* -------------------- Operators CRUD -------------------- */
+
+export async function createOperator(name: string, token: string) {
+  return createOption("operators", name, token);
+}
+
+export async function updateOperator(id: number, name: string, token: string) {
+  return updateOption("operators", id, name, token);
+}
+
+export async function deleteOperator(id: number, token: string) {
+  return deleteOption("operators", id, token);
+}
+
+/* -------------------- Surveys -------------------- */
+
+export async function submitSurvey(payload: SurveyPayload) {
   const res = await fetch(`${API_BASE}/surveys/`, {
     method: "POST",
     headers: {
@@ -140,11 +257,11 @@ export async function submitSurvey(payload: {
   return data;
 }
 
+/* -------------------- Dashboard -------------------- */
+
 export async function getDashboardStats(token: string) {
   const res = await fetch(`${API_BASE}/dashboard-stats/`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: bearerHeader(token),
   });
 
   return handleJson<DashboardStats>(res);
