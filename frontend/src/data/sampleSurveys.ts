@@ -1,3 +1,4 @@
+import "../types/types";
 export type SurveyRecord = {
   id: string;
   excursion: string;

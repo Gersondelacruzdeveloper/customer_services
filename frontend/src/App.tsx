@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ManageOptionsPage from "./pages/ManageOptionsPage";
+import OperationsDashboard from "./pages/OperationsDashboard";
 import { getDeviceLanguage, getText } from "./lib/i18n";
 import type { SupportedLanguage } from "./lib/translations";
 
@@ -75,6 +76,13 @@ export default function App() {
                   {t.dashboard}
                 </Link>
 
+                  <Link
+                  to="/questionnaire"
+                  className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
+                >
+                 Questionario
+                </Link>
+
                 <Link
                   to="/manage-options"
                   className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
@@ -120,9 +128,17 @@ export default function App() {
       </nav>
 
       <Routes>
-        <Route path="/" element={<SatisfactionQuestionnaire lang={lang} />} />
+        <Route path="/questionnaire" element={<SatisfactionQuestionnaire lang={lang} />} />
         <Route path="/login" element={<LoginPage  />} />
         <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <OperationsDashboard  />
+            </ProtectedRoute>
+          }
+        />
+          <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
