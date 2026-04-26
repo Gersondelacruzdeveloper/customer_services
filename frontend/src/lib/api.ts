@@ -1,78 +1,29 @@
 const API_BASE =
   (import.meta as ImportMeta & { env: { VITE_API_URL?: string } }).env.VITE_API_URL ||
   "https://ecoadventures-backend-a5a2f60ff421.herokuapp.com/api";
+import type { Excursion, Hotel, Reservation } from "../types/types";
+import axios from "axios";
+import type { SurveyPayload, DashboardStats, MeResponse, LoginResponse, OptionItem} from "../types/types";
 
-type LoginResponse = {
-  access: string;
-  refresh: string;
-};
 
-export type OptionItem = {
-  id: number;
-  name: string;
-};
+export const api = axios.create({
+  baseURL: API_BASE,
+});
 
-export type DashboardStats = {
-  totalSurveys: number;
-  totalParticipants: number;
-  categoryAverages: {
-    punctuality: number;
-    transport: number;
-    guide: number;
-    food: number;
-  };
-  guidePerformance: {
-    name: string;
-    score: number;
-    total: number;
-  }[];
-  hotelCounts: {
-    name: string;
-    value: number;
-  }[];
-  excursionCounts: {
-    name: string;
-    value: number;
-  }[];
-  happiestGuide: {
-    name: string;
-    score: number;
-    total: number;
-  } | null;
-  topHotel: {
-    name: string;
-    value: number;
-  } | null;
-  comments: {
-    comments: string;
-    client_name: string;
-    hotel: string;
-  }[];
-};
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
 
-type MeResponse = {
-  id: number;
-  username: string;
-  email: string;
-  is_staff: boolean;
-  is_superuser: boolean;
-};
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-type SurveyPayload = {
-  excursion: number | null;
-  hotel: number | null;
-  date: string;
-  participants: number;
-  client_name: string;
-  room_no: string;
-  tour_operator: number | null;
-  guide: number | null;
-  punctuality: number;
-  transport: number;
-  guide_rating: number;
-  food: number;
-  comments: string;
-};
+  return config;
+});
+function extractData<T>(data: any): T[] {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.results)) return data.results;
+  return [];
+}
 
 async function handleJson<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -164,16 +115,18 @@ async function deleteOption(resource: string, id: number, token: string) {
 
 /* -------------------- Public lists -------------------- */
 
-export async function getHotels() {
-  return listOptions("hotels");
+export async function getHotels(): Promise<Hotel[]> {
+  const res = await axios.get<Hotel[]>(`${API_BASE}/hotels/`);
+  return res.data;
 }
-
 export async function getGuides() {
   return listOptions("guides");
 }
 
-export async function getExcursions() {
-  return listOptions("excursions");
+
+export async function getExcursions(): Promise<Excursion[]> {
+  const res = await axios.get<Excursion[]>(`${API_BASE}/excursions/`);
+  return res.data;
 }
 
 export async function getOperators() {
@@ -265,4 +218,155 @@ export async function getDashboardStats(token: string) {
   });
 
   return handleJson<DashboardStats>(res);
+}
+
+/* -------------------- Reservations CRUD -------------------- */
+
+export async function getReservations() {
+  const res = await axios.get<Reservation[]>(`${API_BASE}/reservations`);
+  return res.data;
+}
+
+export async function createReservation(data: Reservation) {
+  const payload = {
+    ...data,
+    pickup_time: data.pickup_time || null,
+    notes: data.notes || "",
+  };
+
+  const res = await axios.post(`${API_BASE}/reservations/reservations/`, payload);
+  return res.data;
+}
+
+
+
+export async function updateReservation(id: number, data: Partial<Reservation>) {
+  const res = await axios.patch<Reservation>(`${API_BASE}/reservations/${id}/`, data);
+  return res.data;
+}
+
+export async function deleteReservation(id: number) {
+  await axios.delete(`${API_BASE}/reservations/${id}/`);
+}
+
+/* --------------------Add CRUD helpers for  Zones -------------------- */
+export async function getZones() {
+  const res = await axios.get(`${API_BASE}/reservations/zones/`);
+  return extractData(res.data);
+}
+
+export async function createZone(payload: any) {
+  const res = await axios.post(`${API_BASE}/reservations/zones/`, payload);
+  return res.data;
+}
+
+export async function updateZone(id: number, payload: any) {
+  const res = await axios.put(`${API_BASE}/reservations/zones/${id}/`, payload);
+  return res.data;
+}
+
+export async function deleteZone(id: number) {
+  await axios.delete(`${API_BASE}/reservations/zones/${id}/`);
+}
+/* --------------------Add CRUD helpers for  PickupTimes -------------------- */
+
+export async function getPickupTimes() {
+  const res = await axios.get(`${API_BASE}/reservations/pickup-times/`);
+  return extractData(res.data);
+}
+
+export async function createPickupTime(payload: any) {
+  const res = await axios.post(`${API_BASE}/reservations/pickup-times/`, payload);
+  return res.data;
+}
+
+export async function updatePickupTime(id: number, payload: any) {
+  const res = await axios.put(`${API_BASE}/reservations/pickup-times/${id}/`, payload);
+  return res.data;
+}
+
+export async function deletePickupTime(id: number) {
+  await axios.delete(`${API_BASE}/reservations/pickup-times/${id}/`);
+}
+
+/* --------------------Add CRUD helpers for  Hotels -------------------- */
+
+export async function getRHotels() {
+  const res = await axios.get(`${API_BASE}/reservations/hotels/`);
+  return extractData(res.data);
+}
+
+export async function createRHotel(payload: any) {
+  const res = await axios.post(`${API_BASE}/reservations/hotels/`, payload);
+  return res.data;
+}
+
+export async function updateRHotel(id: number, payload: any) {
+  const res = await axios.put(`${API_BASE}/reservations/hotels/${id}/`, payload);
+  return res.data;
+}
+
+export async function deleteRHotel(id: number) {
+  await axios.delete(`${API_BASE}/reservations/hotels/${id}/`);
+}
+/* --------------------Add CRUD helpers for Excursions -------------------- */
+
+
+export async function getRExcursions() {
+  const res = await axios.get(`${API_BASE}/reservations/excursions/`);
+  return extractData(res.data);
+}
+
+export async function createRExcursion(payload: any) {
+  const res = await axios.post(`${API_BASE}/reservations/excursions/`, payload);
+  return res.data;
+}
+
+export async function updateRExcursion(id: number, payload: any) {
+  const res = await axios.put(`${API_BASE}/reservations/excursions/${id}/`, payload);
+  return res.data;
+}
+
+export async function deleteRExcursion(id: number) {
+  await axios.delete(`${API_BASE}/reservations/excursions/${id}/`);
+}
+/* --------------------Add CRUD helpers for Providers -------------------- */
+
+export async function getProviders() {
+  const res = await axios.get(`${API_BASE}/reservations/providers/`);
+  return extractData(res.data);
+}
+
+export async function createProvider(payload: any) {
+  const res = await axios.post(`${API_BASE}/reservations/providers/`, payload);
+  return res.data;
+}
+
+export async function updateProvider(id: number, payload: any) {
+  const res = await axios.put(`${API_BASE}/reservations/providers/${id}/`, payload);
+  return res.data;
+}
+
+export async function deleteProvider(id: number) {
+  await axios.delete(`${API_BASE}/reservations/providers/${id}/`);
+}
+/* --------------------Add CRUD helpers for ProviderServices -------------------- */
+
+export async function getProviderServices() {
+  const res = await axios.get(`${API_BASE}/reservations/provider-services/`);
+  return extractData(res.data);
+}
+
+export async function createProviderService(payload: any) {
+  const res = await axios.post(`${API_BASE}/reservations/provider-services/`, payload);
+  return res.data;
+}
+
+export async function updateProviderService(id: number, payload: any) {
+  const res = await axios.put(`${API_BASE}/reservations/provider-services/${id}/`, payload);
+  return res.data;
+}
+
+export async function deleteProviderService(id: number) {
+  await axios.delete(`${API_BASE}/reservations/provider-services/${id}/`);
 }

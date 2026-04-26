@@ -57,3 +57,18 @@ export function recommendedGuideForLanguages(groupLanguages: LanguageCode[], gui
 }
 
 
+export function formatCaribbeanTime(time?: string) {
+  if (!time) return "";
+
+  const [hours, minutes] = time.split(":").map(Number);
+
+  const date = new Date();
+  date.setHours(hours);
+  date.setMinutes(minutes);
+
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}

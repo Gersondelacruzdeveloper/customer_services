@@ -37,6 +37,12 @@ import { getExcursionById, getHotelById, getVehicleById, getGuideById, getProvid
 import type {Hotel } from "../types/types";
 import DashboardCard from "../components/DashboardCard";
 import { ReservationsView } from "@/components/ReservationsView";
+import { ZonesView } from "@/components/ZonesView";
+import { PickupTimesView } from "@/components/PickupTimesView";
+import { HotelsView } from "@/components/HotelsView";
+import { ExcursionsView } from "@/components/ExcursionsView";
+import { ProvidersView } from "@/components/ProvidersView";
+import { ProviderServicesView } from "@/components/ProviderServicesView";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -318,85 +324,6 @@ function DashboardView() {
 
 <ReservationsView/>
 
-function ExcursionsView() {
-  return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <div className="grid gap-6 lg:grid-cols-2">
-        {excursions.map((excursion) => (
-          <div key={excursion.id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-900">{excursion.name}</h3>
-                <p className="mt-1 text-sm text-slate-500">Default departure: {excursion.defaultStartTime}</p>
-                <p className="text-sm text-slate-500">Meeting point: {excursion.meetingPoint}</p>
-              </div>
-              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">Active</span>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Provider prices</p>
-              {excursion.providerOptions.map((option:any) => (
-                <div key={option.providerId} className="flex items-center justify-between rounded-2xl bg-slate-50 p-3">
-                  <div>
-                    <p className="font-medium text-slate-900">{getProviderName(option.providerId, providers)}</p>
-                    <p className="text-sm text-slate-500">Selectable override allowed per reservation</p>
-                  </div>
-                  <p className="font-semibold text-slate-900">{option.defaultPrice > 0 ? currency.format(option.defaultPrice) : "Transport only"}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ProvidersView() {
-  return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <div className="grid gap-6 xl:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900">Providers</h3>
-          <p className="text-sm text-slate-500">Boats, transport suppliers, support drivers, and activity vendors.</p>
-          <div className="mt-4 space-y-3">
-            {providers.map((provider) => (
-              <div key={provider.id} className="flex items-center justify-between rounded-2xl border border-slate-200 p-3">
-                <div>
-                  <p className="font-medium text-slate-900">{provider.name}</p>
-                  <p className="text-sm capitalize text-slate-500">{provider.type.replace("_", " ")}</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-slate-400" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900">Recommendation</h3>
-          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            Keep prices in a separate table per provider + excursion + date range. That lets you keep history when deals change.
-          </div>
-          <div className="mt-4 rounded-2xl border border-slate-200 p-4 text-sm text-slate-600">
-            Example entity: <span className="font-semibold text-slate-900">provider_excursion_rates.json</span>
-            <pre className="mt-3 overflow-x-auto rounded-xl bg-slate-950 p-3 text-xs text-slate-100">{`[
-  {
-    "id": "rate_1",
-    "providerId": "p1",
-    "excursionId": "ex1",
-    "price": 42,
-    "currency": "USD",
-    "validFrom": "2026-04-01",
-    "validTo": null,
-    "isDefault": true
-  }
-]`}</pre>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function TransportView() {
   const selectedDate = "2026-04-21";
@@ -631,12 +558,20 @@ export default function EcoAdventuresOperationsDashboard() {
     switch (active) {
       case "dashboard":
         return <DashboardView />;
+     case "zones":
+        return <ZonesView />;
+    case "pickup_times":
+        return <PickupTimesView />;
+    case "hotels":
+        return <HotelsView />;
       case "reservations":
         return <ReservationsView />;
       case "excursions":
         return <ExcursionsView />;
       case "providers":
         return <ProvidersView />;
+      case "provider_services":
+        return <ProviderServicesView />;
       case "transport":
         return <TransportView />;
       case "guides":

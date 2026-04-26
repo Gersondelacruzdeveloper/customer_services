@@ -1,0 +1,136 @@
+from rest_framework import serializers
+from .models import (
+    Zone,
+    Provider,
+    ProviderService,
+    Hotel,
+    Excursion,
+    PickupTime,
+    Agency,
+    Reservation,
+    ReservationCost,
+    ProviderPayment,
+    AgencyPayment,
+)
+
+class ZoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Zone
+        fields = "__all__"
+
+
+class ProviderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Provider
+        fields = "__all__"
+
+class ProviderServiceSerializer(serializers.ModelSerializer):
+    provider_name = serializers.CharField(source="provider.name", read_only=True)
+
+    class Meta:
+        model = ProviderService
+        fields = "__all__"
+
+
+class HotelSerializer(serializers.ModelSerializer):
+    zone_name = serializers.CharField(source="zone.name", read_only=True)
+
+    class Meta:
+        model = Hotel
+        fields = "__all__"
+
+
+class ExcursionSerializer(serializers.ModelSerializer):
+    default_provider_name = serializers.CharField(
+        source="default_provider.name",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Excursion
+        fields = "__all__"
+
+class PickupTimeSerializer(serializers.ModelSerializer):
+    excursion_name = serializers.CharField(source="excursion.name", read_only=True)
+    hotel_name = serializers.CharField(source="hotel.name", read_only=True)
+    zone_name = serializers.CharField(source="zone.name", read_only=True)
+
+    class Meta:
+        model = PickupTime
+        fields = "__all__"
+
+class AgencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Agency
+        fields = "__all__"
+
+
+class ReservationSerializer(serializers.ModelSerializer):
+    excursion_name = serializers.CharField(source="excursion.name", read_only=True)
+    hotel_name = serializers.CharField(source="hotel.name", read_only=True)
+    agency_name = serializers.CharField(source="agency.name", read_only=True)
+
+    excursion_id = serializers.PrimaryKeyRelatedField(
+        source="excursion",
+        queryset=Excursion.objects.all(),
+        write_only=True,
+    )
+
+    hotel_id = serializers.PrimaryKeyRelatedField(
+        source="hotel",
+        queryset=Hotel.objects.all(),
+        write_only=True,
+    )
+
+    agency_id = serializers.PrimaryKeyRelatedField(
+        source="agency",
+        queryset=Agency.objects.all(),
+        required=False,
+        allow_null=True,
+        write_only=True,
+    )
+
+    total_pax = serializers.ReadOnlyField()
+    balance_due = serializers.ReadOnlyField()
+    agency_balance = serializers.ReadOnlyField()
+    total_costs = serializers.ReadOnlyField()
+    profit = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Reservation
+        fields = "__all__"
+
+        
+
+class ReservationCostSerializer(serializers.ModelSerializer):
+    reservation_locator = serializers.CharField(
+        source="reservation.locator",
+        read_only=True,
+    )
+    provider_service_name = serializers.CharField(
+        source="provider_service.name",
+        read_only=True,
+    )
+    provider_name = serializers.CharField(source="provider.name", read_only=True)
+    balance_due = serializers.ReadOnlyField()
+
+    class Meta:
+        model = ReservationCost
+        fields = "__all__"
+
+
+class ProviderPaymentSerializer(serializers.ModelSerializer):
+    provider_name = serializers.CharField(source="provider.name", read_only=True)
+
+    class Meta:
+        model = ProviderPayment
+        fields = "__all__"
+
+
+
+class AgencyPaymentSerializer(serializers.ModelSerializer):
+    agency_name = serializers.CharField(source="agency.name", read_only=True)
+
+    class Meta:
+        model = AgencyPayment
+        fields = "__all__"

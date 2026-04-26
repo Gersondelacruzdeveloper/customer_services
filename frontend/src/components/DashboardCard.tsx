@@ -17,7 +17,7 @@ export default function DashboardCard({
           <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">{value}</p>
           <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
         </div>
-        <div className="rounded-2xl bg-slate-100 p-3">
+        <div className="rounded-2xl bg-slate-100 p-3">  
           <Icon className="h-5 w-5 text-slate-700" />
         </div>
       </div>
