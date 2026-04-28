@@ -1,139 +1,103 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  createPickupTime,
-  deletePickupTime,
-  getPickupTimes,
-  getRExcursions,
-  getRHotels,
-  updatePickupTime,
+  createAgency,
+  deleteAgency,
+  getAgencies,
+  updateAgency,
 } from "../lib/api";
-import type { Excursion, Hotel, PickupTime } from "@/types/types";
-import { formatCaribbeanTime } from "../lib/utils";
 
-const emptyForm: PickupTime = {
-  excursion: 0,
-  hotel: 0,
-  zone: null,
-  time: "",
-  notes: "",
+type Agency = {
+  id?: number;
+  name: string;
+  contact_name: string;
+  phone: string;
+  email: string;
+  notes: string;
+  is_active: boolean;
 };
 
-export function PickupTimesView() {
-  const [pickupTimes, setPickupTimes] = useState<PickupTime[]>([]);
-  const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [excursions, setExcursions] = useState<Excursion[]>([]);
-  const [form, setForm] = useState<PickupTime>(emptyForm);
+const emptyForm: Agency = {
+  name: "",
+  contact_name: "",
+  phone: "",
+  email: "",
+  notes: "",
+  is_active: true,
+};
+
+export function AgenciesView() {
+  const [agencies, setAgencies] = useState<Agency[]>([]);
+  const [form, setForm] = useState<Agency>(emptyForm);
   const [query, setQuery] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadInitialData();
+    loadAgencies();
   }, []);
 
-  async function loadInitialData() {
+  async function loadAgencies() {
     try {
       setLoading(true);
-
-      const [pickupData, hotelsData, excursionsData] = await Promise.all([
-        getPickupTimes(),
-        getRHotels(),
-        getRExcursions(),
-      ]);
-
-      setPickupTimes(pickupData);
-      setHotels(hotelsData);
-      setExcursions(excursionsData);
-
-      setForm((prev) => ({
-        ...prev,
-        hotel: hotelsData[0]?.id ?? 0,
-        excursion: excursionsData[0]?.id ?? 0,
-      }));
+      const data = await getAgencies();
+      setAgencies(data);
     } catch (error) {
-      console.error("Error loading pickup times:", error);
-      setPickupTimes([]);
+      console.error("Error loading agencies:", error);
+      setAgencies([]);
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadPickupTimes() {
-    try {
-      const data = await getPickupTimes();
-      setPickupTimes(data);
-    } catch (error) {
-      console.error("Error loading pickup times:", error);
-      setPickupTimes([]);
-    }
-  }
-
-  const getHotelName = (id: number) => {
-    return hotels.find((hotel) => hotel.id === id)?.name ?? "";
-  };
-
-  const getExcursionName = (id: number) => {
-    return excursions.find((excursion) => excursion.id === id)?.name ?? "";
-  };
-
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
-    if (!q) return pickupTimes;
+    if (!q) return agencies;
 
-    return pickupTimes.filter((item) =>
+    return agencies.filter((agency) =>
       [
-        item.excursion_name,
-        item.hotel_name,
-        item.zone_name,
-        item.notes,
-        item.time,
-        getExcursionName(item.excursion),
-        getHotelName(item.hotel),
+        agency.name,
+        agency.contact_name,
+        agency.phone,
+        agency.email,
+        agency.notes,
       ]
         .join(" ")
         .toLowerCase()
         .includes(q)
     );
-  }, [query, pickupTimes, hotels, excursions]);
+  }, [query, agencies]);
 
   function openCreateForm() {
-    setForm({
-      ...emptyForm,
-      hotel: hotels[0]?.id ?? 0,
-      excursion: excursions[0]?.id ?? 0,
-    });
+    setForm(emptyForm);
     setEditingId(null);
     setShowForm(true);
   }
 
-  function openEditForm(item: PickupTime) {
+  function openEditForm(agency: Agency) {
     setForm({
-      id: item.id,
-      excursion: item.excursion,
-      hotel: item.hotel,
-      zone: item.zone ?? null,
-      time: item.time?.slice(0, 5) ?? "",
-      notes: item.notes ?? "",
+      id: agency.id,
+      name: agency.name,
+      contact_name: agency.contact_name ?? "",
+      phone: agency.phone ?? "",
+      email: agency.email ?? "",
+      notes: agency.notes ?? "",
+      is_active: agency.is_active ?? true,
     });
 
-    setEditingId(item.id ?? null);
+    setEditingId(agency.id ?? null);
     setShowForm(true);
   }
 
   function closeForm() {
-    setForm({
-      ...emptyForm,
-      hotel: hotels[0]?.id ?? 0,
-      excursion: excursions[0]?.id ?? 0,
-    });
+    setForm(emptyForm);
     setEditingId(null);
     setShowForm(false);
   }
 
-  function updateFormField<K extends keyof PickupTime>(
+  function updateFormField<K extends keyof Agency>(
     field: K,
-    value: PickupTime[K]
+    value: Agency[K]
   ) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
@@ -142,24 +106,25 @@ export function PickupTimesView() {
     e.preventDefault();
 
     const payload = {
-      excursion: Number(form.excursion),
-      hotel: Number(form.hotel),
-      zone: form.zone || null,
-      time: form.time,
+      name: form.name,
+      contact_name: form.contact_name || "",
+      phone: form.phone || "",
+      email: form.email || "",
       notes: form.notes || "",
+      is_active: form.is_active,
     };
 
     try {
       if (editingId) {
-        await updatePickupTime(editingId, payload);
+        await updateAgency(editingId, payload);
       } else {
-        await createPickupTime(payload);
+        await createAgency(payload);
       }
 
-      await loadPickupTimes();
+      await loadAgencies();
       closeForm();
     } catch (error: any) {
-      console.error("Error saving pickup time:", error.response?.data ?? error);
+      console.error("Error saving agency:", error.response?.data ?? error);
     }
   }
 
@@ -167,16 +132,16 @@ export function PickupTimesView() {
     if (!id) return;
 
     const confirmed = window.confirm(
-      "Are you sure you want to delete this pickup time?"
+      "Are you sure you want to delete this agency?"
     );
 
     if (!confirmed) return;
 
     try {
-      await deletePickupTime(id);
-      setPickupTimes((prev) => prev.filter((item) => item.id !== id));
+      await deleteAgency(id);
+      setAgencies((prev) => prev.filter((agency) => agency.id !== id));
     } catch (error: any) {
-      console.error("Error deleting pickup time:", error.response?.data ?? error);
+      console.error("Error deleting agency:", error.response?.data ?? error);
     }
   }
 
@@ -185,12 +150,10 @@ export function PickupTimesView() {
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">
-              Pickup Times
-            </h3>
+            <h3 className="text-lg font-semibold text-slate-900">Agencies</h3>
 
             <p className="text-sm text-slate-500">
-              Manage pickup times by excursion and hotel.
+              Manage agencies, partners, contacts and referral sources.
             </p>
           </div>
 
@@ -198,15 +161,16 @@ export function PickupTimesView() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search pickup times..."
+              placeholder="Search agencies..."
               className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
             />
 
             <button
+              type="button"
               onClick={openCreateForm}
               className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
             >
-              Add pickup time
+              Add agency
             </button>
           </div>
         </div>
@@ -218,7 +182,7 @@ export function PickupTimesView() {
           >
             <div className="mb-4 flex items-center justify-between">
               <h4 className="font-semibold text-slate-900">
-                {editingId ? "Edit pickup time" : "Add pickup time"}
+                {editingId ? "Edit agency" : "Add agency"}
               </h4>
 
               <button
@@ -230,50 +194,56 @@ export function PickupTimesView() {
               </button>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <select
-                value={form.excursion}
-                onChange={(e) =>
-                  updateFormField("excursion", Number(e.target.value))
-                }
-                required
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              >
-                {excursions.map((excursion) => (
-                  <option key={excursion.id} value={excursion.id}>
-                    {excursion.name}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={form.hotel}
-                onChange={(e) =>
-                  updateFormField("hotel", Number(e.target.value))
-                }
-                required
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              >
-                {hotels.map((hotel) => (
-                  <option key={hotel.id} value={hotel.id}>
-                    {hotel.name}
-                  </option>
-                ))}
-              </select>
-
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <input
-                type="time"
-                value={form.time}
-                onChange={(e) => updateFormField("time", e.target.value)}
+                value={form.name}
+                onChange={(e) => updateFormField("name", e.target.value)}
+                placeholder="Agency name"
                 required
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
 
               <input
+                value={form.contact_name}
+                onChange={(e) =>
+                  updateFormField("contact_name", e.target.value)
+                }
+                placeholder="Contact name"
+                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+              />
+
+              <input
+                value={form.phone}
+                onChange={(e) => updateFormField("phone", e.target.value)}
+                placeholder="Phone"
+                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+              />
+
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => updateFormField("email", e.target.value)}
+                placeholder="Email"
+                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+              />
+
+              <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={form.is_active}
+                  onChange={(e) =>
+                    updateFormField("is_active", e.target.checked)
+                  }
+                />
+                Active agency
+              </label>
+
+              <textarea
                 value={form.notes}
                 onChange={(e) => updateFormField("notes", e.target.value)}
                 placeholder="Notes"
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                rows={3}
+                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm md:col-span-2 lg:col-span-3"
               />
             </div>
 
@@ -290,7 +260,7 @@ export function PickupTimesView() {
                 type="submit"
                 className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
               >
-                {editingId ? "Update pickup time" : "Create pickup time"}
+                {editingId ? "Update agency" : "Create agency"}
               </button>
             </div>
           </form>
@@ -299,54 +269,64 @@ export function PickupTimesView() {
         <div className="mt-5 overflow-x-auto">
           {loading ? (
             <p className="py-6 text-sm text-slate-500">
-              Loading pickup times...
+              Loading agencies...
             </p>
           ) : (
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500">
-                  <th className="py-3 pr-4 font-medium">Excursion</th>
-                  <th className="py-3 pr-4 font-medium">Hotel</th>
-                  <th className="py-3 pr-4 font-medium">Zone</th>
-                  <th className="py-3 pr-4 font-medium">Time</th>
-                  <th className="py-3 pr-4 font-medium">Notes</th>
+                  <th className="py-3 pr-4 font-medium">Agency</th>
+                  <th className="py-3 pr-4 font-medium">Contact</th>
+                  <th className="py-3 pr-4 font-medium">Phone</th>
+                  <th className="py-3 pr-4 font-medium">Email</th>
+                  <th className="py-3 pr-4 font-medium">Status</th>
                   <th className="py-3 pr-4 font-medium">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                {filtered.map((item) => (
+                {filtered.map((agency) => (
                   <tr
-                    key={item.id}
+                    key={agency.id}
                     className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
                   >
                     <td className="py-3 pr-4 font-semibold text-slate-900">
-                      {item.excursion_name || getExcursionName(item.excursion)}
+                      {agency.name}
                     </td>
 
                     <td className="py-3 pr-4">
-                      {item.hotel_name || getHotelName(item.hotel)}
+                      {agency.contact_name || "-"}
                     </td>
 
-                    <td className="py-3 pr-4">{item.zone_name || "-"}</td>
+                    <td className="py-3 pr-4">{agency.phone || "-"}</td>
 
-                    <td className="py-3 pr-4 font-semibold">
-                      {formatCaribbeanTime(item.time)}
+                    <td className="py-3 pr-4">{agency.email || "-"}</td>
+
+                    <td className="py-3 pr-4">
+                      <span
+                        className={
+                          agency.is_active
+                            ? "rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                            : "rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
+                        }
+                      >
+                        {agency.is_active ? "Active" : "Inactive"}
+                      </span>
                     </td>
-
-                    <td className="py-3 pr-4">{item.notes || "-"}</td>
 
                     <td className="py-3 pr-4">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => openEditForm(item)}
+                          type="button"
+                          onClick={() => openEditForm(agency)}
                           className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                         >
                           Edit
                         </button>
 
                         <button
-                          onClick={() => handleDelete(item.id)}
+                          type="button"
+                          onClick={() => handleDelete(agency.id)}
                           className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
                         >
                           Delete
@@ -362,7 +342,7 @@ export function PickupTimesView() {
                       colSpan={6}
                       className="py-8 text-center text-sm text-slate-500"
                     >
-                      No pickup times found.
+                      No agencies found.
                     </td>
                   </tr>
                 )}

@@ -223,32 +223,23 @@ export async function getDashboardStats(token: string) {
 /* -------------------- Reservations CRUD -------------------- */
 
 export async function getReservations() {
-  const res = await axios.get<Reservation[]>(`${API_BASE}/reservations`);
+  const res = await axios.get(`${API_BASE}/reservations/reservations`);
+  return extractData(res.data);
+}
+
+export async function createReservation(payload: any) {
+  const res = await axios.post(`${API_BASE}/reservations/reservations`, payload);
   return res.data;
 }
 
-export async function createReservation(data: Reservation) {
-  const payload = {
-    ...data,
-    pickup_time: data.pickup_time || null,
-    notes: data.notes || "",
-  };
-
-  const res = await axios.post(`${API_BASE}/reservations/reservations/`, payload);
-  return res.data;
-}
-
-
-
-export async function updateReservation(id: number, data: Partial<Reservation>) {
-  const res = await axios.patch<Reservation>(`${API_BASE}/reservations/${id}/`, data);
+export async function updateReservation(id: number, payload: any) {
+  const res = await axios.put(`${API_BASE}/reservations/reservations/${id}/`, payload);
   return res.data;
 }
 
 export async function deleteReservation(id: number) {
-  await axios.delete(`${API_BASE}/reservations/${id}/`);
+  await axios.delete(`${API_BASE}/reservations/reservations/${id}/`);
 }
-
 /* --------------------Add CRUD helpers for  Zones -------------------- */
 export async function getZones() {
   const res = await axios.get(`${API_BASE}/reservations/zones/`);
@@ -369,4 +360,24 @@ export async function updateProviderService(id: number, payload: any) {
 
 export async function deleteProviderService(id: number) {
   await axios.delete(`${API_BASE}/reservations/provider-services/${id}/`);
+}
+
+/* --------------------Add CRUD helpers for Agencies -------------------- */
+export async function getAgencies() {
+  const res = await axios.get(`${API_BASE}/reservations/agencies/`);
+  return extractData(res.data);
+}
+
+export async function createAgency(payload: any) {
+  const res = await axios.post(`${API_BASE}/reservations/agencies/`, payload);
+  return res.data;
+}
+
+export async function updateAgency(id: number, payload: any) {
+  const res = await axios.put(`${API_BASE}/reservations/agencies/${id}/`, payload);
+  return res.data;
+}
+
+export async function deleteAgency(id: number) {
+  await axios.delete(`${API_BASE}/reservations/agencies/${id}/`);
 }

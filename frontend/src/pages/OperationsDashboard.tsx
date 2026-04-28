@@ -43,6 +43,7 @@ import { HotelsView } from "@/components/HotelsView";
 import { ExcursionsView } from "@/components/ExcursionsView";
 import { ProvidersView } from "@/components/ProvidersView";
 import { ProviderServicesView } from "@/components/ProviderServicesView";
+import { AgenciesView } from "@/components/AgenciesView";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -322,9 +323,6 @@ function DashboardView() {
   );
 }
 
-<ReservationsView/>
-
-
 function TransportView() {
   const selectedDate = "2026-04-21";
   const grouped = groupReservationsByExcursion(selectedDate);
@@ -580,6 +578,8 @@ export default function EcoAdventuresOperationsDashboard() {
         return <ImportsView />;
       case "costs":
         return <CostsView />;
+     case "agencies":
+        return <AgenciesView />;
       default:
         return <DashboardView />;
     }

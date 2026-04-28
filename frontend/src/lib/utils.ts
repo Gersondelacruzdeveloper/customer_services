@@ -72,3 +72,23 @@ export function formatCaribbeanTime(time?: string) {
     hour12: true,
   });
 }
+
+
+
+export function getDefaultPickupTime(excursionId?: number, hotelId?: number) {
+  if (!excursionId || !hotelId) return "";
+
+  // Example rules. Change these IDs/times to match your real data.
+  const pickupRules: Record<string, string> = {
+    // "excursionId-hotelId": "HH:MM"
+    "1-1": "07:00",
+    "1-2": "07:15",
+    "1-3": "07:30",
+
+    "2-1": "06:30",
+    "2-2": "06:45",
+    "2-3": "07:00",
+  };
+
+  return pickupRules[`${excursionId}-${hotelId}`] ?? "";
+}

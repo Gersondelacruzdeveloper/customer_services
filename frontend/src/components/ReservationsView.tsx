@@ -1,86 +1,210 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  getReservations,
-  deleteReservation,
   createReservation,
+  deleteReservation,
+  getAgencies,
+  getPickupTimes,
+  getRExcursions,
+  getRHotels,
+  getReservations,
   updateReservation,
-  getHotels,
-  getExcursions,
 } from "../lib/api";
-import { Reservation, Hotel, Excursion } from "@/types/types";
+
+type Option = {
+  id?: number;
+  name: string;
+};
+
+type Agency = {
+  id?: number;
+  name: string;
+};
+
+type PickupTime = {
+  id?: number;
+  excursion: number;
+  hotel: number;
+  zone?: number | null;
+  time: string;
+  notes?: string;
+  excursion_name?: string;
+  hotel_name?: string;
+  zone_name?: string;
+};
+
+type Reservation = {
+  id?: number;
+  locator: string;
+  lead_name: string;
+  phone: string;
+  email: string;
+
+  excursion?: number;
+  hotel?: number;
+  agency?: number | null;
+
+  excursion_id?: number;
+  hotel_id?: number;
+  agency_id?: number | null;
+
+  excursion_name?: string;
+  hotel_name?: string;
+  agency_name?: string;
+
+  service_date: string;
+  pickup_time: string | null;
+
+  adults: number;
+  children: number;
+  infants: number;
+
+  language: string;
+  status: string;
+
+  sale_price_per_person: string;
+  sale_total: string;
+  paid_amount: string;
+  currency: string;
+
+  agency_price: string;
+  agency_paid: string;
+
+  notes: string;
+  internal_notes: string;
+
+  total_pax?: number;
+  balance_due?: string;
+  agency_balance?: string;
+  profit?: string;
+};
 
 const emptyForm: Reservation = {
   locator: "",
   lead_name: "",
   phone: "",
   email: "",
+
   excursion_id: 0,
   hotel_id: 0,
+  agency_id: null,
+
   service_date: "",
   pickup_time: "",
+
   adults: 1,
   children: 0,
   infants: 0,
+
   language: "en",
   status: "pending",
+
   sale_price_per_person: "0.00",
   sale_total: "0.00",
   paid_amount: "0.00",
   currency: "USD",
+
   agency_price: "0.00",
   agency_paid: "0.00",
-  agency_id: null,
+
   notes: "",
   internal_notes: "",
 };
 
+const languages = [
+  ["en", "English"],
+  ["es", "Spanish"],
+  ["fr", "French"],
+  ["it", "Italian"],
+  ["pt", "Portuguese"],
+  ["de", "German"],
+  ["other", "Other"],
+];
+
+const statuses = [
+  ["pending", "Pending"],
+  ["confirmed", "Confirmed"],
+  ["cancelled", "Cancelled"],
+  ["completed", "Completed"],
+  ["no_show", "No show"],
+];
+
+const currencies = ["USD", "DOP", "EUR"];
+
+function formatTime(time?: string | null) {
+  if (!time) return "Auto";
+
+  const [hours, minutes] = time.split(":").map(Number);
+  const date = new Date();
+  date.setHours(hours);
+  date.setMinutes(minutes);
+
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 export function ReservationsView() {
-  const [query, setQuery] = useState("");
   const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [excursions, setExcursions] = useState<Excursion[]>([]);
+  const [excursions, setExcursions] = useState<Option[]>([]);
+  const [hotels, setHotels] = useState<Option[]>([]);
+  const [agencies, setAgencies] = useState<Agency[]>([]);
+  const [pickupTimes, setPickupTimes] = useState<PickupTime[]>([]);
+
   const [form, setForm] = useState<Reservation>(emptyForm);
+  const [query, setQuery] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pickupOverridden, setPickupOverridden] = useState(false);
 
   useEffect(() => {
     loadInitialData();
   }, []);
 
   async function loadInitialData() {
-    setLoading(true);
-
     try {
-      const [reservationsData, hotelsData, excursionsData] = await Promise.all([
+      setLoading(true);
+
+      const [
+        reservationData,
+        excursionData,
+        hotelData,
+        agencyData,
+        pickupTimeData,
+      ] = await Promise.all([
         getReservations(),
-        getHotels(),
-        getExcursions(),
+        getRExcursions(),
+        getRHotels(),
+        getAgencies(),
+        getPickupTimes(),
       ]);
 
-      const reservationList = Array.isArray(reservationsData)
-        ? reservationsData
-        : (reservationsData.results ?? []);
+      setReservations(reservationData);
+      setExcursions(excursionData);
+      setHotels(hotelData);
+      setAgencies(agencyData);
+      setPickupTimes(pickupTimeData);
 
-      const hotelList = Array.isArray(hotelsData)
-        ? hotelsData
-        : (hotelsData.results ?? []);
+      const firstExcursionId = excursionData[0]?.id ?? 0;
+      const firstHotelId = hotelData[0]?.id ?? 0;
 
-      const excursionList = Array.isArray(excursionsData)
-        ? excursionsData
-        : (excursionsData.results ?? []);
-
-      setReservations(reservationList);
-      setHotels(hotelList);
-      setExcursions(excursionList);
+      const defaultPickup = findDefaultPickupTime(
+        pickupTimeData,
+        firstExcursionId,
+        firstHotelId
+      );
 
       setForm((prev) => ({
         ...prev,
-        hotel_id: hotelList[0]?.id ?? 0,
-        excursion_id: excursionList[0]?.id ?? 0,
+        excursion_id: firstExcursionId,
+        hotel_id: firstHotelId,
+        pickup_time: defaultPickup,
       }));
     } catch (error) {
-      console.error("Error loading data:", error);
+      console.error("Error loading reservations:", error);
+      setReservations([]);
     } finally {
       setLoading(false);
     }
@@ -89,106 +213,236 @@ export function ReservationsView() {
   async function loadReservations() {
     try {
       const data = await getReservations();
-
-      if (Array.isArray(data)) {
-        setReservations(data);
-      } else {
-        setReservations(data.results ?? []);
-      }
+      setReservations(data);
     } catch (error) {
       console.error("Error loading reservations:", error);
       setReservations([]);
     }
   }
 
-  const getHotelName = (id: number) => {
-    return hotels.find((hotel) => hotel.id === id)?.name ?? "";
+  function findDefaultPickupTime(
+    list: PickupTime[],
+    excursionId?: number | null,
+    hotelId?: number | null
+  ) {
+    if (!excursionId || !hotelId) return "";
+
+    const match = list.find(
+      (item) =>
+        Number(item.excursion) === Number(excursionId) &&
+        Number(item.hotel) === Number(hotelId)
+    );
+
+    return match?.time ? match.time.slice(0, 5) : "";
+  }
+
+  const suggestedPickupTime = useMemo(() => {
+    return findDefaultPickupTime(
+      pickupTimes,
+      form.excursion_id,
+      form.hotel_id
+    );
+  }, [pickupTimes, form.excursion_id, form.hotel_id]);
+
+  useEffect(() => {
+    if (!showForm) return;
+    if (pickupOverridden) return;
+
+    setForm((prev) => ({
+      ...prev,
+      pickup_time: suggestedPickupTime || "",
+    }));
+  }, [suggestedPickupTime, showForm, pickupOverridden]);
+
+  const getExcursionName = (id?: number | null) => {
+    if (!id) return "";
+    return excursions.find((item) => item.id === id)?.name ?? "";
   };
 
-  const getExcursionName = (id: number) => {
-    return excursions.find((excursion) => excursion.id === id)?.name ?? "";
+  const getHotelName = (id?: number | null) => {
+    if (!id) return "";
+    return hotels.find((item) => item.id === id)?.name ?? "";
   };
+
+  const getAgencyName = (id?: number | null) => {
+    if (!id) return "";
+    return agencies.find((item) => item.id === id)?.name ?? "";
+  };
+
+  const totalPax =
+    Number(form.adults || 0) +
+    Number(form.children || 0) +
+    Number(form.infants || 0);
+
+  const balanceDue =
+    Number(form.sale_total || 0) - Number(form.paid_amount || 0);
+
+  const agencyBalance =
+    Number(form.agency_price || 0) - Number(form.agency_paid || 0);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
-
     if (!q) return reservations;
 
-    return reservations.filter((r) => {
-      const hotel = getHotelName(r.hotel_id);
-      const excursion = getExcursionName(r.excursion_id);
-
-      return [r.locator, r.lead_name, hotel, excursion, r.agency]
+    return reservations.filter((item) =>
+      [
+        item.locator,
+        item.lead_name,
+        item.phone,
+        item.email,
+        item.excursion_name,
+        item.hotel_name,
+        item.agency_name,
+        getExcursionName(item.excursion ?? item.excursion_id),
+        getHotelName(item.hotel ?? item.hotel_id),
+        getAgencyName(item.agency ?? item.agency_id),
+        item.status,
+        item.language,
+      ]
         .join(" ")
         .toLowerCase()
-        .includes(q);
-    });
-  }, [query, reservations, hotels, excursions]);
+        .includes(q)
+    );
+  }, [query, reservations, excursions, hotels, agencies]);
 
   function openCreateForm() {
+    const firstExcursionId = excursions[0]?.id ?? 0;
+    const firstHotelId = hotels[0]?.id ?? 0;
+
+    const defaultPickup = findDefaultPickupTime(
+      pickupTimes,
+      firstExcursionId,
+      firstHotelId
+    );
+
     setForm({
       ...emptyForm,
-      hotel_id: hotels[0]?.id ?? 0,
-      excursion_id: excursions[0]?.id ?? 0,
+      excursion_id: firstExcursionId,
+      hotel_id: firstHotelId,
+      pickup_time: defaultPickup,
     });
 
+    setPickupOverridden(false);
     setEditingId(null);
     setShowForm(true);
   }
 
   function openEditForm(item: Reservation) {
-    setForm(item);
+    setForm({
+      ...emptyForm,
+      ...item,
+      excursion_id: item.excursion ?? item.excursion_id ?? 0,
+      hotel_id: item.hotel ?? item.hotel_id ?? 0,
+      agency_id: item.agency ?? item.agency_id ?? null,
+      pickup_time: item.pickup_time ? item.pickup_time.slice(0, 5) : "",
+    });
+
+    setPickupOverridden(Boolean(item.pickup_time));
     setEditingId(item.id ?? null);
     setShowForm(true);
   }
 
   function closeForm() {
-    setShowForm(false);
-    setEditingId(null);
+    const firstExcursionId = excursions[0]?.id ?? 0;
+    const firstHotelId = hotels[0]?.id ?? 0;
+
+    const defaultPickup = findDefaultPickupTime(
+      pickupTimes,
+      firstExcursionId,
+      firstHotelId
+    );
+
     setForm({
       ...emptyForm,
-      hotel_id: hotels[0]?.id ?? 0,
-      excursion_id: excursions[0]?.id ?? 0,
+      excursion_id: firstExcursionId,
+      hotel_id: firstHotelId,
+      pickup_time: defaultPickup,
     });
+
+    setPickupOverridden(false);
+    setEditingId(null);
+    setShowForm(false);
   }
+
+  function updateFormField<K extends keyof Reservation>(
+    field: K,
+    value: Reservation[K]
+  ) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function handleExcursionChange(value: number) {
+    setPickupOverridden(false);
+
+    setForm((prev) => ({
+      ...prev,
+      excursion_id: value,
+    }));
+  }
+
+  function handleHotelChange(value: number) {
+    setPickupOverridden(false);
+
+    setForm((prev) => ({
+      ...prev,
+      hotel_id: value,
+    }));
+  }
+
+  function handlePickupTimeChange(value: string) {
+    setPickupOverridden(true);
+
+    setForm((prev) => ({
+      ...prev,
+      pickup_time: value,
+    }));
+  }
+
+  function useSuggestedPickupTime() {
+    setPickupOverridden(false);
+
+    setForm((prev) => ({
+      ...prev,
+      pickup_time: suggestedPickupTime || "",
+    }));
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    const payload = {
+      locator: form.locator,
+      lead_name: form.lead_name,
+      phone: form.phone || "",
+      email: form.email || "",
+
+      excursion_id: Number(form.excursion_id),
+      hotel_id: Number(form.hotel_id),
+      agency_id: form.agency_id ? Number(form.agency_id) : null,
+
+      service_date: form.service_date,
+      pickup_time: form.pickup_time || null,
+
+      adults: Number(form.adults),
+      children: Number(form.children),
+      infants: Number(form.infants),
+
+      language: form.language,
+      status: form.status,
+
+      sale_price_per_person: form.sale_price_per_person || "0.00",
+      sale_total: form.sale_total || "0.00",
+      paid_amount: form.paid_amount || "0.00",
+      currency: form.currency || "USD",
+
+      agency_price: form.agency_price || "0.00",
+      agency_paid: form.agency_paid || "0.00",
+
+      notes: form.notes || "",
+      internal_notes: form.internal_notes || "",
+    };
+
     try {
-      const payload = {
-        locator: form.locator,
-        lead_name: form.lead_name,
-        phone: form.phone || "",
-        email: form.email || "",
-
-        excursion_id: Number(form.excursion_id),
-        hotel_id: Number(form.hotel_id),
-
-        service_date: form.service_date,
-        pickup_time: form.pickup_time || null,
-
-        adults: Number(form.adults),
-        children: Number(form.children),
-        infants: Number(form.infants),
-
-        language: form.language,
-        status: form.status || "pending",
-
-        sale_price_per_person: form.sale_price_per_person || "0.00",
-        sale_total: form.sale_total || "0.00",
-        paid_amount: form.paid_amount || "0.00",
-        currency: form.currency || "USD",
-
-        agency_price: form.agency_price || "0.00",
-        agency_paid: form.agency_paid || "0.00",
-
-        notes: form.notes || "",
-        internal_notes: form.internal_notes || "",
-
-        // IMPORTANT: do NOT send agency as text
-        agency_id: null,
-      };
-
       if (editingId) {
         await updateReservation(editingId, payload);
       } else {
@@ -198,7 +452,7 @@ export function ReservationsView() {
       await loadReservations();
       closeForm();
     } catch (error: any) {
-      console.error("Error submitting form:", error.response?.data ?? error);
+      console.error("Error saving reservation:", error.response?.data ?? error);
     }
   }
 
@@ -206,23 +460,17 @@ export function ReservationsView() {
     if (!id) return;
 
     const confirmed = window.confirm(
-      "Are you sure you want to delete this reservation?",
+      "Are you sure you want to delete this reservation?"
     );
+
     if (!confirmed) return;
 
     try {
       await deleteReservation(id);
-      setReservations((prev) => prev.filter((r) => r.id !== id));
-    } catch (error) {
-      console.error("Error deleting reservation:", error);
+      setReservations((prev) => prev.filter((item) => item.id !== id));
+    } catch (error: any) {
+      console.error("Error deleting reservation:", error.response?.data ?? error);
     }
-  }
-
-  function updateFormField<K extends keyof Reservation>(
-    field: K,
-    value: Reservation[K],
-  ) {
-    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   return (
@@ -233,8 +481,9 @@ export function ReservationsView() {
             <h3 className="text-lg font-semibold text-slate-900">
               Reservations
             </h3>
+
             <p className="text-sm text-slate-500">
-              Manage reservations, clients, hotels, excursions and pickups.
+              Manage bookings, clients, hotels, excursions, pickup times and payment balances.
             </p>
           </div>
 
@@ -247,6 +496,7 @@ export function ReservationsView() {
             />
 
             <button
+              type="button"
               onClick={openCreateForm}
               className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
             >
@@ -258,9 +508,9 @@ export function ReservationsView() {
         {showForm && (
           <form
             onSubmit={handleSubmit}
-            className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5"
+            className="mt-6 space-y-5 rounded-3xl border border-slate-200 bg-slate-50 p-5"
           >
-            <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <h4 className="font-semibold text-slate-900">
                 {editingId ? "Edit reservation" : "Add reservation"}
               </h4>
@@ -274,133 +524,446 @@ export function ReservationsView() {
               </button>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <input
-                value={form.locator}
-                onChange={(e) => updateFormField("locator", e.target.value)}
-                placeholder="Locator"
-                required
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+            <section className="rounded-3xl border border-slate-200 bg-white p-4">
+              <h5 className="mb-4 text-sm font-semibold text-slate-800">
+                Client information
+              </h5>
 
-              <input
-                value={form.lead_name}
-                onChange={(e) => updateFormField("lead_name", e.target.value)}
-                placeholder="Client name"
-                required
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Locator
+                  </label>
+                  <input
+                    value={form.locator}
+                    onChange={(e) =>
+                      updateFormField("locator", e.target.value)
+                    }
+                    required
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
 
-              <select
-                value={form.excursion_id}
-                onChange={(e) =>
-                  updateFormField("excursion_id", Number(e.target.value))
-                }
-                required
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              >
-                {excursions.map((excursion) => (
-                  <option key={excursion.id} value={excursion.id}>
-                    {excursion.name}
-                  </option>
-                ))}
-              </select>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Lead name
+                  </label>
+                  <input
+                    value={form.lead_name}
+                    onChange={(e) =>
+                      updateFormField("lead_name", e.target.value)
+                    }
+                    required
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
 
-              <select
-                value={form.hotel_id}
-                onChange={(e) =>
-                  updateFormField("hotel_id", Number(e.target.value))
-                }
-                required
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              >
-                {hotels.map((hotel) => (
-                  <option key={hotel.id} value={hotel.id}>
-                    {hotel.name}
-                  </option>
-                ))}
-              </select>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Phone
+                  </label>
+                  <input
+                    value={form.phone}
+                    onChange={(e) => updateFormField("phone", e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
 
-              <input
-                type="date"
-                value={form.service_date}
-                onChange={(e) =>
-                  updateFormField("service_date", e.target.value)
-                }
-                required
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => updateFormField("email", e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+              </div>
+            </section>
 
-              <input
-                type="time"
-                value={form.pickup_time ?? ""}
-                onChange={(e) => updateFormField("pickup_time", e.target.value)}
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+            <section className="rounded-3xl border border-slate-200 bg-white p-4">
+              <h5 className="mb-4 text-sm font-semibold text-slate-800">
+                Booking details
+              </h5>
 
-              <input
-                type="number"
-                min={0}
-                value={form.adults}
-                onChange={(e) =>
-                  updateFormField("adults", Number(e.target.value))
-                }
-                placeholder="Adults"
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Excursion
+                  </label>
+                  <select
+                    value={form.excursion_id ?? ""}
+                    onChange={(e) =>
+                      handleExcursionChange(Number(e.target.value))
+                    }
+                    required
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  >
+                    {excursions.map((excursion) => (
+                      <option key={excursion.id} value={excursion.id}>
+                        {excursion.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <input
-                type="number"
-                min={0}
-                value={form.children}
-                onChange={(e) =>
-                  updateFormField("children", Number(e.target.value))
-                }
-                placeholder="Children"
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Hotel
+                  </label>
+                  <select
+                    value={form.hotel_id ?? ""}
+                    onChange={(e) => handleHotelChange(Number(e.target.value))}
+                    required
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  >
+                    {hotels.map((hotel) => (
+                      <option key={hotel.id} value={hotel.id}>
+                        {hotel.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <input
-                type="number"
-                min={0}
-                value={form.infants}
-                onChange={(e) =>
-                  updateFormField("infants", Number(e.target.value))
-                }
-                placeholder="Infants"
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Agency
+                  </label>
+                  <select
+                    value={form.agency_id ?? ""}
+                    onChange={(e) =>
+                      updateFormField(
+                        "agency_id",
+                        e.target.value ? Number(e.target.value) : null
+                      )
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  >
+                    <option value="">No agency</option>
 
-              <select
-                value={form.language}
-                onChange={(e) => updateFormField("language", e.target.value)}
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              >
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="it">Italian</option>
-                <option value="pt">Portuguese</option>
-                <option value="de">German</option>
-                <option value="other">Other</option>
-              </select>
+                    {agencies.map((agency) => (
+                      <option key={agency.id} value={agency.id}>
+                        {agency.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <input
-                value={form.agency ?? ""}
-                onChange={(e) => updateFormField("agency", e.target.value)}
-                placeholder="Agency"
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Service date
+                  </label>
+                  <input
+                    type="date"
+                    value={form.service_date}
+                    onChange={(e) =>
+                      updateFormField("service_date", e.target.value)
+                    }
+                    required
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
 
-              <input
-                value={form.notes ?? ""}
-                onChange={(e) => updateFormField("notes", e.target.value)}
-                placeholder="Notes"
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
-            </div>
+                <div className="space-y-1 lg:col-span-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <label className="text-xs font-medium text-slate-500">
+                      Pickup time
+                    </label>
 
-            <div className="mt-5 flex justify-end gap-3">
+                    {suggestedPickupTime ? (
+                      <button
+                        type="button"
+                        onClick={useSuggestedPickupTime}
+                        className="text-xs font-semibold text-slate-600 hover:text-slate-950"
+                      >
+                        Use suggested {formatTime(suggestedPickupTime)}
+                      </button>
+                    ) : (
+                      <span className="text-xs text-amber-600">
+                        No pickup rule found
+                      </span>
+                    )}
+                  </div>
+
+                  <input
+                    type="time"
+                    value={form.pickup_time ?? ""}
+                    onChange={(e) => handlePickupTimeChange(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+
+                  <p className="text-xs text-slate-500">
+                    {pickupOverridden
+                      ? "Manual override active. This time will be saved."
+                      : suggestedPickupTime
+                        ? `Auto-filled from pickup rules: ${formatTime(
+                            suggestedPickupTime
+                          )}. You can still change it.`
+                        : "Choose an excursion and hotel with a saved pickup rule, or enter the time manually."}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Language
+                  </label>
+                  <select
+                    value={form.language}
+                    onChange={(e) =>
+                      updateFormField("language", e.target.value)
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  >
+                    {languages.map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Status
+                  </label>
+                  <select
+                    value={form.status}
+                    onChange={(e) => updateFormField("status", e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  >
+                    {statuses.map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-slate-200 bg-white p-4">
+              <div className="mb-4 flex items-center justify-between">
+                <h5 className="text-sm font-semibold text-slate-800">
+                  Passengers
+                </h5>
+
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  Total pax: {totalPax}
+                </span>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Adults
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={form.adults}
+                    onChange={(e) =>
+                      updateFormField("adults", Number(e.target.value))
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Children
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={form.children}
+                    onChange={(e) =>
+                      updateFormField("children", Number(e.target.value))
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Infants
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={form.infants}
+                    onChange={(e) =>
+                      updateFormField("infants", Number(e.target.value))
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-slate-200 bg-white p-4">
+              <div className="mb-4 flex items-center justify-between">
+                <h5 className="text-sm font-semibold text-slate-800">
+                  Payment details
+                </h5>
+
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  Balance: {balanceDue.toFixed(2)} {form.currency}
+                </span>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Currency
+                  </label>
+                  <select
+                    value={form.currency}
+                    onChange={(e) =>
+                      updateFormField("currency", e.target.value)
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  >
+                    {currencies.map((currency) => (
+                      <option key={currency} value={currency}>
+                        {currency}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Price per person
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={form.sale_price_per_person}
+                    onChange={(e) =>
+                      updateFormField("sale_price_per_person", e.target.value)
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Sale total
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={form.sale_total}
+                    onChange={(e) =>
+                      updateFormField("sale_total", e.target.value)
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Paid amount
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={form.paid_amount}
+                    onChange={(e) =>
+                      updateFormField("paid_amount", e.target.value)
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-slate-200 bg-white p-4">
+              <div className="mb-4 flex items-center justify-between">
+                <h5 className="text-sm font-semibold text-slate-800">
+                  Agency payment
+                </h5>
+
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+                  Agency balance: {agencyBalance.toFixed(2)} {form.currency}
+                </span>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Agency price
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={form.agency_price}
+                    onChange={(e) =>
+                      updateFormField("agency_price", e.target.value)
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Agency paid
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={form.agency_paid}
+                    onChange={(e) =>
+                      updateFormField("agency_paid", e.target.value)
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-slate-200 bg-white p-4">
+              <h5 className="mb-4 text-sm font-semibold text-slate-800">
+                Notes
+              </h5>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Customer notes
+                  </label>
+                  <textarea
+                    value={form.notes}
+                    onChange={(e) => updateFormField("notes", e.target.value)}
+                    rows={3}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Internal notes
+                  </label>
+                  <textarea
+                    value={form.internal_notes}
+                    onChange={(e) =>
+                      updateFormField("internal_notes", e.target.value)
+                    }
+                    rows={3}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={closeForm}
@@ -418,92 +981,6 @@ export function ReservationsView() {
             </div>
           </form>
         )}
-
-        <div className="mt-5 overflow-x-auto">
-          {loading ? (
-            <p className="py-6 text-sm text-slate-500">
-              Loading reservations...
-            </p>
-          ) : (
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 text-slate-500">
-                  <th className="py-3 pr-4 font-medium">Locator</th>
-                  <th className="py-3 pr-4 font-medium">Client</th>
-                  <th className="py-3 pr-4 font-medium">Excursion</th>
-                  <th className="py-3 pr-4 font-medium">Hotel</th>
-                  <th className="py-3 pr-4 font-medium">Date</th>
-                  <th className="py-3 pr-4 font-medium">Pickup</th>
-                  <th className="py-3 pr-4 font-medium">Pax</th>
-                  <th className="py-3 pr-4 font-medium">Language</th>
-                  <th className="py-3 pr-4 font-medium">Agency</th>
-                  <th className="py-3 pr-4 font-medium">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filtered.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
-                  >
-                    <td className="py-3 pr-4 font-semibold text-slate-900">
-                      {item.locator}
-                    </td>
-
-                    <td className="py-3 pr-4">{item.lead_name}</td>
-
-                    <td className="py-3 pr-4">
-                      {getExcursionName(item.excursion_id)}
-                    </td>
-
-                    <td className="py-3 pr-4">{getHotelName(item.hotel_id)}</td>
-
-                    <td className="py-3 pr-4">{item.service_date}</td>
-                    <td className="py-3 pr-4">{item.pickup_time || "Auto"}</td>
-
-                    <td className="py-3 pr-4">
-                      {item.total_pax ??
-                        item.adults + item.children + item.infants}
-                    </td>
-
-                    <td className="py-3 pr-4 uppercase">{item.language}</td>
-                    <td className="py-3 pr-4">{item.agency}</td>
-
-                    <td className="py-3 pr-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => openEditForm(item)}
-                          className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-
-                {filtered.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={10}
-                      className="py-8 text-center text-sm text-slate-500"
-                    >
-                      No reservations found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          )}
-        </div>
       </div>
     </div>
   );
