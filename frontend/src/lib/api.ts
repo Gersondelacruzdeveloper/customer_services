@@ -223,12 +223,12 @@ export async function getDashboardStats(token: string) {
 /* -------------------- Reservations CRUD -------------------- */
 
 export async function getReservations() {
-  const res = await axios.get(`${API_BASE}/reservations/reservations`);
+  const res = await axios.get(`${API_BASE}/reservations/reservations/`);
   return extractData(res.data);
 }
 
 export async function createReservation(payload: any) {
-  const res = await axios.post(`${API_BASE}/reservations/reservations`, payload);
+  const res = await axios.post(`${API_BASE}/reservations/reservations/`, payload);
   return res.data;
 }
 

@@ -441,6 +441,7 @@ export function ReservationsView() {
       notes: form.notes || "",
       internal_notes: form.internal_notes || "",
     };
+    console.log("Submitting reservation with payload:", payload);
 
     try {
       if (editingId) {
@@ -980,7 +981,63 @@ export function ReservationsView() {
               </button>
             </div>
           </form>
+
         )}
+        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
+  <table className="w-full text-left text-sm">
+    <thead className="bg-slate-100 text-xs uppercase text-slate-500">
+      <tr>
+        <th className="px-4 py-3">Locator</th>
+        <th className="px-4 py-3">Client</th>
+        <th className="px-4 py-3">Excursion</th>
+        <th className="px-4 py-3">Hotel</th>
+        <th className="px-4 py-3">Date</th>
+        <th className="px-4 py-3">Pickup</th>
+        <th className="px-4 py-3">Status</th>
+        <th className="px-4 py-3 text-right">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody className="divide-y divide-slate-200 bg-white">
+      {filtered.map((item) => (
+        <tr key={item.id} className="hover:bg-slate-50">
+          <td className="px-4 py-3 font-semibold">{item.locator}</td>
+          <td className="px-4 py-3">{item.lead_name}</td>
+          <td className="px-4 py-3">{item.excursion_name}</td>
+          <td className="px-4 py-3">{item.hotel_name}</td>
+          <td className="px-4 py-3">{item.service_date}</td>
+          <td className="px-4 py-3">{formatTime(item.pickup_time)}</td>
+          <td className="px-4 py-3">{item.status}</td>
+          <td className="px-4 py-3 text-right">
+            <button
+              type="button"
+              onClick={() => openEditForm(item)}
+              className="mr-2 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold"
+            >
+              Edit
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleDelete(item.id)}
+              className="rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+
+      {filtered.length === 0 && (
+        <tr>
+          <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
+            No reservations found.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
       </div>
     </div>
   );
