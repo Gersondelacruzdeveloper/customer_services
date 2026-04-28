@@ -73,13 +73,11 @@ class ReservationSerializer(serializers.ModelSerializer):
     excursion_id = serializers.PrimaryKeyRelatedField(
         source="excursion",
         queryset=Excursion.objects.all(),
-        write_only=True,
     )
 
     hotel_id = serializers.PrimaryKeyRelatedField(
         source="hotel",
         queryset=Hotel.objects.all(),
-        write_only=True,
     )
 
     agency_id = serializers.PrimaryKeyRelatedField(
@@ -87,7 +85,6 @@ class ReservationSerializer(serializers.ModelSerializer):
         queryset=Agency.objects.all(),
         required=False,
         allow_null=True,
-        write_only=True,
     )
 
     total_pax = serializers.ReadOnlyField()
@@ -98,7 +95,48 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reservation
-        fields = "__all__"
+        fields = [
+                "id",
+                "locator",
+                "lead_name",
+                "phone",
+                "email",
+
+                "excursion_id",
+                "hotel_id",
+                "agency_id",
+
+                "excursion_name",
+                "hotel_name",
+                "agency_name",
+
+                "service_date",
+                "pickup_time",
+
+                "adults",
+                "children",
+                "infants",
+
+                "language",
+                "status",
+
+                "sale_price_per_person",
+                "sale_total",
+                "paid_amount",
+                "currency",
+
+                "agency_price",
+                "agency_paid",
+
+                "notes",
+                "internal_notes",
+
+                "total_pax",
+                "balance_due",
+                "agency_balance",
+                "total_costs",
+                "profit",
+            ]
 
         
 
