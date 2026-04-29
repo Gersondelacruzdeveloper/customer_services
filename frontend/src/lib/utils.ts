@@ -92,3 +92,4 @@ export function getDefaultPickupTime(excursionId?: number, hotelId?: number) {
 
   return pickupRules[`${excursionId}-${hotelId}`] ?? "";
 }
+

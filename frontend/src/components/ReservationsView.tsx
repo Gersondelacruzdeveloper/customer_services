@@ -8,6 +8,7 @@ import {
   getRHotels,
   getReservations,
   updateReservation,
+  importReservationsExcel,
 } from "../lib/api";
 
 type Option = {
@@ -163,6 +164,25 @@ export function ReservationsView() {
     loadInitialData();
   }, []);
 
+  async function handleExcelImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setLoading(true);
+      const result = await importReservationsExcel(file);
+      console.log("Import result:", result);
+      await loadReservations();
+      alert(`Imported ${result.created_or_updated} reservations`);
+    } catch (error: any) {
+      console.error("Import error:", error.response?.data ?? error);
+      alert("Error importing Excel file");
+    } finally {
+      setLoading(false);
+      e.target.value = "";
+    }
+  }
+
   async function loadInitialData() {
     try {
       setLoading(true);
@@ -193,7 +213,7 @@ export function ReservationsView() {
       const defaultPickup = findDefaultPickupTime(
         pickupTimeData,
         firstExcursionId,
-        firstHotelId
+        firstHotelId,
       );
 
       setForm((prev) => ({
@@ -223,25 +243,21 @@ export function ReservationsView() {
   function findDefaultPickupTime(
     list: PickupTime[],
     excursionId?: number | null,
-    hotelId?: number | null
+    hotelId?: number | null,
   ) {
     if (!excursionId || !hotelId) return "";
 
     const match = list.find(
       (item) =>
         Number(item.excursion) === Number(excursionId) &&
-        Number(item.hotel) === Number(hotelId)
+        Number(item.hotel) === Number(hotelId),
     );
 
     return match?.time ? match.time.slice(0, 5) : "";
   }
 
   const suggestedPickupTime = useMemo(() => {
-    return findDefaultPickupTime(
-      pickupTimes,
-      form.excursion_id,
-      form.hotel_id
-    );
+    return findDefaultPickupTime(pickupTimes, form.excursion_id, form.hotel_id);
   }, [pickupTimes, form.excursion_id, form.hotel_id]);
 
   useEffect(() => {
@@ -301,7 +317,7 @@ export function ReservationsView() {
       ]
         .join(" ")
         .toLowerCase()
-        .includes(q)
+        .includes(q),
     );
   }, [query, reservations, excursions, hotels, agencies]);
 
@@ -312,7 +328,7 @@ export function ReservationsView() {
     const defaultPickup = findDefaultPickupTime(
       pickupTimes,
       firstExcursionId,
-      firstHotelId
+      firstHotelId,
     );
 
     setForm({
@@ -349,7 +365,7 @@ export function ReservationsView() {
     const defaultPickup = findDefaultPickupTime(
       pickupTimes,
       firstExcursionId,
-      firstHotelId
+      firstHotelId,
     );
 
     setForm({
@@ -366,7 +382,7 @@ export function ReservationsView() {
 
   function updateFormField<K extends keyof Reservation>(
     field: K,
-    value: Reservation[K]
+    value: Reservation[K],
   ) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
@@ -461,7 +477,7 @@ export function ReservationsView() {
     if (!id) return;
 
     const confirmed = window.confirm(
-      "Are you sure you want to delete this reservation?"
+      "Are you sure you want to delete this reservation?",
     );
 
     if (!confirmed) return;
@@ -470,7 +486,10 @@ export function ReservationsView() {
       await deleteReservation(id);
       setReservations((prev) => prev.filter((item) => item.id !== id));
     } catch (error: any) {
-      console.error("Error deleting reservation:", error.response?.data ?? error);
+      console.error(
+        "Error deleting reservation:",
+        error.response?.data ?? error,
+      );
     }
   }
 
@@ -484,7 +503,8 @@ export function ReservationsView() {
             </h3>
 
             <p className="text-sm text-slate-500">
-              Manage bookings, clients, hotels, excursions, pickup times and payment balances.
+              Manage bookings, clients, hotels, excursions, pickup times and
+              payment balances.
             </p>
           </div>
 
@@ -503,6 +523,15 @@ export function ReservationsView() {
             >
               Add reservation
             </button>
+            <label className="cursor-pointer rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700">
+              Import Excel
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleExcelImport}
+                className="hidden"
+              />
+            </label>
           </div>
         </div>
 
@@ -537,9 +566,7 @@ export function ReservationsView() {
                   </label>
                   <input
                     value={form.locator}
-                    onChange={(e) =>
-                      updateFormField("locator", e.target.value)
-                    }
+                    onChange={(e) => updateFormField("locator", e.target.value)}
                     required
                     className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
@@ -637,7 +664,7 @@ export function ReservationsView() {
                     onChange={(e) =>
                       updateFormField(
                         "agency_id",
-                        e.target.value ? Number(e.target.value) : null
+                        e.target.value ? Number(e.target.value) : null,
                       )
                     }
                     className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
@@ -700,7 +727,7 @@ export function ReservationsView() {
                       ? "Manual override active. This time will be saved."
                       : suggestedPickupTime
                         ? `Auto-filled from pickup rules: ${formatTime(
-                            suggestedPickupTime
+                            suggestedPickupTime,
                           )}. You can still change it.`
                         : "Choose an excursion and hotel with a saved pickup rule, or enter the time manually."}
                   </p>
@@ -981,63 +1008,65 @@ export function ReservationsView() {
               </button>
             </div>
           </form>
-
         )}
         <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
-  <table className="w-full text-left text-sm">
-    <thead className="bg-slate-100 text-xs uppercase text-slate-500">
-      <tr>
-        <th className="px-4 py-3">Locator</th>
-        <th className="px-4 py-3">Client</th>
-        <th className="px-4 py-3">Excursion</th>
-        <th className="px-4 py-3">Hotel</th>
-        <th className="px-4 py-3">Date</th>
-        <th className="px-4 py-3">Pickup</th>
-        <th className="px-4 py-3">Status</th>
-        <th className="px-4 py-3 text-right">Actions</th>
-      </tr>
-    </thead>
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-100 text-xs uppercase text-slate-500">
+              <tr>
+                <th className="px-4 py-3">Locator</th>
+                <th className="px-4 py-3">Client</th>
+                <th className="px-4 py-3">Excursion</th>
+                <th className="px-4 py-3">Hotel</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Pickup</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
 
-    <tbody className="divide-y divide-slate-200 bg-white">
-      {filtered.map((item) => (
-        <tr key={item.id} className="hover:bg-slate-50">
-          <td className="px-4 py-3 font-semibold">{item.locator}</td>
-          <td className="px-4 py-3">{item.lead_name}</td>
-          <td className="px-4 py-3">{item.excursion_name}</td>
-          <td className="px-4 py-3">{item.hotel_name}</td>
-          <td className="px-4 py-3">{item.service_date}</td>
-          <td className="px-4 py-3">{formatTime(item.pickup_time)}</td>
-          <td className="px-4 py-3">{item.status}</td>
-          <td className="px-4 py-3 text-right">
-            <button
-              type="button"
-              onClick={() => openEditForm(item)}
-              className="mr-2 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold"
-            >
-              Edit
-            </button>
+            <tbody className="divide-y divide-slate-200 bg-white">
+              {filtered.map((item) => (
+                <tr key={item.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 font-semibold">{item.locator}</td>
+                  <td className="px-4 py-3">{item.lead_name}</td>
+                  <td className="px-4 py-3">{item.excursion_name}</td>
+                  <td className="px-4 py-3">{item.hotel_name}</td>
+                  <td className="px-4 py-3">{item.service_date}</td>
+                  <td className="px-4 py-3">{formatTime(item.pickup_time)}</td>
+                  <td className="px-4 py-3">{item.status}</td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      type="button"
+                      onClick={() => openEditForm(item)}
+                      className="mr-2 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold"
+                    >
+                      Edit
+                    </button>
 
-            <button
-              type="button"
-              onClick={() => handleDelete(item.id)}
-              className="rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white"
-            >
-              Delete
-            </button>
-          </td>
-        </tr>
-      ))}
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(item.id)}
+                      className="rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
 
-      {filtered.length === 0 && (
-        <tr>
-          <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
-            No reservations found.
-          </td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-</div>
+              {filtered.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="px-4 py-8 text-center text-slate-500"
+                  >
+                    No reservations found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

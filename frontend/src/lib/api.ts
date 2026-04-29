@@ -381,3 +381,17 @@ export async function updateAgency(id: number, payload: any) {
 export async function deleteAgency(id: number) {
   await axios.delete(`${API_BASE}/reservations/agencies/${id}/`);
 }
+
+/* --------------------importReservationsExcel -------------------- */
+export async function importReservationsExcel(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await api.post("/reservations/import-excel/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+}
