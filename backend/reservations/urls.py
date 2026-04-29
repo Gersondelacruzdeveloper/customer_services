@@ -12,6 +12,7 @@ from .views import (
     ReservationCostViewSet,
     ProviderPaymentViewSet,
     AgencyPaymentViewSet,
+    ImportReservationsExcelView,
 )
 
 
@@ -31,4 +32,5 @@ router.register("agency-payments", AgencyPaymentViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("import-excel/", ImportReservationsExcelView.as_view(), name="import-reservations-excel"),
 ]
