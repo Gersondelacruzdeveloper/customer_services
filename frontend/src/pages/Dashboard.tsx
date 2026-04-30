@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { getDashboardStats, type DashboardStats } from "../lib/api";
 
+
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [error, setError] = useState("");
@@ -56,7 +57,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-md">
                 <img
-                  src="https://ecoadventurespc.com/wp-content/uploads/2018/12/cropped-logo1.png"
+                  src={Logo}
                   alt="Eco Adventures logo"
                   className="h-12 w-12 object-contain"
                 />
