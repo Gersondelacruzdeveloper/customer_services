@@ -1,4 +1,5 @@
 import "../types/types";
+import { Assignment } from "../types/types";
 export const assignments: Assignment[] = [
   {
     id: "a1",

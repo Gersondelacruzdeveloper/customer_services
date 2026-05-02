@@ -23,7 +23,7 @@ export function ZonesView() {
   async function loadZones() {
     try {
       setLoading(true);
-      const data = await getZones();
+      const data = (await getZones()) as Zone[];
       setZones(data);
     } catch (error) {
       console.error("Error loading zones:", error);

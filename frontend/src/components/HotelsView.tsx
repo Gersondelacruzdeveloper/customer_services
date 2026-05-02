@@ -36,8 +36,8 @@ export function HotelsView() {
       setLoading(true);
 
       const [hotelsData, zonesData] = await Promise.all([
-        getRHotels(),
-        getZones(),
+        getRHotels() as Promise<Hotel[]>,
+        getZones() as Promise<Zone[]>,
       ]);
 
       setHotels(hotelsData);
@@ -53,7 +53,7 @@ export function HotelsView() {
 
   async function loadHotels() {
     try {
-      const data = await getRHotels();
+      const data = await getRHotels() as Hotel[];
       setHotels(data);
     } catch (error) {
       console.error("Error loading hotels:", error);

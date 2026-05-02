@@ -17,8 +17,8 @@ import {
   createOperator,
   updateOperator,
   deleteOperator,
-  type OptionItem,
 } from "../lib/api";
+import type { OptionItem } from "../types/types";
 
 type SectionProps = {
   title: string;
@@ -177,15 +177,20 @@ export default function ManageOptionsPage() {
     try {
       const [hotelsData, guidesData, excursionsData, operatorsData] =
         await Promise.all([
-          getHotels(),
-          getGuides(),
+          getHotels() as Promise<OptionItem[]>,
+          getGuides() as Promise<OptionItem[]>,
           getExcursions(),
-          getOperators(),
+          getOperators() as Promise<OptionItem[]>,
         ]);
 
       setHotels(hotelsData);
       setGuides(guidesData);
-      setExcursions(excursionsData);
+      setExcursions(
+        excursionsData.map((item) => ({
+          id: typeof item.id === "string" ? parseInt(item.id, 10) : item.id,
+          name: item.name,
+        }))
+      );
       setOperators(operatorsData);
     } catch {
       setMessage("Error al cargar los datos.");

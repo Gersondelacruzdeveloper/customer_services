@@ -16,7 +16,7 @@ export function getExcursionById(id: string, excursions: Excursion[]) {
   return excursions.find((item: Excursion) => item.id === id);
 }
 
-export function getHotelById(id: string, hotels: Hotel[]) {
+export function getHotelById(id: number, hotels: Hotel[]) {
   return hotels.find((item: Hotel) => item.id === id);
 }
 
@@ -24,7 +24,7 @@ export function getVehicleById(id: string, vehicles: Vehicle[]) {
   return vehicles.find((item: Vehicle) => item.id === id);
 }
 
-export function getGuideById(id?: string, guides: Guide[]) {
+export function getGuideById(guides: Guide[], id?: string) {
   return guides.find((item: Guide) => item.id === id);
 }
 

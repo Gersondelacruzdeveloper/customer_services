@@ -9,6 +9,8 @@ import {
   getReservations,
   updateReservation,
   importReservationsExcel,
+  getHotels,
+  getExcursions,
 } from "../lib/api";
 
 type Option = {
@@ -189,17 +191,27 @@ export function ReservationsView() {
 
       const [
         reservationData,
-        excursionData,
-        hotelData,
+        excursionDataRaw,
+        hotelDataRaw,
         agencyData,
         pickupTimeData,
       ] = await Promise.all([
-        getReservations(),
-        getRExcursions(),
-        getRHotels(),
-        getAgencies(),
-        getPickupTimes(),
+        getReservations() as Promise<Reservation[]>,
+        getExcursions(),
+        getHotels(),
+        getAgencies() as Promise<Agency[]>,
+        getPickupTimes() as Promise<PickupTime[]>,
       ]);
+
+      const excursionData: Option[] = excursionDataRaw.map((item: any) => ({
+        id: typeof item.id === 'string' ? parseInt(item.id) : item.id,
+        name: item.name,
+      }));
+
+      const hotelData: Option[] = hotelDataRaw.map((item: any) => ({
+        id: typeof item.id === 'string' ? parseInt(item.id) : item.id,
+        name: item.name,
+      }));
 
       setReservations(reservationData);
       setExcursions(excursionData);
@@ -232,7 +244,7 @@ export function ReservationsView() {
 
   async function loadReservations() {
     try {
-      const data = await getReservations();
+      const data = await getReservations() as Reservation[];
       setReservations(data);
     } catch (error) {
       console.error("Error loading reservations:", error);

@@ -29,7 +29,7 @@ export type Vehicle = {
   active: boolean;
 };
 
-type Hotel = {
+export type Hotel = {
   id?: number;
   name: string;
   zone: number | null;
@@ -191,4 +191,15 @@ export type PickupTime = {
   excursion_name?: string;
   hotel_name?: string;
   zone_name?: string;
+};
+
+
+export type Agency = {
+  id?: number;
+  name: string;
+  contact_name: string;
+  phone: string;
+  email: string;
+  notes: string;
+  is_active: boolean;
 };

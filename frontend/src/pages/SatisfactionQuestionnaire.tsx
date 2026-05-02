@@ -5,8 +5,8 @@ import {
   getHotels,
   getOperators,
   submitSurvey,
-  type OptionItem,
 } from "../lib/api";
+import type { OptionItem } from "../types/types";
 import { getText } from "../lib/i18n";
 import type { SupportedLanguage } from "../lib/translations";
 
@@ -58,18 +58,31 @@ export default function SatisfactionQuestionnaire({ lang }: Props) {
   const [operators, setOperators] = useState<OptionItem[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
-  useEffect(() => {
-    Promise.all([getHotels(), getGuides(), getExcursions(), getOperators()])
-      .then(([hotelsData, guidesData, excursionsData, operatorsData]) => {
-        setHotels(hotelsData);
-        setGuides(guidesData);
-        setExcursions(excursionsData);
-        setOperators(operatorsData);
-      })
-      .catch(() => {
-        setMessage(t.failedToLoadOptions);
-      });
-  }, [t.failedToLoadOptions]);
+useEffect(() => {
+  Promise.all([getHotels(), getGuides(), getExcursions(), getOperators()])
+    .then(([hotelsData, guidesData, excursionsData, operatorsData]) => {
+
+        const hotelOptions = hotelsData
+        .filter(h => h.id !== undefined)
+        .map(h => ({
+          id: h.id!,
+          name: h.name, 
+        }));
+
+      const excursionOptions = excursionsData.map(e => ({
+        id: Number(e.id),
+        name: e.name, 
+      }));
+
+      setHotels(hotelOptions);
+      setGuides(guidesData);
+      setExcursions(excursionOptions);
+      setOperators(operatorsData);
+    })
+    .catch(() => {
+      setMessage(t.failedToLoadOptions);
+    });
+}, [t.failedToLoadOptions]);
 
   const hotelId = useMemo(
     () => hotels.find((item) => item.name === form.hotel)?.id ?? null,

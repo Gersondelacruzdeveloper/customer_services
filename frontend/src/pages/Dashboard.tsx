@@ -8,7 +8,45 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { getDashboardStats, type DashboardStats } from "../lib/api";
+import { getDashboardStats } from "../lib/api";
+
+type DashboardStats = {
+  totalSurveys: number;
+  totalParticipants: number;
+  happiestGuide: {
+    name: string;
+    score: number;
+  } | null;
+  topHotel: {
+    name: string;
+    value: number;
+  } | null;
+  guidePerformance: {
+    name: string;
+    score: number;
+    total: number;
+  }[];
+  hotelCounts: {
+    name: string;
+    value: number;
+  }[];
+  excursionCounts: {
+    name: string;
+    value: number;
+  }[];
+  categoryAverages: {
+    punctuality: number;
+    transport: number;
+    guide: number;
+    food: number;
+  };
+  comments: {
+    comments: string;
+    client_name?: string;
+    hotel?: string;
+  }[];
+};
+
 
 
 export default function Dashboard() {
@@ -57,7 +95,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-md">
                 <img
-                  src={Logo}
+                  src={"https://ecoadventurespc.com/wp-content/uploads/2018/12/cropped-logo1.png"}
                   alt="Eco Adventures logo"
                   className="h-12 w-12 object-contain"
                 />

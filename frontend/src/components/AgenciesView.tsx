@@ -5,17 +5,7 @@ import {
   getAgencies,
   updateAgency,
 } from "../lib/api";
-
-type Agency = {
-  id?: number;
-  name: string;
-  contact_name: string;
-  phone: string;
-  email: string;
-  notes: string;
-  is_active: boolean;
-};
-
+import type { Agency } from "../types/types";
 const emptyForm: Agency = {
   name: "",
   contact_name: "",
@@ -32,6 +22,7 @@ export function AgenciesView() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  console.log("agencies", agencies)
 
   useEffect(() => {
     loadAgencies();
@@ -40,7 +31,7 @@ export function AgenciesView() {
   async function loadAgencies() {
     try {
       setLoading(true);
-      const data = await getAgencies();
+      const data = (await getAgencies()) as Agency[]
       setAgencies(data);
     } catch (error) {
       console.error("Error loading agencies:", error);

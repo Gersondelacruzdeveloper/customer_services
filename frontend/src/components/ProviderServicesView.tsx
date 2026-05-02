@@ -64,8 +64,8 @@ export function ProviderServicesView() {
       setLoading(true);
 
       const [servicesData, providersData] = await Promise.all([
-        getProviderServices(),
-        getProviders(),
+        getProviderServices() as Promise<ProviderService[]>,
+        getProviders() as Promise<Provider[]>,
       ]);
 
       setServices(servicesData);
@@ -73,7 +73,7 @@ export function ProviderServicesView() {
 
       setForm((prev) => ({
         ...prev,
-        provider: providersData[0]?.id ?? 0,
+        provider: Number(providersData[0]?.id ?? 0),
       }));
     } catch (error) {
       console.error("Error loading provider services:", error);
@@ -86,7 +86,7 @@ export function ProviderServicesView() {
 
   async function loadServices() {
     try {
-      const data = await getProviderServices();
+      const data = await getProviderServices() as ProviderService[];
       setServices(data);
     } catch (error) {
       console.error("Error loading provider services:", error);
@@ -96,7 +96,7 @@ export function ProviderServicesView() {
 
   const getProviderName = (id?: number | null) => {
     if (!id) return "";
-    return providers.find((provider) => provider.id === id)?.name ?? "";
+    return providers.find((provider) => Number(provider.id) === id)?.name ?? "";
   };
 
   const filtered = useMemo(() => {
@@ -123,7 +123,7 @@ export function ProviderServicesView() {
   function openCreateForm() {
     setForm({
       ...emptyForm,
-      provider: providers[0]?.id ?? 0,
+      provider: Number(providers[0]?.id ?? 0),
     });
 
     setEditingId(null);
@@ -133,7 +133,7 @@ export function ProviderServicesView() {
   function openEditForm(service: ProviderService) {
     setForm({
       id: service.id,
-      provider: service.provider,
+      provider: Number(service.provider),
       name: service.name,
       category: service.category ?? "",
       description: service.description ?? "",
@@ -151,7 +151,7 @@ export function ProviderServicesView() {
   function closeForm() {
     setForm({
       ...emptyForm,
-      provider: providers[0]?.id ?? 0,
+      provider: Number(providers[0]?.id ?? 0),
     });
     setEditingId(null);
     setShowForm(false);

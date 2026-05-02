@@ -37,9 +37,9 @@ export function PickupTimesView() {
       setLoading(true);
 
       const [pickupData, hotelsData, excursionsData] = await Promise.all([
-        getPickupTimes(),
-        getRHotels(),
-        getRExcursions(),
+        getPickupTimes() as Promise<PickupTime[]>,
+        getRHotels() as Promise<Hotel[]>,
+        getRExcursions() as Promise<Excursion[]>,
       ]);
 
       setPickupTimes(pickupData);
@@ -48,8 +48,8 @@ export function PickupTimesView() {
 
       setForm((prev) => ({
         ...prev,
-        hotel: hotelsData[0]?.id ?? 0,
-        excursion: excursionsData[0]?.id ?? 0,
+        hotel: Number(hotelsData[0]?.id ?? 0),
+        excursion: Number(excursionsData[0]?.id ?? 0),
       }));
     } catch (error) {
       console.error("Error loading pickup times:", error);
@@ -61,7 +61,7 @@ export function PickupTimesView() {
 
   async function loadPickupTimes() {
     try {
-      const data = await getPickupTimes();
+      const data = await getPickupTimes() as PickupTime[];
       setPickupTimes(data);
     } catch (error) {
       console.error("Error loading pickup times:", error);
@@ -70,11 +70,11 @@ export function PickupTimesView() {
   }
 
   const getHotelName = (id: number) => {
-    return hotels.find((hotel) => hotel.id === id)?.name ?? "";
+    return hotels.find((hotel) => Number(hotel.id) === id)?.name ?? "";
   };
 
   const getExcursionName = (id: number) => {
-    return excursions.find((excursion) => excursion.id === id)?.name ?? "";
+    return excursions.find((excursion) => Number(excursion.id) === id)?.name ?? "";
   };
 
   const filtered = useMemo(() => {
@@ -100,8 +100,8 @@ export function PickupTimesView() {
   function openCreateForm() {
     setForm({
       ...emptyForm,
-      hotel: hotels[0]?.id ?? 0,
-      excursion: excursions[0]?.id ?? 0,
+      hotel: Number(hotels[0]?.id ?? 0),
+      excursion: Number(excursions[0]?.id ?? 0),
     });
     setEditingId(null);
     setShowForm(true);
@@ -124,8 +124,8 @@ export function PickupTimesView() {
   function closeForm() {
     setForm({
       ...emptyForm,
-      hotel: hotels[0]?.id ?? 0,
-      excursion: excursions[0]?.id ?? 0,
+      hotel: Number(hotels[0]?.id ?? 0),
+      excursion: Number(excursions[0]?.id ?? 0),
     });
     setEditingId(null);
     setShowForm(false);

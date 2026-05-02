@@ -51,8 +51,8 @@ export function ExcursionsView() {
       setLoading(true);
 
       const [excursionsData, providersData] = await Promise.all([
-        getRExcursions(),
-        getProviders(),
+        getRExcursions() as Promise<Excursion[]>,
+        getProviders() as Promise<Provider[]>,
       ]);
 
       setExcursions(excursionsData);
@@ -66,7 +66,7 @@ export function ExcursionsView() {
   }
 
   async function loadExcursions() {
-    const data = await getRExcursions();
+    const data = (await getRExcursions()) as Excursion[];
     setExcursions(data);
   }
 

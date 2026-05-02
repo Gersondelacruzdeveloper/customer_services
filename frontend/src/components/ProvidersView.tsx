@@ -52,7 +52,7 @@ export function ProvidersView() {
   async function loadProviders() {
     try {
       setLoading(true);
-      const data = await getProviders();
+      const data = await getProviders() as Provider[];
       setProviders(data);
     } catch (error) {
       console.error("Error loading providers:", error);
