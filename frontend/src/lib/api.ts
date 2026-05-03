@@ -395,3 +395,53 @@ export async function importReservationsExcel(file: File) {
 
   return response.data;
 }
+
+/* --------------------importExcursionsExcel -------------------- */
+export async function importExcursionsExcel(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await api.post(
+    "/reservations/excursions/import-excel/",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
+
+  return response.data;
+}
+
+/* --------------------importHotelsExcel -------------------- */
+export async function importHotelsExcel(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await api.post("/reservations/hotels/import-excel/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+}
+
+/* --------------------importPickupTimesExcel -------------------- */
+export async function importPickupTimesExcel(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await api.post(
+    "/reservations/pickup-times/import-excel/",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+  );
+
+  return response.data;
+}

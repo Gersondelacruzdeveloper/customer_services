@@ -6,6 +6,7 @@ import {
   getRExcursions,
   getRHotels,
   updatePickupTime,
+  importPickupTimesExcel,
 } from "../lib/api";
 import type { Excursion, Hotel, PickupTime } from "@/types/types";
 import { formatCaribbeanTime } from "../lib/utils";
@@ -32,6 +33,34 @@ export function PickupTimesView() {
     loadInitialData();
   }, []);
 
+
+  async function handleExcelImport(e: React.ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    setLoading(true);
+
+    const result = await importPickupTimesExcel(file);
+
+    await loadPickupTimes();
+
+    if (result.errors?.length) {
+      console.warn("Pickup time import errors:", result.errors);
+      alert(
+        `Imported ${result.created_or_updated} pickup times with ${result.errors.length} errors.`,
+      );
+    } else {
+      alert(`Imported ${result.created_or_updated} pickup times successfully.`);
+    }
+  } catch (error: any) {
+    console.error("Import error:", error.response?.data ?? error);
+    alert("Error importing pickup times Excel file.");
+  } finally {
+    setLoading(false);
+    e.target.value = "";
+  }
+}
   async function loadInitialData() {
     try {
       setLoading(true);
@@ -208,6 +237,16 @@ export function PickupTimesView() {
             >
               Add pickup time
             </button>
+
+            <label className="cursor-pointer rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700">
+            Import Excel
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleExcelImport}
+              className="hidden"
+            />
+          </label>
           </div>
         </div>
 

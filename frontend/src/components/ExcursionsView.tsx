@@ -5,6 +5,7 @@ import {
   getRExcursions,
   getProviders,
   updateRExcursion,
+  importExcursionsExcel,
 } from "../lib/api";
 
 type Provider = {
@@ -45,6 +46,35 @@ export function ExcursionsView() {
   useEffect(() => {
     loadInitialData();
   }, []);
+
+  
+  async function handleExcelImport(e: React.ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    setLoading(true);
+
+    const result = await importExcursionsExcel(file);
+
+    await loadExcursions();
+
+    if (result.errors?.length) {
+      console.warn("Import errors:", result.errors);
+      alert(
+        `Imported ${result.created_or_updated} excursions with ${result.errors.length} errors.`,
+      );
+    } else {
+      alert(`Imported ${result.created_or_updated} excursions successfully.`);
+    }
+  } catch (error: any) {
+    console.error("Import error:", error.response?.data ?? error);
+    alert("Error importing excursions Excel file.");
+  } finally {
+    setLoading(false);
+    e.target.value = "";
+  }
+}
 
   async function loadInitialData() {
     try {
@@ -197,6 +227,16 @@ export function ExcursionsView() {
             >
               Add excursion
             </button>
+
+            <label className="cursor-pointer rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700">
+            Import Excel
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleExcelImport}
+              className="hidden"
+            />
+          </label>
           </div>
         </div>
 

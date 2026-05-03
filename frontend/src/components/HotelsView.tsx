@@ -5,6 +5,7 @@ import {
   getRHotels,
   getZones,
   updateRHotel,
+  importHotelsExcel,
 } from "../lib/api";
 import type { Hotel, Zone } from "../types/types";
 
@@ -30,6 +31,35 @@ export function HotelsView() {
   useEffect(() => {
     loadInitialData();
   }, []);
+
+
+async function handleExcelImport(e: React.ChangeEvent<HTMLInputElement>) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    setLoading(true);
+
+    const result = await importHotelsExcel(file);
+
+    await loadHotels();
+
+    if (result.errors?.length) {
+      console.warn("Import errors:", result.errors);
+      alert(
+        `Imported ${result.created_or_updated} hotels with ${result.errors.length} errors.`,
+      );
+    } else {
+      alert(`Imported ${result.created_or_updated} hotels successfully.`);
+    }
+  } catch (error: any) {
+    console.error("Import error:", error.response?.data ?? error);
+    alert("Error importing hotels Excel file.");
+  } finally {
+    setLoading(false);
+    e.target.value = "";
+  }
+}
 
   async function loadInitialData() {
     try {
@@ -191,6 +221,16 @@ export function HotelsView() {
             >
               Add hotel
             </button>
+
+            <label className="cursor-pointer rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700">
+            Import Excel
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleExcelImport}
+              className="hidden"
+            />
+          </label>
           </div>
         </div>
 

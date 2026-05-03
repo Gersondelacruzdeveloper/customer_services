@@ -1,4 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
+
+import {
+  Search,
+  CalendarDays,
+  Clock,
+  Plus,
+  FileSpreadsheet,
+  Pencil,
+  Trash2,
+  X,
+  Filter,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  UserRound,
+  MapPinned,
+  Hotel,
+  CheckCircle2,
+} from "lucide-react";
+
 import {
   createReservation,
   deleteReservation,
@@ -9,8 +29,6 @@ import {
   getReservations,
   updateReservation,
   importReservationsExcel,
-  getHotels,
-  getExcursions,
 } from "../lib/api";
 
 type Option = {
@@ -133,6 +151,33 @@ const statuses = [
 
 const currencies = ["USD", "DOP", "EUR"];
 
+type SortBy =
+  | "pickup_time"
+  | "service_date"
+  | "lead_name"
+  | "hotel_name"
+  | "excursion_name"
+  | "status"
+  | "balance_due";
+
+type SortDirection = "asc" | "desc";
+
+function getTimeValue(time?: string | null) {
+  if (!time) return 9999;
+
+  const [hours = 0, minutes = 0] = time.slice(0, 5).split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function getReservationRelationId(
+  item: Reservation,
+  relation: "excursion" | "hotel" | "agency",
+) {
+  if (relation === "excursion") return item.excursion ?? item.excursion_id ?? 0;
+  if (relation === "hotel") return item.hotel ?? item.hotel_id ?? 0;
+  return item.agency ?? item.agency_id ?? 0;
+}
+
 function formatTime(time?: string | null) {
   if (!time) return "Auto";
 
@@ -161,6 +206,13 @@ export function ReservationsView() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pickupOverridden, setPickupOverridden] = useState(false);
+  const [dateFilter, setDateFilter] = useState("");
+  const [timeFilter, setTimeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [excursionFilter, setExcursionFilter] = useState("");
+  const [hotelFilter, setHotelFilter] = useState("");
+  const [sortBy, setSortBy] = useState<SortBy>("pickup_time");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   useEffect(() => {
     loadInitialData();
@@ -197,19 +249,19 @@ export function ReservationsView() {
         pickupTimeData,
       ] = await Promise.all([
         getReservations() as Promise<Reservation[]>,
-        getExcursions(),
-        getHotels(),
+        getRExcursions(),
+        getRHotels(),
         getAgencies() as Promise<Agency[]>,
         getPickupTimes() as Promise<PickupTime[]>,
       ]);
 
       const excursionData: Option[] = excursionDataRaw.map((item: any) => ({
-        id: typeof item.id === 'string' ? parseInt(item.id) : item.id,
+        id: typeof item.id === "string" ? parseInt(item.id) : item.id,
         name: item.name,
       }));
 
       const hotelData: Option[] = hotelDataRaw.map((item: any) => ({
-        id: typeof item.id === 'string' ? parseInt(item.id) : item.id,
+        id: typeof item.id === "string" ? parseInt(item.id) : item.id,
         name: item.name,
       }));
 
@@ -244,7 +296,7 @@ export function ReservationsView() {
 
   async function loadReservations() {
     try {
-      const data = await getReservations() as Reservation[];
+      const data = (await getReservations()) as Reservation[];
       setReservations(data);
     } catch (error) {
       console.error("Error loading reservations:", error);
@@ -310,28 +362,132 @@ export function ReservationsView() {
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
-    if (!q) return reservations;
 
-    return reservations.filter((item) =>
-      [
-        item.locator,
-        item.lead_name,
-        item.phone,
-        item.email,
-        item.excursion_name,
-        item.hotel_name,
-        item.agency_name,
-        getExcursionName(item.excursion ?? item.excursion_id),
-        getHotelName(item.hotel ?? item.hotel_id),
-        getAgencyName(item.agency ?? item.agency_id),
-        item.status,
-        item.language,
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(q),
-    );
-  }, [query, reservations, excursions, hotels, agencies]);
+    const visible = reservations.filter((item) => {
+      const excursionId = getReservationRelationId(item, "excursion");
+      const hotelId = getReservationRelationId(item, "hotel");
+      const agencyId = getReservationRelationId(item, "agency");
+
+      const matchesQuery =
+        !q ||
+        [
+          item.locator,
+          item.lead_name,
+          item.phone,
+          item.email,
+          item.excursion_name,
+          item.hotel_name,
+          item.agency_name,
+          getExcursionName(excursionId),
+          getHotelName(hotelId),
+          getAgencyName(agencyId),
+          item.status,
+          item.language,
+          item.service_date,
+          item.pickup_time,
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(q);
+
+      const matchesDate = !dateFilter || item.service_date === dateFilter;
+      const matchesTime =
+        !timeFilter || (item.pickup_time ?? "").slice(0, 5) === timeFilter;
+      const matchesStatus = !statusFilter || item.status === statusFilter;
+      const matchesExcursion =
+        !excursionFilter || Number(excursionId) === Number(excursionFilter);
+      const matchesHotel =
+        !hotelFilter || Number(hotelId) === Number(hotelFilter);
+
+      return (
+        matchesQuery &&
+        matchesDate &&
+        matchesTime &&
+        matchesStatus &&
+        matchesExcursion &&
+        matchesHotel
+      );
+    });
+
+    return [...visible].sort((a, b) => {
+      const direction = sortDirection === "asc" ? 1 : -1;
+
+      if (sortBy === "pickup_time") {
+        return (
+          (getTimeValue(a.pickup_time) - getTimeValue(b.pickup_time)) *
+          direction
+        );
+      }
+
+      if (sortBy === "service_date") {
+        return (
+          String(a.service_date ?? "").localeCompare(
+            String(b.service_date ?? ""),
+          ) * direction
+        );
+      }
+
+      if (sortBy === "balance_due") {
+        const aBalance = Number(a.balance_due ?? 0);
+        const bBalance = Number(b.balance_due ?? 0);
+        return (aBalance - bBalance) * direction;
+      }
+
+      const getTextValue = (item: Reservation) => {
+        if (sortBy === "lead_name") return item.lead_name ?? "";
+        if (sortBy === "hotel_name") {
+          return (
+            item.hotel_name ||
+            getHotelName(getReservationRelationId(item, "hotel"))
+          );
+        }
+        if (sortBy === "excursion_name") {
+          return (
+            item.excursion_name ||
+            getExcursionName(getReservationRelationId(item, "excursion"))
+          );
+        }
+        return item.status ?? "";
+      };
+
+      return getTextValue(a).localeCompare(getTextValue(b)) * direction;
+    });
+  }, [
+    query,
+    dateFilter,
+    timeFilter,
+    statusFilter,
+    excursionFilter,
+    hotelFilter,
+    sortBy,
+    sortDirection,
+    reservations,
+    excursions,
+    hotels,
+    agencies,
+  ]);
+
+  const filtersActive = Boolean(
+    query ||
+    dateFilter ||
+    timeFilter ||
+    statusFilter ||
+    excursionFilter ||
+    hotelFilter,
+  );
+
+  function clearFilters() {
+    setQuery("");
+    setDateFilter("");
+    setTimeFilter("");
+    setStatusFilter("");
+    setExcursionFilter("");
+    setHotelFilter("");
+  }
+
+  function toggleSortDirection() {
+    setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+  }
 
   function openCreateForm() {
     const firstExcursionId = excursions[0]?.id ?? 0;
@@ -520,30 +676,166 @@ export function ReservationsView() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search reservations..."
-              className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
-            />
+          <div className="flex w-full flex-col gap-3 lg:w-auto">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-white text-slate-700 shadow-sm">
+                    <Filter className="h-4 w-4" />
+                  </span>
+                  Search & filters
+                </div>
 
-            <button
-              type="button"
-              onClick={openCreateForm}
-              className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
-            >
-              Add reservation
-            </button>
-            <label className="cursor-pointer rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700">
-              Import Excel
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleExcelImport}
-                className="hidden"
-              />
-            </label>
+                {filtersActive && (
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                  >
+                    <X className="h-4 w-4" />
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
+                <div className="relative sm:col-span-2 xl:col-span-2">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search client, phone, hotel, excursion..."
+                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  />
+                </div>
+
+                <div className="relative">
+                  <CalendarDays className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  />
+                </div>
+
+                <div className="relative">
+                  <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="time"
+                    value={timeFilter}
+                    onChange={(e) => setTimeFilter(e.target.value)}
+                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  />
+                </div>
+
+                <div className="relative">
+                  <CheckCircle2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  >
+                    <option value="">All statuses</option>
+                    {statuses.map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="relative">
+                  <MapPinned className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <select
+                    value={excursionFilter}
+                    onChange={(e) => setExcursionFilter(e.target.value)}
+                    className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  >
+                    <option value="">All excursions</option>
+                    {excursions.map((excursion) => (
+                      <option key={excursion.id} value={excursion.id}>
+                        {excursion.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="relative">
+                  <Hotel className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <select
+                    value={hotelFilter}
+                    onChange={(e) => setHotelFilter(e.target.value)}
+                    className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  >
+                    <option value="">All hotels</option>
+                    {hotels.map((hotel) => (
+                      <option key={hotel.id} value={hotel.id}>
+                        {hotel.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto]">
+                <div className="relative">
+                  <ArrowUpDown className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as SortBy)}
+                    className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  >
+                    <option value="pickup_time">Order by pickup time</option>
+                    <option value="service_date">Order by service date</option>
+                    <option value="lead_name">Order by client name</option>
+                    <option value="hotel_name">Order by hotel</option>
+                    <option value="excursion_name">Order by excursion</option>
+                    <option value="status">Order by status</option>
+                    <option value="balance_due">Order by balance due</option>
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={toggleSortDirection}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                >
+                  {sortDirection === "asc" ? (
+                    <ArrowUp className="h-4 w-4" />
+                  ) : (
+                    <ArrowDown className="h-4 w-4" />
+                  )}
+                  {sortDirection === "asc" ? "Ascending" : "Descending"}
+                </button>
+
+                <div className="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm">
+                  Showing {filtered.length} / {reservations.length}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={openCreateForm}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+              >
+                <Plus className="h-4 w-4" />
+                Add reservation
+              </button>
+
+              <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                <FileSpreadsheet className="h-4 w-4" />
+                Import Excel
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleExcelImport}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
         </div>
 
@@ -1026,11 +1318,31 @@ export function ReservationsView() {
             <thead className="bg-slate-100 text-xs uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Locator</th>
-                <th className="px-4 py-3">Client</th>
-                <th className="px-4 py-3">Excursion</th>
-                <th className="px-4 py-3">Hotel</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Pickup</th>
+                <th className="px-4 py-3">
+                  <span className="inline-flex items-center gap-2">
+                    <UserRound className="h-4 w-4" /> Client
+                  </span>
+                </th>
+                <th className="px-4 py-3">
+                  <span className="inline-flex items-center gap-2">
+                    <MapPinned className="h-4 w-4" /> Excursion
+                  </span>
+                </th>
+                <th className="px-4 py-3">
+                  <span className="inline-flex items-center gap-2">
+                    <Hotel className="h-4 w-4" /> Hotel
+                  </span>
+                </th>
+                <th className="px-4 py-3">
+                  <span className="inline-flex items-center gap-2">
+                    <CalendarDays className="h-4 w-4" /> Date
+                  </span>
+                </th>
+                <th className="px-4 py-3">
+                  <span className="inline-flex items-center gap-2">
+                    <Clock className="h-4 w-4" /> Pickup
+                  </span>
+                </th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -1050,16 +1362,18 @@ export function ReservationsView() {
                     <button
                       type="button"
                       onClick={() => openEditForm(item)}
-                      className="mr-2 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold"
+                      className="mr-2 inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50"
                     >
+                      <Pencil className="h-3.5 w-3.5" />
                       Edit
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleDelete(item.id)}
-                      className="rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white"
+                      className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
                     >
+                      <Trash2 className="h-3.5 w-3.5" />
                       Delete
                     </button>
                   </td>
