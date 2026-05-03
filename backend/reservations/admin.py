@@ -9,6 +9,7 @@ from .models import (
     ReservationCost,
     ProviderPayment,
     AgencyPayment,
+    PickupTime
 )
 
 admin.site.register(Provider)
@@ -20,3 +21,4 @@ admin.site.register(Reservation)
 admin.site.register(ReservationCost)
 admin.site.register(ProviderPayment)
 admin.site.register(AgencyPayment)
+admin.site.register(PickupTime)
