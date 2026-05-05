@@ -13,6 +13,7 @@ import {
   Users,
   CheckSquare,
   Square,
+  Bus,
 } from "lucide-react";
 
 import {
@@ -23,7 +24,10 @@ import {
   getOperations,
   deleteOperation,
   markOperationSent,
+  getProviderServices,
 } from "../lib/api";
+
+import type { ProviderService } from "../types/types";
 
 type Option = {
   id?: number;
@@ -119,6 +123,10 @@ export function OperationsView() {
   const [driverName, setDriverName] = useState("");
   const [driverPhone, setDriverPhone] = useState("");
   const [notes, setNotes] = useState("");
+  const [providerServices, setProviderServices] = useState<ProviderService[]>(
+    [],
+  );
+  const [providerServiceId, setProviderServiceId] = useState("");
 
   const [loading, setLoading] = useState(false);
 
@@ -130,24 +138,40 @@ export function OperationsView() {
     try {
       setLoading(true);
 
-      const [reservationData, excursionData, providerData, operationData] =
-        await Promise.all([
-          getReservations() as Promise<Reservation[]>,
-          getRExcursions() as Promise<Option[]>,
-          getProviders() as Promise<Provider[]>,
-          getOperations() as Promise<Operation[]>,
-        ]);
+      const [
+        reservationData,
+        excursionData,
+        providerData,
+        operationData,
+        providerServiceData,
+      ] = await Promise.all([
+        getReservations() as Promise<Reservation[]>,
+        getRExcursions() as Promise<Option[]>,
+        getProviders() as Promise<Provider[]>,
+        getOperations() as Promise<Operation[]>,
+        getProviderServices() as Promise<ProviderService[]>,
+      ]);
 
       setReservations(reservationData);
       setExcursions(excursionData);
       setProviders(providerData);
       setOperations(operationData);
+      setProviderServices(providerServiceData);
     } catch (error) {
       console.error("Error loading operations data:", error);
     } finally {
       setLoading(false);
     }
   }
+
+  const filteredProviderServices = useMemo(() => {
+    if (!providerId) return [];
+
+    return providerServices.filter(
+      (service) =>
+        Number(service.provider) === Number(providerId) && service.is_active,
+    );
+  }, [providerServices, providerId]);
 
   const filteredReservations = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -159,7 +183,8 @@ export function OperationsView() {
         const matchesDate = !dateFilter || item.service_date === dateFilter;
 
         const matchesExcursion =
-          !excursionFilter || Number(itemExcursionId) === Number(excursionFilter);
+          !excursionFilter ||
+          Number(itemExcursionId) === Number(excursionFilter);
 
         const matchesQuery =
           !q ||
@@ -225,9 +250,7 @@ export function OperationsView() {
     if (!id) return;
 
     setSelectedIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id],
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   }
 
@@ -268,6 +291,7 @@ export function OperationsView() {
       date: dateFilter,
       excursion: Number(excursionFilter),
       provider: Number(providerId),
+      provider_service: providerServiceId ? Number(providerServiceId) : null,
       vehicle_name: vehicleName,
       driver_name: driverName,
       driver_phone: driverPhone,
@@ -285,6 +309,7 @@ export function OperationsView() {
       setDriverName("");
       setDriverPhone("");
       setNotes("");
+      setProviderServiceId("");
 
       alert("Operation created.");
     } catch (error) {
@@ -529,13 +554,40 @@ export function OperationsView() {
             <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <select
               value={providerId}
-              onChange={(e) => setProviderId(e.target.value)}
+              onChange={(e) => {
+                setProviderId(e.target.value);
+                setProviderServiceId("");
+              }}
               className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
             >
               <option value="">Select provider</option>
               {providers.map((provider) => (
                 <option key={provider.id} value={provider.id}>
                   {provider.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative">
+            <Bus className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+            <select
+              value={providerServiceId}
+              onChange={(e) => setProviderServiceId(e.target.value)}
+              disabled={!providerId}
+              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400"
+            >
+              <option value="">
+                {providerId
+                  ? "Select provider service"
+                  : "Select provider first"}
+              </option>
+
+              {filteredProviderServices.map((service) => (
+                <option key={service.id} value={service.id}>
+                  {service.name} - {service.cost_price} {service.currency} /{" "}
+                  {service.price_type}
                 </option>
               ))}
             </select>
@@ -702,7 +754,10 @@ export function OperationsView() {
 
             {filteredReservations.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
+                <td
+                  colSpan={8}
+                  className="px-4 py-8 text-center text-slate-500"
+                >
                   No reservations found for these filters.
                 </td>
               </tr>

@@ -203,3 +203,16 @@ export type Agency = {
   notes: string;
   is_active: boolean;
 };
+
+
+export type ProviderService = {
+  id?: number;
+  provider: number;
+  name: string;
+  category: string;
+  cost_price: string;
+  currency: string;
+  price_type: string;
+  is_active: boolean;
+  provider_name?: string;
+};
