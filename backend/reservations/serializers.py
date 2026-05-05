@@ -172,3 +172,105 @@ class AgencyPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = AgencyPayment
         fields = "__all__"
+
+
+
+
+from rest_framework import serializers
+from .models import Operation, Reservation
+
+
+class OperationReservationSerializer(serializers.ModelSerializer):
+    excursion_name = serializers.CharField(source="excursion.name", read_only=True)
+    hotel_name = serializers.CharField(source="hotel.name", read_only=True)
+    agency_name = serializers.CharField(source="agency.name", read_only=True)
+
+    class Meta:
+        model = Reservation
+        fields = [
+            "id",
+            "locator",
+            "lead_name",
+            "phone",
+            "email",
+            "excursion_name",
+            "hotel_name",
+            "agency_name",
+            "service_date",
+            "pickup_time",
+            "adults",
+            "children",
+            "infants",
+            "total_pax",
+            "language",
+            "status",
+            "notes",
+            "internal_notes",
+        ]
+
+
+class OperationSerializer(serializers.ModelSerializer):
+    excursion_name = serializers.CharField(source="excursion.name", read_only=True)
+    provider_name = serializers.CharField(source="provider.name", read_only=True)
+
+    reservation_ids = serializers.PrimaryKeyRelatedField(
+        source="reservations",
+        many=True,
+        queryset=Reservation.objects.all(),
+        write_only=True,
+        required=False,
+    )
+
+    provider_service_name = serializers.CharField(
+    source="provider_service.name",
+    read_only=True,
+)
+
+    provider_service_cost = serializers.DecimalField(
+        source="provider_service.cost_price",
+        max_digits=10,
+        decimal_places=2,
+        read_only=True,
+    )
+
+    provider_service_currency = serializers.CharField(
+        source="provider_service.currency",
+        read_only=True,
+    )
+
+    reservations = OperationReservationSerializer(many=True, read_only=True)
+
+    total_adults = serializers.ReadOnlyField()
+    total_children = serializers.ReadOnlyField()
+    total_infants = serializers.ReadOnlyField()
+    total_pax = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Operation
+        fields = [
+            "id",
+            "date",
+            "excursion",
+            "excursion_name",
+            "provider",
+            "provider_name",
+            "title",
+            "vehicle_name",
+            "driver_name",
+            "driver_phone",
+            "status",
+            "notes",
+            "reservation_ids",
+            "reservations",
+            "total_adults",
+            "total_children",
+            "total_infants",
+            "total_pax",
+            "sent_at",
+            "created_at",
+            "updated_at",
+            "provider_service",
+            "provider_service_name",
+            "provider_service_cost",
+            "provider_service_currency",
+        ]

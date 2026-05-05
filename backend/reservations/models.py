@@ -487,3 +487,79 @@ class AgencyPayment(models.Model):
 
     def __str__(self):
         return f"{self.agency.name} - {self.amount} {self.currency}"
+
+
+
+class Operation(models.Model):
+    STATUS_CHOICES = [
+        ("draft", "Draft"),
+        ("sent", "Sent to provider"),
+        ("confirmed", "Confirmed"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    date = models.DateField()
+    excursion = models.ForeignKey(
+        Excursion,
+        on_delete=models.PROTECT,
+        related_name="operations",
+    )
+    provider = models.ForeignKey(
+        Provider,
+        on_delete=models.PROTECT,
+        related_name="operations",
+    )
+    provider_service = models.ForeignKey(
+    ProviderService,
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="operations",
+    )
+
+    title = models.CharField(max_length=180, blank=True)
+    vehicle_name = models.CharField(max_length=120, blank=True)
+    driver_name = models.CharField(max_length=120, blank=True)
+    driver_phone = models.CharField(max_length=50, blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
+    notes = models.TextField(blank=True)
+
+    reservations = models.ManyToManyField(
+        Reservation,
+        related_name="operations",
+        blank=True,
+    )
+
+    sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-date", "excursion__name", "provider__name"]
+
+    @property
+    def total_adults(self):
+        return sum(r.adults for r in self.reservations.all())
+
+    @property
+    def total_children(self):
+        return sum(r.children for r in self.reservations.all())
+
+    @property
+    def total_infants(self):
+        return sum(r.infants for r in self.reservations.all())
+
+    @property
+    def total_pax(self):
+        return sum(r.total_pax for r in self.reservations.all())
+
+    def save(self, *args, **kwargs):
+        if not self.title and self.excursion_id and self.provider_id:
+            self.title = f"{self.excursion.name} - {self.provider.name} - {self.date}"
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title or f"Operation {self.id}"

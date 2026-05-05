@@ -13,6 +13,7 @@ from .views import (
     ProviderPaymentViewSet,
     AgencyPaymentViewSet,
     ImportReservationsExcelView,
+    OperationViewSet,
 )
 
 
@@ -29,6 +30,7 @@ router.register("reservations", ReservationViewSet)
 router.register("reservation-costs", ReservationCostViewSet)
 router.register("provider-payments", ProviderPaymentViewSet)
 router.register("agency-payments", AgencyPaymentViewSet)
+router.register(r"operations", OperationViewSet, basename="operations")
 
 urlpatterns = [
     path("", include(router.urls)),
