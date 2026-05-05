@@ -35,6 +35,7 @@ export default function Sidebar({
     ["hotels", "Hotels", Hotel],
     ["zones", "Zones", Layers],
     ["pickup_times", "Pickup Times", Clock],
+    ["operations", "Operations", CheckCircle2],
 
     ["providers", "Providers", Building2],
     ["provider_services", "Provider Services", Bus],

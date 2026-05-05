@@ -9,6 +9,7 @@ import { ExcursionsView } from "@/components/ExcursionsView";
 import { ProvidersView } from "@/components/ProvidersView";
 import { ProviderServicesView } from "@/components/ProviderServicesView";
 import { AgenciesView } from "@/components/AgenciesView";
+import { OperationsView } from "@/components/OperationsView";
 
 function DashboardView() {
   return (
@@ -108,6 +109,9 @@ export default function EcoAdventuresOperationsDashboard() {
 
       case "excel-imports":
         return <ExcelImportsView />;
+
+      case "operations":
+        return <OperationsView />;
 
       default:
         return <DashboardView />;

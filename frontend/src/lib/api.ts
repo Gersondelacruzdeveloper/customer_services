@@ -445,3 +445,42 @@ export async function importPickupTimesExcel(file: File) {
 
   return response.data;
 }
+
+
+/* -------------------- Operations CRUD -------------------- */
+
+export async function getOperations(params?: {
+  date?: string;
+  excursion?: string | number;
+  provider?: string | number;
+  status?: string;
+}) {
+  const res = await axios.get(`${API_BASE}/reservations/operations/`, {
+    params,
+  });
+  return extractData(res.data);
+}
+
+export async function createOperation(payload: any) {
+  const res = await axios.post(`${API_BASE}/reservations/operations/`, payload);
+  return res.data;
+}
+
+export async function updateOperation(id: number, payload: any) {
+  const res = await axios.put(
+    `${API_BASE}/reservations/operations/${id}/`,
+    payload,
+  );
+  return res.data;
+}
+
+export async function deleteOperation(id: number) {
+  await axios.delete(`${API_BASE}/reservations/operations/${id}/`);
+}
+
+export async function markOperationSent(id: number) {
+  const res = await axios.post(
+    `${API_BASE}/reservations/operations/${id}/mark-sent/`,
+  );
+  return res.data;
+}
