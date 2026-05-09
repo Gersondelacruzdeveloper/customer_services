@@ -210,21 +210,19 @@ class OperationReservationSerializer(serializers.ModelSerializer):
 
 
 class OperationSerializer(serializers.ModelSerializer):
-    excursion_name = serializers.CharField(source="excursion.name", read_only=True)
-    provider_name = serializers.CharField(source="provider.name", read_only=True)
-
-    reservation_ids = serializers.PrimaryKeyRelatedField(
-        source="reservations",
-        many=True,
-        queryset=Reservation.objects.all(),
-        write_only=True,
-        required=False,
+    excursion_name = serializers.CharField(
+        source="excursion.name",
+        read_only=True,
+        allow_null=True,
     )
 
+    provider_name = serializers.CharField(source="provider.name", read_only=True)
+
     provider_service_name = serializers.CharField(
-    source="provider_service.name",
-    read_only=True,
-)
+        source="provider_service.name",
+        read_only=True,
+        allow_null=True,
+    )
 
     provider_service_cost = serializers.DecimalField(
         source="provider_service.cost_price",
@@ -236,6 +234,15 @@ class OperationSerializer(serializers.ModelSerializer):
     provider_service_currency = serializers.CharField(
         source="provider_service.currency",
         read_only=True,
+        allow_null=True,
+    )
+
+    reservation_ids = serializers.PrimaryKeyRelatedField(
+        source="reservations",
+        many=True,
+        queryset=Reservation.objects.all(),
+        write_only=True,
+        required=False,
     )
 
     reservations = OperationReservationSerializer(many=True, read_only=True)
@@ -254,6 +261,10 @@ class OperationSerializer(serializers.ModelSerializer):
             "excursion_name",
             "provider",
             "provider_name",
+            "provider_service",
+            "provider_service_name",
+            "provider_service_cost",
+            "provider_service_currency",
             "title",
             "vehicle_name",
             "driver_name",
@@ -269,8 +280,15 @@ class OperationSerializer(serializers.ModelSerializer):
             "sent_at",
             "created_at",
             "updated_at",
-            "provider_service",
-            "provider_service_name",
-            "provider_service_cost",
-            "provider_service_currency",
         ]
+
+        extra_kwargs = {
+            "excursion": {
+                "required": False,
+                "allow_null": True,
+            },
+            "provider_service": {
+                "required": False,
+                "allow_null": True,
+            },
+        }

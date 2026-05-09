@@ -502,8 +502,11 @@ class Operation(models.Model):
     date = models.DateField()
     excursion = models.ForeignKey(
         Excursion,
+        null= True,
+        blank=True,
         on_delete=models.PROTECT,
         related_name="operations",
+    
     )
     provider = models.ForeignKey(
         Provider,

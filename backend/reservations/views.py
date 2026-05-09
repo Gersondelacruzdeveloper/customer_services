@@ -571,53 +571,52 @@ class ImportReservationsExcelView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
 
-
 class OperationViewSet(viewsets.ModelViewSet):
-    queryset = Operation.objects.select_related(
-        "excursion",
-        "provider",
-        "provider_service",
-    ).prefetch_related(
-        "reservations",
-        "reservations__hotel",
-        "reservations__excursion",
-        "reservations__agency",
-    ).all()
+        queryset = Operation.objects.select_related(
+            "excursion",
+            "provider",
+            "provider_service",
+        ).prefetch_related(
+            "reservations",
+            "reservations__hotel",
+            "reservations__excursion",
+            "reservations__agency",
+        ).all()
 
-    serializer_class = OperationSerializer
+        serializer_class = OperationSerializer
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
+        def get_queryset(self):
+            queryset = super().get_queryset()
 
-        date = self.request.query_params.get("date")
-        excursion = self.request.query_params.get("excursion")
-        provider = self.request.query_params.get("provider")
-        provider_service = self.request.query_params.get("provider_service")
-        status = self.request.query_params.get("status")
+            date = self.request.query_params.get("date")
+            excursion = self.request.query_params.get("excursion")
+            provider = self.request.query_params.get("provider")
+            provider_service = self.request.query_params.get("provider_service")
+            status = self.request.query_params.get("status")
 
-        if date:
-            queryset = queryset.filter(date=date)
+            if date:
+                queryset = queryset.filter(date=date)
 
-        if excursion:
-            queryset = queryset.filter(excursion_id=excursion)
+            if excursion:
+                queryset = queryset.filter(excursion_id=excursion)
 
-        if provider:
-            queryset = queryset.filter(provider_id=provider)
-        
-        if provider_service:
-            queryset = queryset.filter(provider_service_id=provider_service)
+            if provider:
+                queryset = queryset.filter(provider_id=provider)
+            
+            if provider_service:
+                queryset = queryset.filter(provider_service_id=provider_service)
 
-        if status:
-            queryset = queryset.filter(status=status)
+            if status:
+                queryset = queryset.filter(status=status)
 
-        return queryset
+            return queryset
 
-    @action(detail=True, methods=["post"], url_path="mark-sent")
-    def mark_sent(self, request, pk=None):
-        operation = self.get_object()
-        operation.status = "sent"
-        operation.sent_at = timezone.now()
-        operation.save()
+        @action(detail=True, methods=["post"], url_path="mark-sent")
+        def mark_sent(self, request, pk=None):
+            operation = self.get_object()
+            operation.status = "sent"
+            operation.sent_at = timezone.now()
+            operation.save()
 
-        serializer = self.get_serializer(operation)
-        return Response(serializer.data)
+            serializer = self.get_serializer(operation)
+            return Response(serializer.data)
