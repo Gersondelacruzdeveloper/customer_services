@@ -81,6 +81,8 @@ type Operation = {
   notes: string;
   total_pax: number;
   reservations: Reservation[];
+  provider_service?: number;
+  provider_service_name?: string;
 };
 
 function formatTime(time?: string | null) {
@@ -272,10 +274,10 @@ export function OperationsView() {
       return;
     }
 
-    if (!excursionFilter) {
-      alert("Please select an excursion.");
-      return;
-    }
+    // if (!excursionFilter) {
+    //   alert("Please select an excursion.");
+    //   return;
+    // }
 
     if (!providerId) {
       alert("Please select a provider.");
@@ -289,7 +291,7 @@ export function OperationsView() {
 
     const payload = {
       date: dateFilter,
-      excursion: Number(excursionFilter),
+      excursion: excursionFilter ? Number(excursionFilter) : null,
       provider: Number(providerId),
       provider_service: providerServiceId ? Number(providerServiceId) : null,
       vehicle_name: vehicleName,
@@ -428,8 +430,18 @@ export function OperationsView() {
 
           <p>
             <strong>Date:</strong> ${operation.date}<br/>
-            <strong>Excursion:</strong> ${operation.excursion_name}<br/>
+           ${
+             operation.excursion_name
+               ? `<strong>Excursion:</strong> ${operation.excursion_name}<br/>`
+               : ""
+           }
             <strong>Provider:</strong> ${operation.provider_name}<br/>
+
+            ${
+              operation.provider_service_name
+                ? `<strong>Provider Service:</strong> ${operation.provider_service_name}<br/>`
+                : ""
+            }
             <strong>Vehicle/Boat:</strong> ${operation.vehicle_name || "-"}<br/>
             <strong>Driver/Captain:</strong> ${operation.driver_name || "-"}<br/>
             <strong>Phone:</strong> ${operation.driver_phone || "-"}
@@ -778,12 +790,21 @@ export function OperationsView() {
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <h5 className="font-semibold text-slate-900">
-                    {operation.title}
+                    {operation.vehicle_name}
                   </h5>
 
-                  <p className="text-sm text-slate-500">
-                    {operation.date} • {operation.excursion_name} •{" "}
-                    {operation.provider_name} • {operation.total_pax} pax
+                <p className="mt-1 text-sm font-bold tracking-tight text-slate-900">
+                    {operation.excursion_name
+                      ? `${operation.excursion_name} • `
+                      : ""}
+
+                    {operation.provider_name}
+
+                    {operation.provider_service_name
+                      ? ` • ${operation.provider_service_name}`
+                      : ""}
+
+                    • {operation.total_pax} pax
                   </p>
 
                   <p className="mt-1 text-xs text-slate-500">
