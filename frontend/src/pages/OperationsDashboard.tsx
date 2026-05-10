@@ -11,19 +11,7 @@ import { ProviderServicesView } from "@/components/ProviderServicesView";
 import { AgenciesView } from "@/components/AgenciesView";
 import { OperationsView } from "@/components/OperationsView";
 import { AgencyExcursionPricesView } from "@/components/AgencyExcursionPricesView";
-
-function DashboardView() {
-  return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900">Dashboard</h3>
-        <p className="mt-1 text-sm text-slate-500">
-          Welcome to your operations dashboard.
-        </p>
-      </div>
-    </div>
-  );
-}
+import { DashboardView } from "@/components/DashboardView";
 
 function CostsView() {
   return (
