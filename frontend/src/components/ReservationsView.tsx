@@ -111,6 +111,10 @@ type Reservation = {
   balance_due?: string;
   agency_balance?: string;
   profit?: string;
+  payment_method: string;
+  card_fee_percent: string;
+  card_fee_amount: string;
+  final_total_with_card_fee: string;
 };
 
 const emptyForm: Reservation = {
@@ -143,6 +147,10 @@ const emptyForm: Reservation = {
 
   notes: "",
   internal_notes: "",
+  payment_method: "cash",
+  card_fee_percent: "12.00",
+  card_fee_amount: "0.00",
+  final_total_with_card_fee: "0.00",
 };
 
 const languages = [
@@ -381,6 +389,30 @@ export function ReservationsView() {
   const agencyBalance =
     Number(form.agency_price || 0) - Number(form.agency_paid || 0);
 
+  const cardFeeAmount =
+    form.payment_method === "card"
+      ? (Number(form.sale_total || 0) * Number(form.card_fee_percent || 0)) /
+        100
+      : 0;
+
+  const finalTotalWithCardFee = Number(form.sale_total || 0) + cardFeeAmount;
+
+  useEffect(() => {
+    const feeAmount =
+      form.payment_method === "card"
+        ? (Number(form.sale_total || 0) * Number(form.card_fee_percent || 0)) /
+          100
+        : 0;
+
+    const finalTotal = Number(form.sale_total || 0) + feeAmount;
+
+    setForm((prev) => ({
+      ...prev,
+      card_fee_amount: feeAmount.toFixed(2),
+      final_total_with_card_fee: finalTotal.toFixed(2),
+    }));
+  }, [form.payment_method, form.sale_total, form.card_fee_percent]);
+
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
 
@@ -502,7 +534,6 @@ export function ReservationsView() {
     );
   }
 
-
   function findExcursion(excursionId?: number | null) {
     if (!excursionId) return null;
 
@@ -510,51 +541,50 @@ export function ReservationsView() {
   }
 
   useEffect(() => {
-  if (!showForm) return;
-  if (!form.excursion_id) return;
+    if (!showForm) return;
+    if (!form.excursion_id) return;
 
-  const agencyPrice = findAgencyExcursionPrice(
+    const agencyPrice = findAgencyExcursionPrice(
+      form.agency_id,
+      form.excursion_id,
+    );
+
+    const excursion = findExcursion(form.excursion_id);
+
+    let adultPrice = 0;
+    let childPrice = 0;
+    let currency = form.currency || "USD";
+
+    if (agencyPrice) {
+      adultPrice = Number(agencyPrice.adult_price || 0);
+      childPrice = Number(agencyPrice.child_price || 0);
+      currency = agencyPrice.currency || currency;
+    } else if (excursion) {
+      adultPrice = Number(excursion.default_sale_price || 0);
+      childPrice = adultPrice * 0.5;
+      currency = excursion.currency || currency;
+    }
+
+    const adults = Number(form.adults || 0);
+    const children = Number(form.children || 0);
+
+    const total = adults * adultPrice + children * childPrice;
+
+    setForm((prev) => ({
+      ...prev,
+      sale_price_per_person: adultPrice.toFixed(2),
+      sale_total: total.toFixed(2),
+      currency,
+    }));
+  }, [
+    showForm,
     form.agency_id,
     form.excursion_id,
-  );
-
-  const excursion = findExcursion(form.excursion_id);
-
-  let adultPrice = 0;
-  let childPrice = 0;
-  let currency = form.currency || "USD";
-
-  if (agencyPrice) {
-    adultPrice = Number(agencyPrice.adult_price || 0);
-    childPrice = Number(agencyPrice.child_price || 0);
-    currency = agencyPrice.currency || currency;
-  } else if (excursion) {
-    adultPrice = Number(excursion.default_sale_price || 0);
-    childPrice = adultPrice * 0.5;
-    currency = excursion.currency || currency;
-  }
-
-  const adults = Number(form.adults || 0);
-  const children = Number(form.children || 0);
-
-  const total = adults * adultPrice + children * childPrice;
-
-  setForm((prev) => ({
-    ...prev,
-    sale_price_per_person: adultPrice.toFixed(2),
-    sale_total: total.toFixed(2),
-    currency,
-  }));
-}, [
-  showForm,
-  form.agency_id,
-  form.excursion_id,
-  form.adults,
-  form.children,
-  agencyExcursionPrices,
-  excursions,
-]);
-
+    form.adults,
+    form.children,
+    agencyExcursionPrices,
+    excursions,
+  ]);
 
   const filtersActive = Boolean(
     query ||
@@ -713,8 +743,11 @@ export function ReservationsView() {
 
       notes: form.notes || "",
       internal_notes: form.internal_notes || "",
+      payment_method: form.payment_method || "cash",
+      card_fee_percent: form.card_fee_percent || "12.00",
+      card_fee_amount: form.card_fee_amount || "0.00",
+      final_total_with_card_fee: form.final_total_with_card_fee || form.sale_total || "0.00",
     };
-    console.log("Submitting reservation with payload:", payload);
 
     try {
       if (editingId) {
@@ -1285,6 +1318,65 @@ export function ReservationsView() {
                     className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Payment method
+                  </label>
+                  <select
+                    value={form.payment_method}
+                    onChange={(e) =>
+                      updateFormField("payment_method", e.target.value)
+                    }
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="bank_transfer">Bank transfer</option>
+                    <option value="agency_collects">Agency collects</option>
+                    <option value="mixed">Mixed</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Card fee %
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={form.card_fee_percent}
+                    onChange={(e) =>
+                      updateFormField("card_fee_percent", e.target.value)
+                    }
+                    disabled={form.payment_method !== "card"}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm disabled:bg-slate-100"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Card fee amount
+                  </label>
+                  <input
+                    type="number"
+                    value={cardFeeAmount.toFixed(2)}
+                    readOnly
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-500">
+                    Final total with fee
+                  </label>
+                  <input
+                    type="number"
+                    value={finalTotalWithCardFee.toFixed(2)}
+                    readOnly
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm font-semibold"
+                  />
+                </div>
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
@@ -1304,7 +1396,6 @@ export function ReservationsView() {
               </div>
             </section>
 
-    
             <section className="rounded-3xl border border-slate-200 bg-white p-4">
               <h5 className="mb-4 text-sm font-semibold text-slate-800">
                 Notes
