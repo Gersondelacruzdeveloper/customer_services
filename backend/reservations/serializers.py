@@ -137,6 +137,16 @@ class ReservationSerializer(serializers.ModelSerializer):
                 "agency_balance",
                 "total_costs",
                 "profit",
+                "payment_method",
+                "collection_type",
+                "agency_commission",
+                "customer_paid_to_us",
+                "customer_paid_to_agency",
+                "agency_owes_us",
+                "we_owe_agency",
+                "card_fee_percent",
+                "card_fee_amount",
+                "final_total_with_card_fee",
             ]
 
         

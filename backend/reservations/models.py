@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator
 from django.db import models
 
+# -----------------------------------------------------------------Zone
 
 class Zone(models.Model):
     name = models.CharField(max_length=100)
@@ -14,7 +15,7 @@ class Zone(models.Model):
 
     def __str__(self):
         return self.name
-
+# -----------------------------------------------------------------Provider
 
 class Provider(models.Model):
     PROVIDER_TYPE_CHOICES = [
@@ -41,6 +42,7 @@ class Provider(models.Model):
     def __str__(self):
         return self.name
 
+# -----------------------------------------------------------------ProviderService
 
 class ProviderService(models.Model):
     PRICE_TYPE_CHOICES = [
@@ -78,6 +80,7 @@ class ProviderService(models.Model):
     def __str__(self):
         return f"{self.provider.name} - {self.name}"
 
+# -----------------------------------------------------------------Hotel
 
 class Hotel(models.Model):
     name = models.CharField(max_length=150)
@@ -100,7 +103,8 @@ class Hotel(models.Model):
 
     def __str__(self):
         return self.name
-
+    
+# -----------------------------------------------------------------Excursion
 
 class Excursion(models.Model):
     CURRENCY_CHOICES = [
@@ -137,6 +141,7 @@ class Excursion(models.Model):
     def __str__(self):
         return self.name
 
+# -----------------------------------------------------------------PickupTime
 
 class PickupTime(models.Model):
     excursion = models.ForeignKey(
@@ -175,6 +180,7 @@ class PickupTime(models.Model):
     def __str__(self):
         return f"{self.excursion.name} - {self.hotel.name} - {self.time}"
 
+# -----------------------------------------------------------------Agency
 
 class Agency(models.Model):
     name = models.CharField(max_length=150)
@@ -190,7 +196,7 @@ class Agency(models.Model):
     def __str__(self):
         return self.name
 
-
+# -----------------------------------------------------------------Reservation
 class Reservation(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),
@@ -216,133 +222,6 @@ class Reservation(models.Model):
         ("EUR", "EUR"),
     ]
 
-    locator = models.CharField(max_length=50, unique=True)
-
-    lead_name = models.CharField(max_length=150)
-    phone = models.CharField(max_length=50, blank=True)
-    email = models.EmailField(blank=True)
-
-    excursion = models.ForeignKey(
-        Excursion,
-        on_delete=models.PROTECT,
-        related_name="reservations",
-    )
-
-    hotel = models.ForeignKey(
-        Hotel,
-        on_delete=models.PROTECT,
-        related_name="reservations",
-    )
-
-    agency = models.ForeignKey(
-        Agency,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="reservations",
-    )
-
-    service_date = models.DateField()
-    pickup_time = models.TimeField(null=True, blank=True)
-
-    adults = models.PositiveIntegerField(default=1)
-    children = models.PositiveIntegerField(default=0)
-    infants = models.PositiveIntegerField(default=0)
-
-    language = models.CharField(max_length=10, choices=LANGUAGE_CHOICES, default="en")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
-
-    sale_price_per_person = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=Decimal("0.00"),
-        validators=[MinValueValidator(Decimal("0.00"))],
-    )
-
-    sale_total = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=Decimal("0.00"),
-        validators=[MinValueValidator(Decimal("0.00"))],
-    )
-
-    paid_amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=Decimal("0.00"),
-        validators=[MinValueValidator(Decimal("0.00"))],
-    )
-
-    currency = models.CharField(max_length=10, choices=CURRENCY_CHOICES, default="USD")
-
-    agency_price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=Decimal("0.00"),
-        validators=[MinValueValidator(Decimal("0.00"))],
-    )
-
-    agency_paid = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=Decimal("0.00"),
-        validators=[MinValueValidator(Decimal("0.00"))],
-    )
-
-    notes = models.TextField(blank=True)
-    internal_notes = models.TextField(blank=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["-service_date", "-id"]
-
-    @property
-    def total_pax(self):
-        return self.adults + self.children + self.infants
-
-    @property
-    def balance_due(self):
-        return self.sale_total - self.paid_amount
-
-    @property
-    def agency_balance(self):
-        return self.agency_price - self.agency_paid
-
-    @property
-    def total_costs(self):
-        return sum((cost.total_cost for cost in self.costs.all()), Decimal("0.00"))
-
-    @property
-    def profit(self):
-        return self.sale_total - self.total_costs
-
-    def save(self, *args, **kwargs):
-        if not self.pickup_time and self.excursion_id and self.hotel_id:
-            pickup = PickupTime.objects.filter(
-                excursion_id=self.excursion_id,
-                hotel_id=self.hotel_id,
-            ).first()
-
-            if pickup:
-                self.pickup_time = pickup.time
-
-        if self.sale_total == Decimal("0.00") and self.sale_price_per_person:
-            self.sale_total = self.sale_price_per_person * Decimal(self.total_pax)
-
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.locator} - {self.lead_name}"
-
-
-class ReservationCost(models.Model):
-    CURRENCY_CHOICES = [
-        ("USD", "USD"),
-        ("DOP", "DOP"),
-        ("EUR", "EUR"),
-    ]
     PAYMENT_METHOD_CHOICES = [
     ("cash", "Cash"),
     ("card", "Card"),
@@ -421,6 +300,180 @@ class ReservationCost(models.Model):
     )
 
 
+    locator = models.CharField(max_length=50, unique=True)
+
+    lead_name = models.CharField(max_length=150)
+    phone = models.CharField(max_length=50, blank=True)
+    email = models.EmailField(blank=True)
+
+    excursion = models.ForeignKey(
+        Excursion,
+        on_delete=models.PROTECT,
+        related_name="reservations",
+    )
+
+    hotel = models.ForeignKey(
+        Hotel,
+        on_delete=models.PROTECT,
+        related_name="reservations",
+    )
+
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reservations",
+    )
+
+    service_date = models.DateField()
+    pickup_time = models.TimeField(null=True, blank=True)
+
+    adults = models.PositiveIntegerField(default=1)
+    children = models.PositiveIntegerField(default=0)
+    infants = models.PositiveIntegerField(default=0)
+
+    language = models.CharField(max_length=10, choices=LANGUAGE_CHOICES, default="en")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+
+    sale_price_per_person = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
+    )
+
+    sale_total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
+    )
+
+    paid_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
+    )
+
+    currency = models.CharField(max_length=10, choices=CURRENCY_CHOICES, default="USD")
+
+    agency_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
+    )
+
+    agency_paid = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(Decimal("0.00"))],
+    )
+
+
+
+    notes = models.TextField(blank=True)
+    internal_notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-service_date", "-id"]
+
+    @property
+    def total_pax(self):
+        return self.adults + self.children + self.infants
+
+    @property
+    def balance_due(self):
+        return self.sale_total - self.paid_amount
+
+    @property
+    def agency_balance(self):
+        return self.agency_price - self.agency_paid
+
+    @property
+    def total_costs(self):
+        return sum((cost.total_cost for cost in self.costs.all()), Decimal("0.00"))
+
+    @property
+    def profit(self):
+        return self.sale_total - self.total_costs
+    def calculate_agency_settlement(self):
+        sale_total = self.sale_total or Decimal("0.00")
+        agency_commission = self.agency_commission or Decimal("0.00")
+        paid_to_us = self.customer_paid_to_us or Decimal("0.00")
+        paid_to_agency = self.customer_paid_to_agency or Decimal("0.00")
+
+        self.agency_owes_us = Decimal("0.00")
+        self.we_owe_agency = Decimal("0.00")
+
+        if not self.agency:
+            return
+
+        if self.collection_type == "we_collect_full":
+            self.we_owe_agency = agency_commission
+
+        elif self.collection_type == "agency_collects_full":
+            self.agency_owes_us = max(
+                sale_total - agency_commission,
+                Decimal("0.00"),
+            )
+
+        elif self.collection_type == "agency_collects_commission":
+            self.we_owe_agency = max(
+                agency_commission - paid_to_agency,
+                Decimal("0.00"),
+            )
+
+        elif self.collection_type == "agency_pays_balance":
+            self.agency_owes_us = max(
+                sale_total - agency_commission - paid_to_us,
+                Decimal("0.00"),
+            )
+
+    def save(self, *args, **kwargs):
+        sale_total = self.sale_total or Decimal("0.00")
+        self.card_fee_amount = Decimal("0.00")
+        self.final_total_with_card_fee = sale_total
+
+        if self.payment_method == "card":
+                self.card_fee_amount = (
+                    sale_total * self.card_fee_percent
+                ) / Decimal("100.00")
+
+                self.final_total_with_card_fee = (
+                    sale_total + self.card_fee_amount
+                )
+        self.calculate_agency_settlement()
+        if not self.pickup_time and self.excursion_id and self.hotel_id:
+            pickup = PickupTime.objects.filter(
+                excursion_id=self.excursion_id,
+                hotel_id=self.hotel_id,
+            ).first()
+
+            if pickup:
+                self.pickup_time = pickup.time
+
+        if self.sale_total == Decimal("0.00") and self.sale_price_per_person:
+            self.sale_total = self.sale_price_per_person * Decimal(self.total_pax)
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.locator} - {self.lead_name}"
+
+# -----------------------------------------------------------------ReservationCost
+class ReservationCost(models.Model):
+    CURRENCY_CHOICES = [
+        ("USD", "USD"),
+        ("DOP", "DOP"),
+        ("EUR", "EUR"),
+    ]
 
     reservation = models.ForeignKey(
         Reservation,
@@ -483,54 +536,8 @@ class ReservationCost(models.Model):
     def balance_due(self):
         return self.total_cost - self.paid_amount
     
-    def calculate_agency_settlement(self):
-        sale_total = self.sale_total or Decimal("0.00")
-        agency_commission = self.agency_commission or Decimal("0.00")
-        paid_to_us = self.customer_paid_to_us or Decimal("0.00")
-        paid_to_agency = self.customer_paid_to_agency or Decimal("0.00")
-
-        self.agency_owes_us = Decimal("0.00")
-        self.we_owe_agency = Decimal("0.00")
-
-        if not self.agency:
-            return
-
-        if self.collection_type == "we_collect_full":
-            self.we_owe_agency = agency_commission
-
-        elif self.collection_type == "agency_collects_full":
-            self.agency_owes_us = max(
-                sale_total - agency_commission,
-                Decimal("0.00"),
-            )
-
-        elif self.collection_type == "agency_collects_commission":
-            self.we_owe_agency = max(
-                agency_commission - paid_to_agency,
-                Decimal("0.00"),
-            )
-
-        elif self.collection_type == "agency_pays_balance":
-            self.agency_owes_us = max(
-                sale_total - agency_commission - paid_to_us,
-                Decimal("0.00"),
-            )
 
     def save(self, *args, **kwargs):
-        sale_total = self.sale_total or Decimal("0.00")
-
-        self.card_fee_amount = Decimal("0.00")
-        self.final_total_with_card_fee = sale_total
-
-        if self.payment_method == "card":
-                self.card_fee_amount = (
-                    sale_total * self.card_fee_percent
-                ) / Decimal("100.00")
-
-                self.final_total_with_card_fee = (
-                    sale_total + self.card_fee_amount
-                )
-        self.calculate_agency_settlement()
         if self.provider_service:
             if not self.provider_id:
                 self.provider = self.provider_service.provider
@@ -551,6 +558,7 @@ class ReservationCost(models.Model):
     def __str__(self):
         return f"{self.reservation.locator} - {self.provider_service.name}"
 
+# -----------------------------------------------------------------ProviderPayment
 
 class ProviderPayment(models.Model):
     CURRENCY_CHOICES = [
@@ -582,6 +590,7 @@ class ProviderPayment(models.Model):
     def __str__(self):
         return f"{self.provider.name} - {self.amount} {self.currency}"
 
+# -----------------------------------------------------------------AgencyPayment
 
 class AgencyPayment(models.Model):
     CURRENCY_CHOICES = [
@@ -614,6 +623,7 @@ class AgencyPayment(models.Model):
         return f"{self.agency.name} - {self.amount} {self.currency}"
 
 
+# -----------------------------------------------------------------Operation
 
 class Operation(models.Model):
     STATUS_CHOICES = [
@@ -692,6 +702,7 @@ class Operation(models.Model):
     def __str__(self):
         return self.title or f"Operation {self.id}"
     
+# -----------------------------------------------------------------AgencyExcursionPrice
 
 class AgencyExcursionPrice(models.Model):
     agency = models.ForeignKey(
