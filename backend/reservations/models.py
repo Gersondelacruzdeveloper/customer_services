@@ -566,3 +566,44 @@ class Operation(models.Model):
 
     def __str__(self):
         return self.title or f"Operation {self.id}"
+    
+
+class AgencyExcursionPrice(models.Model):
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="excursion_prices",
+    )
+
+    excursion = models.ForeignKey(
+        Excursion,
+        on_delete=models.CASCADE,
+        related_name="agency_prices",
+    )
+
+    adult_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+    )
+
+    child_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+    )
+
+    currency = models.CharField(
+        max_length=10,
+        choices=Excursion.CURRENCY_CHOICES,
+        default="USD",
+    )
+
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["agency__name", "excursion__name"]
+        unique_together = ("agency", "excursion")
+
+    def __str__(self):
+        return f"{self.agency} - {self.excursion}"

@@ -19,6 +19,7 @@ from .models import (
     ProviderPayment,
     AgencyPayment,
     Operation,
+    AgencyExcursionPrice,
 )
 from .serializers import (
     ZoneSerializer,
@@ -33,6 +34,7 @@ from .serializers import (
     ProviderPaymentSerializer,
     AgencyPaymentSerializer,
     OperationSerializer,
+    AgencyExcursionPriceSerializer,
 )
 
 
@@ -620,3 +622,31 @@ class OperationViewSet(viewsets.ModelViewSet):
 
             serializer = self.get_serializer(operation)
             return Response(serializer.data)
+        
+
+
+class AgencyExcursionPriceViewSet(viewsets.ModelViewSet):
+    queryset = AgencyExcursionPrice.objects.select_related(
+        "agency",
+        "excursion",
+    ).all()
+
+    serializer_class = AgencyExcursionPriceSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        agency_id = self.request.query_params.get("agency")
+        excursion_id = self.request.query_params.get("excursion")
+
+        if agency_id:
+            queryset = queryset.filter(agency_id=agency_id)
+
+        if excursion_id:
+            queryset = queryset.filter(excursion_id=excursion_id)
+
+        return queryset
+    
+
+
+    

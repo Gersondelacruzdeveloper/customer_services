@@ -11,6 +11,7 @@ from .models import (
     ReservationCost,
     ProviderPayment,
     AgencyPayment,
+    AgencyExcursionPrice,
 )
 
 class ZoneSerializer(serializers.ModelSerializer):
@@ -292,3 +293,34 @@ class OperationSerializer(serializers.ModelSerializer):
                 "allow_null": True,
             },
         }
+
+
+class AgencyExcursionPriceSerializer(serializers.ModelSerializer):
+    agency_name = serializers.CharField(
+        source="agency.name",
+        read_only=True,
+    )
+
+    excursion_name = serializers.CharField(
+        source="excursion.name",
+        read_only=True,
+    )
+
+    class Meta:
+        model = AgencyExcursionPrice
+
+        fields = [
+            "id",
+
+            "agency",
+            "agency_name",
+
+            "excursion",
+            "excursion_name",
+
+            "adult_price",
+            "child_price",
+
+            "currency",
+            "is_active",
+        ]
