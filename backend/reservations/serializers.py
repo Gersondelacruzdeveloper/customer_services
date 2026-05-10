@@ -217,6 +217,7 @@ class OperationSerializer(serializers.ModelSerializer):
         allow_null=True,
     )
 
+
     provider_name = serializers.CharField(source="provider.name", read_only=True)
 
     provider_service_name = serializers.CharField(
@@ -234,6 +235,12 @@ class OperationSerializer(serializers.ModelSerializer):
 
     provider_service_currency = serializers.CharField(
         source="provider_service.currency",
+        read_only=True,
+        allow_null=True,
+    )
+
+    provider_service_price_type = serializers.CharField(
+        source="provider_service.price_type",
         read_only=True,
         allow_null=True,
     )
@@ -266,6 +273,7 @@ class OperationSerializer(serializers.ModelSerializer):
             "provider_service_name",
             "provider_service_cost",
             "provider_service_currency",
+            "provider_service_price_type",
             "title",
             "vehicle_name",
             "driver_name",
