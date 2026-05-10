@@ -413,6 +413,19 @@ export function ReservationsView() {
     }));
   }, [form.payment_method, form.sale_total, form.card_fee_percent]);
 
+    useEffect(() => {
+      if (form.payment_method !== "agency_collects") {
+        return;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        agency_price: prev.sale_total || "0.00",
+      }));
+    }, [form.payment_method, form.sale_total]);
+
+
+
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
 
@@ -986,6 +999,8 @@ export function ReservationsView() {
               </h5>
 
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
                     Locator
@@ -1393,6 +1408,7 @@ export function ReservationsView() {
                     className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
+
               </div>
             </section>
 
