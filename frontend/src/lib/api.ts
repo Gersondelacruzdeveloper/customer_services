@@ -484,3 +484,35 @@ export async function markOperationSent(id: number) {
   );
   return res.data;
 }
+
+
+
+export async function getAgencyExcursionPrices() {
+  const response = await axios.get(`${API_BASE}/reservations/agency-excursion-prices/`);
+  return extractData(response.data);
+}
+
+export async function createAgencyExcursionPrice(payload: any) {
+  const response = await axios.post(`${API_BASE}/reservations/agency-excursion-prices/`, payload);
+  return extractData(response.data);
+}
+
+export async function updateAgencyExcursionPrice(
+  id: number,
+  payload: any,
+) {
+  const response = await axios.put(
+    `${API_BASE}/reservations/agency-excursion-prices/${id}/`,
+    payload,
+  );
+
+  return extractData(response.data);
+}
+
+export async function deleteAgencyExcursionPrice(id: number) {
+  const response = await axios.delete(
+    `${API_BASE}/reservations/agency-excursion-prices/${id}/`,
+  );
+
+  return extractData(response.data);
+}

@@ -29,16 +29,30 @@ import {
   getReservations,
   updateReservation,
   importReservationsExcel,
+  getAgencyExcursionPrices,
 } from "../lib/api";
 
 type Option = {
   id?: number;
   name: string;
+  default_sale_price?: string;
+  currency?: string;
 };
 
 type Agency = {
   id?: number;
   name: string;
+};
+type AgencyExcursionPrice = {
+  id?: number;
+  agency: number;
+  excursion: number;
+  agency_name?: string;
+  excursion_name?: string;
+  adult_price: string;
+  child_price: string;
+  currency: string;
+  is_active: boolean;
 };
 
 type PickupTime = {
@@ -199,6 +213,9 @@ export function ReservationsView() {
   const [hotels, setHotels] = useState<Option[]>([]);
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [pickupTimes, setPickupTimes] = useState<PickupTime[]>([]);
+  const [agencyExcursionPrices, setAgencyExcursionPrices] = useState<
+    AgencyExcursionPrice[]
+  >([]);
 
   const [form, setForm] = useState<Reservation>(emptyForm);
   const [query, setQuery] = useState("");
@@ -247,17 +264,21 @@ export function ReservationsView() {
         hotelDataRaw,
         agencyData,
         pickupTimeData,
+        agencyExcursionPriceData,
       ] = await Promise.all([
         getReservations() as Promise<Reservation[]>,
         getRExcursions(),
         getRHotels(),
         getAgencies() as Promise<Agency[]>,
         getPickupTimes() as Promise<PickupTime[]>,
+        getAgencyExcursionPrices() as Promise<AgencyExcursionPrice[]>,
       ]);
 
       const excursionData: Option[] = excursionDataRaw.map((item: any) => ({
         id: typeof item.id === "string" ? parseInt(item.id) : item.id,
         name: item.name,
+        default_sale_price: item.default_sale_price ?? "0.00",
+        currency: item.currency ?? "USD",
       }));
 
       const hotelData: Option[] = hotelDataRaw.map((item: any) => ({
@@ -270,7 +291,7 @@ export function ReservationsView() {
       setHotels(hotelData);
       setAgencies(agencyData);
       setPickupTimes(pickupTimeData);
-
+      setAgencyExcursionPrices(agencyExcursionPriceData);
       const firstExcursionId = excursionData[0]?.id ?? 0;
       const firstHotelId = hotelData[0]?.id ?? 0;
 
@@ -466,6 +487,74 @@ export function ReservationsView() {
     hotels,
     agencies,
   ]);
+
+  function findAgencyExcursionPrice(
+    agencyId?: number | null,
+    excursionId?: number | null,
+  ) {
+    if (!agencyId || !excursionId) return null;
+
+    return agencyExcursionPrices.find(
+      (item) =>
+        Number(item.agency) === Number(agencyId) &&
+        Number(item.excursion) === Number(excursionId) &&
+        item.is_active,
+    );
+  }
+
+
+  function findExcursion(excursionId?: number | null) {
+    if (!excursionId) return null;
+
+    return excursions.find((item) => Number(item.id) === Number(excursionId));
+  }
+
+  useEffect(() => {
+  if (!showForm) return;
+  if (!form.excursion_id) return;
+
+  const agencyPrice = findAgencyExcursionPrice(
+    form.agency_id,
+    form.excursion_id,
+  );
+
+  const excursion = findExcursion(form.excursion_id);
+
+  let adultPrice = 0;
+  let childPrice = 0;
+  let currency = form.currency || "USD";
+
+  if (agencyPrice) {
+    adultPrice = Number(agencyPrice.adult_price || 0);
+    childPrice = Number(agencyPrice.child_price || 0);
+    currency = agencyPrice.currency || currency;
+  } else if (excursion) {
+    adultPrice = Number(excursion.default_sale_price || 0);
+    childPrice = adultPrice * 0.5;
+    currency = excursion.currency || currency;
+  }
+
+  const adults = Number(form.adults || 0);
+  const children = Number(form.children || 0);
+
+  const total = adults * adultPrice + children * childPrice;
+
+  setForm((prev) => ({
+    ...prev,
+    sale_price_per_person: adultPrice.toFixed(2),
+    sale_total: total.toFixed(2),
+    currency,
+  }));
+}, [
+  showForm,
+  form.agency_id,
+  form.excursion_id,
+  form.adults,
+  form.children,
+  agencyExcursionPrices,
+  excursions,
+]);
+
 
   const filtersActive = Boolean(
     query ||
@@ -1215,52 +1304,7 @@ export function ReservationsView() {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <h5 className="text-sm font-semibold text-slate-800">
-                  Agency payment
-                </h5>
-
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                  Agency balance: {agencyBalance.toFixed(2)} {form.currency}
-                </span>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-slate-500">
-                    Agency price
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={form.agency_price}
-                    onChange={(e) =>
-                      updateFormField("agency_price", e.target.value)
-                    }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-slate-500">
-                    Agency paid
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={form.agency_paid}
-                    onChange={(e) =>
-                      updateFormField("agency_paid", e.target.value)
-                    }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-                  />
-                </div>
-              </div>
-            </section>
-
+    
             <section className="rounded-3xl border border-slate-200 bg-white p-4">
               <h5 className="mb-4 text-sm font-semibold text-slate-800">
                 Notes

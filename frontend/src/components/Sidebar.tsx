@@ -13,6 +13,7 @@ import {
   Layers,
   Handshake,
   CreditCard,
+  BadgeDollarSign,
 } from "lucide-react";
 
 export function classNames(...parts: Array<string | false | null | undefined>) {
@@ -41,6 +42,7 @@ export default function Sidebar({
     ["provider_services", "Provider Services", Bus],
 
     ["agencies", "Agencies", Handshake],
+    ["agency-prices", "Agency Prices", BadgeDollarSign],
 
     ["costs", "Costs & Profit", DollarSign],
     ["provider-payments", "Provider Payments", CreditCard],
