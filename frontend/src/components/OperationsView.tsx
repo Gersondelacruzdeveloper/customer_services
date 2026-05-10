@@ -25,6 +25,7 @@ import {
   deleteOperation,
   markOperationSent,
   getProviderServices,
+  updateOperation,
 } from "../lib/api";
 
 import type { ProviderService } from "../types/types";
@@ -112,6 +113,15 @@ function paxTotal(item: Reservation) {
 export function OperationsView() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [operations, setOperations] = useState<Operation[]>([]);
+  const today = new Date().toISOString().split("T")[0];
+  const [operationSearch, setOperationSearch] = useState("");
+  const [operationDateFilter, setOperationDateFilter] = useState(today);
+  const [operationStatusFilter, setOperationStatusFilter] = useState("");
+  const [operationStatus, setOperationStatus] = useState("draft");
+  const [editingOperationId, setEditingOperationId] = useState<number | null>(
+    null,
+  );
+
   const [excursions, setExcursions] = useState<Option[]>([]);
   const [providers, setProviders] = useState<Provider[]>([]);
 
@@ -164,6 +174,81 @@ export function OperationsView() {
     } finally {
       setLoading(false);
     }
+  }
+
+
+  function getOperationActionLabel(status: string) {
+  if (status === "draft") return "Send to provider";
+  if (status === "sent") return "Mark confirmed";
+  if (status === "confirmed") return "Mark completed";
+  if (status === "completed") return "Completed";
+  if (status === "cancelled") return "Cancelled";
+
+  return "Update status";
+}
+
+
+
+  const filteredOperations = useMemo(() => {
+    const q = operationSearch.toLowerCase().trim();
+
+    return operations
+      .filter((operation) => {
+        const matchesDate =
+          !operationDateFilter || operation.date === operationDateFilter;
+
+        const matchesStatus =
+          !operationStatusFilter || operation.status === operationStatusFilter;
+
+        const matchesSearch =
+          !q ||
+          [
+            operation.title,
+            operation.date,
+            operation.excursion_name,
+            operation.provider_name,
+            operation.provider_service_name,
+            operation.vehicle_name,
+            operation.driver_name,
+            operation.driver_phone,
+            operation.status,
+            operation.notes,
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(q);
+
+        return matchesDate && matchesStatus && matchesSearch;
+      })
+      .sort((a, b) => b.date.localeCompare(a.date));
+  }, [operations, operationSearch, operationDateFilter, operationStatusFilter]);
+  //--------------------------------------------------------------- edit opetaions
+
+  function handleEditOperation(operation: Operation) {
+    setEditingOperationId(operation.id);
+    setOperationStatus(operation.status || "draft");
+    setDateFilter(operation.date);
+    setExcursionFilter(operation.excursion ? String(operation.excursion) : "");
+    setProviderId(operation.provider ? String(operation.provider) : "");
+    setProviderServiceId(
+      operation.provider_service ? String(operation.provider_service) : "",
+    );
+    setVehicleName(operation.vehicle_name || "");
+    setDriverName(operation.driver_name || "");
+    setDriverPhone(operation.driver_phone || "");
+    setNotes(operation.notes || "");
+  }
+
+  //-------------------------------------------------------------- cancel edit:
+
+  function cancelEditOperation() {
+    setEditingOperationId(null);
+    setVehicleName("");
+    setDriverName("");
+    setDriverPhone("");
+    setNotes("");
+    setProviderServiceId("");
+    setOperationStatus("draft");
   }
 
   const filteredProviderServices = useMemo(() => {
@@ -268,23 +353,18 @@ export function OperationsView() {
     setSelectedIds([]);
   }
 
-  async function handleCreateOperation() {
+  async function handleSaveOperation() {
     if (!dateFilter) {
       alert("Please select a date.");
       return;
     }
-
-    // if (!excursionFilter) {
-    //   alert("Please select an excursion.");
-    //   return;
-    // }
 
     if (!providerId) {
       alert("Please select a provider.");
       return;
     }
 
-    if (selectedIds.length === 0) {
+    if (!editingOperationId && selectedIds.length === 0) {
       alert("Please select at least one reservation.");
       return;
     }
@@ -298,25 +378,31 @@ export function OperationsView() {
       driver_name: driverName,
       driver_phone: driverPhone,
       notes,
-      reservation_ids: selectedIds,
-      status: "draft",
+      status: operationStatus,
+      ...(editingOperationId ? {} : { reservation_ids: selectedIds }),
     };
 
     try {
-      await createOperation(payload);
+      if (editingOperationId) {
+        await updateOperation(editingOperationId, payload);
+        alert("Operation updated.");
+      } else {
+        await createOperation(payload);
+        alert("Operation created.");
+      }
+
       await loadData();
 
+      setEditingOperationId(null);
       setSelectedIds([]);
       setVehicleName("");
       setDriverName("");
       setDriverPhone("");
       setNotes("");
       setProviderServiceId("");
-
-      alert("Operation created.");
     } catch (error) {
-      console.error("Error creating operation:", error);
-      alert("Error creating operation.");
+      console.error("Error saving operation:", error);
+      alert("Error saving operation.");
     }
   }
 
@@ -520,12 +606,13 @@ export function OperationsView() {
 
           <button
             type="button"
-            onClick={handleCreateOperation}
+            onClick={handleSaveOperation}
             disabled={loading}
             className="flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
           >
             <Save className="h-4 w-4" />
-            Create operation
+
+            {editingOperationId ? "Update operation" : "Create operation"}
           </button>
         </div>
 
@@ -637,6 +724,17 @@ export function OperationsView() {
             placeholder="Driver / captain phone"
             className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
           />
+          <select
+            value={operationStatus}
+            onChange={(e) => setOperationStatus(e.target.value)}
+            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
+          >
+            <option value="draft">Draft</option>
+            <option value="sent">Sent to provider</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
 
           <input
             value={notes}
@@ -781,8 +879,73 @@ export function OperationsView() {
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <h4 className="font-semibold text-slate-900">Created operations</h4>
 
+        <div className="mb-4 mt-4 grid gap-3 md:grid-cols-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
+            <input
+              value={operationSearch}
+              onChange={(e) => setOperationSearch(e.target.value)}
+              placeholder="Search operations..."
+              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
+            />
+          </div>
+
+          <input
+            type="date"
+            value={operationDateFilter}
+            onChange={(e) => setOperationDateFilter(e.target.value)}
+            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
+          />
+
+          <select
+            value={operationStatusFilter}
+            onChange={(e) => setOperationStatusFilter(e.target.value)}
+            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
+          >
+            <option value="">All statuses</option>
+            <option value="draft">Draft</option>
+            <option value="sent">Sent</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setOperationDateFilter(today)}
+              className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
+            >
+              Today
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                setOperationDateFilter(tomorrow.toISOString().split("T")[0]);
+              }}
+              className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
+            >
+              Tomorrow
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setOperationDateFilter("")}
+              className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
+            >
+              All
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-3"></div>
+
         <div className="mt-4 space-y-3">
-          {operations.map((operation) => (
+          {filteredOperations.map((operation) => (
             <div
               key={operation.id}
               className="rounded-3xl border border-slate-200 p-4"
@@ -793,17 +956,14 @@ export function OperationsView() {
                     {operation.vehicle_name}
                   </h5>
 
-                <p className="mt-1 text-sm font-bold tracking-tight text-slate-900">
+                  <p className="mt-1 text-sm font-bold tracking-tight text-slate-900">
                     {operation.excursion_name
                       ? `${operation.excursion_name} • `
                       : ""}
-
                     {operation.provider_name}
-
                     {operation.provider_service_name
                       ? ` • ${operation.provider_service_name}`
                       : ""}
-
                     • {operation.total_pax} pax
                   </p>
 
@@ -815,7 +975,19 @@ export function OperationsView() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
+                  <span
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                      operation.status === "draft"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : operation.status === "sent"
+                          ? "bg-blue-100 text-blue-800"
+                          : operation.status === "confirmed"
+                            ? "bg-green-100 text-green-800"
+                            : operation.status === "completed"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-red-100 text-red-800"
+                    }`}
+                  >
                     {operation.status}
                   </span>
 
@@ -827,15 +999,26 @@ export function OperationsView() {
                     <Printer className="h-4 w-4" />
                     Print / PDF
                   </button>
-
                   <button
                     type="button"
-                    onClick={() => handleMarkSent(operation.id)}
-                    className="flex items-center gap-2 rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white"
+                    onClick={() => handleEditOperation(operation)}
+                    className="flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                   >
-                    <Send className="h-4 w-4" />
-                    Mark sent
+                    Edit
                   </button>
+
+               <button
+                  type="button"
+                  onClick={() => handleMarkSent(operation.id)}
+                  disabled={
+                    operation.status === "completed" ||
+                    operation.status === "cancelled"
+                  }
+                  className="flex items-center gap-2 rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                >
+                  <Send className="h-4 w-4" />
+                  {getOperationActionLabel(operation.status)}
+                </button>
 
                   <button
                     type="button"
