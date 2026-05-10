@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, DollarSign, Printer, Handshake } from "lucide-react";
+import {
+  CalendarDays,
+  DollarSign,
+  Printer,
+  Handshake,
+  Search,
+  Filter,
+  ArrowUpDown,
+} from "lucide-react";
 import { getReservations, getAgencies } from "../lib/api";
 
 type Agency = {
@@ -20,6 +28,8 @@ type Reservation = {
   agency_paid: string;
   agency_balance?: string;
   currency: string;
+  status?: string;
+  payment_method?: string;
 };
 
 function money(value: number, currency = "USD") {
@@ -30,11 +40,24 @@ function getAgencyId(item: Reservation) {
   return item.agency ?? item.agency_id ?? null;
 }
 
+function getBalance(item: Reservation) {
+  return Number(item.agency_price || 0) - Number(item.agency_paid || 0);
+}
+
 export function AgencySettlementView() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [agencies, setAgencies] = useState<Agency[]>([]);
+
+  const [query, setQuery] = useState("");
   const [agencyFilter, setAgencyFilter] = useState("");
   const [monthFilter, setMonthFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [currencyFilter, setCurrencyFilter] = useState("");
+  const [balanceFilter, setBalanceFilter] = useState("");
+  const [minBalance, setMinBalance] = useState("");
+  const [maxBalance, setMaxBalance] = useState("");
+  const [sortBy, setSortBy] = useState("date_desc");
 
   useEffect(() => {
     loadData();
@@ -56,10 +79,31 @@ export function AgencySettlementView() {
     }
   }
 
+  const currencies = useMemo(() => {
+    return Array.from(
+      new Set(reservations.map((item) => item.currency).filter(Boolean)),
+    );
+  }, [reservations]);
+
   const filtered = useMemo(() => {
-    return reservations.filter((item) => {
+    const result = reservations.filter((item) => {
       const agencyId = getAgencyId(item);
       if (!agencyId) return false;
+
+      const balance = getBalance(item);
+
+      const searchText = [
+        item.locator,
+        item.lead_name,
+        item.agency_name,
+        item.service_date,
+        item.currency,
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      const matchesSearch =
+        !query || searchText.includes(query.toLowerCase());
 
       const matchesAgency =
         !agencyFilter || Number(agencyId) === Number(agencyFilter);
@@ -67,9 +111,79 @@ export function AgencySettlementView() {
       const matchesMonth =
         !monthFilter || item.service_date?.slice(0, 7) === monthFilter;
 
-      return matchesAgency && matchesMonth;
+      const matchesDateFrom =
+        !dateFrom || item.service_date >= dateFrom;
+
+      const matchesDateTo =
+        !dateTo || item.service_date <= dateTo;
+
+      const matchesCurrency =
+        !currencyFilter || item.currency === currencyFilter;
+
+      const matchesBalanceStatus =
+        !balanceFilter ||
+        (balanceFilter === "unpaid" && balance > 0) ||
+        (balanceFilter === "paid" && balance === 0) ||
+        (balanceFilter === "overpaid" && balance < 0);
+
+      const matchesMinBalance =
+        !minBalance || balance >= Number(minBalance);
+
+      const matchesMaxBalance =
+        !maxBalance || balance <= Number(maxBalance);
+
+      return (
+        matchesSearch &&
+        matchesAgency &&
+        matchesMonth &&
+        matchesDateFrom &&
+        matchesDateTo &&
+        matchesCurrency &&
+        matchesBalanceStatus &&
+        matchesMinBalance &&
+        matchesMaxBalance
+      );
     });
-  }, [reservations, agencyFilter, monthFilter]);
+
+    return result.sort((a, b) => {
+      const balanceA = getBalance(a);
+      const balanceB = getBalance(b);
+
+      if (sortBy === "date_asc") {
+        return a.service_date.localeCompare(b.service_date);
+      }
+
+      if (sortBy === "date_desc") {
+        return b.service_date.localeCompare(a.service_date);
+      }
+
+      if (sortBy === "balance_high") {
+        return balanceB - balanceA;
+      }
+
+      if (sortBy === "balance_low") {
+        return balanceA - balanceB;
+      }
+
+      if (sortBy === "client_asc") {
+        return a.lead_name.localeCompare(b.lead_name);
+      }
+
+      return 0;
+    });
+  }, [
+    reservations,
+    query,
+    agencyFilter,
+    monthFilter,
+    dateFrom,
+    dateTo,
+    currencyFilter,
+    balanceFilter,
+    minBalance,
+    maxBalance,
+    sortBy,
+  ]);
 
   const totals = useMemo(() => {
     const agencyTotalDue = filtered.reduce(
@@ -88,9 +202,23 @@ export function AgencySettlementView() {
       agencyTotalDue,
       agencyPaid,
       agencyRemaining,
-      currency: filtered[0]?.currency || "USD",
+      currency: filtered[0]?.currency || currencyFilter || "USD",
+      totalReservations: filtered.length,
     };
-  }, [filtered]);
+  }, [filtered, currencyFilter]);
+
+  function clearFilters() {
+    setQuery("");
+    setAgencyFilter("");
+    setMonthFilter("");
+    setDateFrom("");
+    setDateTo("");
+    setCurrencyFilter("");
+    setBalanceFilter("");
+    setMinBalance("");
+    setMaxBalance("");
+    setSortBy("date_desc");
+  }
 
   function handlePrint() {
     window.print();
@@ -105,7 +233,7 @@ export function AgencySettlementView() {
               Agency Settlement
             </h2>
             <p className="text-sm text-slate-500">
-              Track how much agencies need to pay you.
+              Track agency balances, payments, and pending amounts.
             </p>
           </div>
 
@@ -119,51 +247,126 @@ export function AgencySettlementView() {
           </button>
         </div>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-3 print:hidden">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-500">Agency</label>
-            <select
-              value={agencyFilter}
-              onChange={(e) => setAgencyFilter(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-            >
-              <option value="">All agencies</option>
-              {agencies
-                .filter((agency) => agency.id)
-                .map((agency) => (
-                  <option key={agency.id} value={agency.id}>
-                    {agency.name}
-                  </option>
-                ))}
-            </select>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-500">Month</label>
+        <div className="mt-5 grid gap-3 md:grid-cols-4 print:hidden">
+          <div className="relative md:col-span-2">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
-              type="month"
-              value={monthFilter}
-              onChange={(e) => setMonthFilter(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search client, locator, agency..."
+              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
             />
           </div>
 
-          <div className="flex items-end">
-            <button
-              type="button"
-              onClick={() => {
-                setAgencyFilter("");
-                setMonthFilter("");
-              }}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
+          <select
+            value={agencyFilter}
+            onChange={(e) => setAgencyFilter(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+          >
+            <option value="">All agencies</option>
+            {agencies
+              .filter((agency) => agency.id)
+              .map((agency) => (
+                <option key={agency.id} value={agency.id}>
+                  {agency.name}
+                </option>
+              ))}
+          </select>
+
+          <input
+            type="month"
+            value={monthFilter}
+            onChange={(e) => setMonthFilter(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+          />
+
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+          />
+
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+          />
+
+          <select
+            value={currencyFilter}
+            onChange={(e) => setCurrencyFilter(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+          >
+            <option value="">All currencies</option>
+            {currencies.map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={balanceFilter}
+            onChange={(e) => setBalanceFilter(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+          >
+            <option value="">All balances</option>
+            <option value="unpaid">Unpaid balance</option>
+            <option value="paid">Fully paid</option>
+            <option value="overpaid">Overpaid</option>
+          </select>
+
+          <input
+            type="number"
+            value={minBalance}
+            onChange={(e) => setMinBalance(e.target.value)}
+            placeholder="Min balance"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+          />
+
+          <input
+            type="number"
+            value={maxBalance}
+            onChange={(e) => setMaxBalance(e.target.value)}
+            placeholder="Max balance"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+          />
+
+          <div className="relative">
+            <ArrowUpDown className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm"
             >
-              Clear filters
-            </button>
+              <option value="date_desc">Newest first</option>
+              <option value="date_asc">Oldest first</option>
+              <option value="balance_high">Highest balance</option>
+              <option value="balance_low">Lowest balance</option>
+              <option value="client_asc">Client A-Z</option>
+            </select>
           </div>
+
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
+          >
+            <Filter className="h-4 w-4" />
+            Clear filters
+          </button>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
+        <SummaryCard
+          title="Reservations"
+          value={String(totals.totalReservations)}
+          icon={<CalendarDays className="h-5 w-5" />}
+        />
+
         <SummaryCard
           title="Agency total due"
           value={money(totals.agencyTotalDue, totals.currency)}
@@ -184,56 +387,65 @@ export function AgencySettlementView() {
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-slate-100 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3">Locator</th>
-              <th className="px-4 py-3">Client</th>
-              <th className="px-4 py-3">Agency</th>
-              <th className="px-4 py-3">Sale total</th>
-              <th className="px-4 py-3">Agency total due</th>
-              <th className="px-4 py-3">Agency paid</th>
-              <th className="px-4 py-3">Remaining balance</th>
-            </tr>
-          </thead>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-100 text-xs uppercase text-slate-500">
+              <tr>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Locator</th>
+                <th className="px-4 py-3">Client</th>
+                <th className="px-4 py-3">Agency</th>
+                <th className="px-4 py-3">Sale total</th>
+                <th className="px-4 py-3">Agency total due</th>
+                <th className="px-4 py-3">Agency paid</th>
+                <th className="px-4 py-3">Remaining balance</th>
+              </tr>
+            </thead>
 
-          <tbody className="divide-y divide-slate-200 bg-white">
-            {filtered.map((item) => {
-              const remaining =
-                Number(item.agency_price || 0) - Number(item.agency_paid || 0);
+            <tbody className="divide-y divide-slate-200 bg-white">
+              {filtered.map((item) => {
+                const remaining = getBalance(item);
 
-              return (
-                <tr key={item.id}>
-                  <td className="px-4 py-3">{item.service_date}</td>
-                  <td className="px-4 py-3 font-semibold">{item.locator}</td>
-                  <td className="px-4 py-3">{item.lead_name}</td>
-                  <td className="px-4 py-3">{item.agency_name}</td>
-                  <td className="px-4 py-3">
-                    {money(Number(item.sale_total || 0), item.currency)}
-                  </td>
-                  <td className="px-4 py-3 font-semibold">
-                    {money(Number(item.agency_price || 0), item.currency)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {money(Number(item.agency_paid || 0), item.currency)}
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-red-700">
-                    {money(remaining, item.currency)}
+                return (
+                  <tr key={item.id}>
+                    <td className="px-4 py-3">{item.service_date}</td>
+                    <td className="px-4 py-3 font-semibold">{item.locator}</td>
+                    <td className="px-4 py-3">{item.lead_name}</td>
+                    <td className="px-4 py-3">{item.agency_name}</td>
+                    <td className="px-4 py-3">
+                      {money(Number(item.sale_total || 0), item.currency)}
+                    </td>
+                    <td className="px-4 py-3 font-semibold">
+                      {money(Number(item.agency_price || 0), item.currency)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {money(Number(item.agency_paid || 0), item.currency)}
+                    </td>
+                    <td
+                      className={`px-4 py-3 font-semibold ${
+                        remaining > 0
+                          ? "text-red-700"
+                          : remaining < 0
+                            ? "text-blue-700"
+                            : "text-green-700"
+                      }`}
+                    >
+                      {money(remaining, item.currency)}
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
+                    No agency settlement records found.
                   </td>
                 </tr>
-              );
-            })}
-
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
-                  No agency settlement records found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

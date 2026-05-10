@@ -45,11 +45,8 @@ export default function Sidebar({
     ["agency-prices", "Agency Prices", BadgeDollarSign],
     ["agency-settlement", "Agency Settlement", Handshake],
 
-    ["costs", "Costs & Profit", DollarSign],
     ["provider-payments", "Provider Payments", CreditCard],
-    ["agency-payments", "Agency Payments", CreditCard],
 
-    ["imports", "Excel Imports", FileSpreadsheet],
     ["surveys", "Surveys", UserRound],
   ] as const;
 
