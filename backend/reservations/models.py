@@ -343,6 +343,84 @@ class ReservationCost(models.Model):
         ("DOP", "DOP"),
         ("EUR", "EUR"),
     ]
+    PAYMENT_METHOD_CHOICES = [
+    ("cash", "Cash"),
+    ("card", "Card"),
+    ("bank_transfer", "Bank transfer"),
+    ("agency_collects", "Agency collects"),
+    ("mixed", "Mixed"),
+    ]
+
+    COLLECTION_TYPE_CHOICES = [
+    ("we_collect_full", "We collect full amount"),
+    ("agency_collects_full", "Agency collects full amount"),
+    ("agency_collects_commission", "Agency collects commission only"),
+    ("agency_pays_balance", "Agency pays balance"),
+    ]
+
+    payment_method = models.CharField(
+    max_length=30,
+    choices=PAYMENT_METHOD_CHOICES,
+    default="cash",
+    )
+
+    collection_type = models.CharField(
+    max_length=40,
+    choices=COLLECTION_TYPE_CHOICES,
+    default="we_collect_full",
+    )
+
+    card_fee_percent = models.DecimalField(
+    max_digits=5,
+    decimal_places=2,
+    default=Decimal("12.00"),
+    )
+
+    card_fee_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+    )
+
+    final_total_with_card_fee = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+    )
+
+    agency_commission = models.DecimalField(
+    max_digits=10,
+    decimal_places=2,
+    default=Decimal("0.00"),
+    validators=[MinValueValidator(Decimal("0.00"))],
+    )
+    customer_paid_to_us = models.DecimalField(
+    max_digits=10,
+    decimal_places=2,
+    default=Decimal("0.00"),
+    validators=[MinValueValidator(Decimal("0.00"))],
+   )
+    
+    customer_paid_to_agency = models.DecimalField(
+    max_digits=10,
+    decimal_places=2,
+    default=Decimal("0.00"),
+    validators=[MinValueValidator(Decimal("0.00"))],
+    )
+
+    agency_owes_us = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+    )
+
+    we_owe_agency = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal("0.00"),
+    )
+
+
 
     reservation = models.ForeignKey(
         Reservation,
@@ -404,8 +482,55 @@ class ReservationCost(models.Model):
     @property
     def balance_due(self):
         return self.total_cost - self.paid_amount
+    
+    def calculate_agency_settlement(self):
+        sale_total = self.sale_total or Decimal("0.00")
+        agency_commission = self.agency_commission or Decimal("0.00")
+        paid_to_us = self.customer_paid_to_us or Decimal("0.00")
+        paid_to_agency = self.customer_paid_to_agency or Decimal("0.00")
+
+        self.agency_owes_us = Decimal("0.00")
+        self.we_owe_agency = Decimal("0.00")
+
+        if not self.agency:
+            return
+
+        if self.collection_type == "we_collect_full":
+            self.we_owe_agency = agency_commission
+
+        elif self.collection_type == "agency_collects_full":
+            self.agency_owes_us = max(
+                sale_total - agency_commission,
+                Decimal("0.00"),
+            )
+
+        elif self.collection_type == "agency_collects_commission":
+            self.we_owe_agency = max(
+                agency_commission - paid_to_agency,
+                Decimal("0.00"),
+            )
+
+        elif self.collection_type == "agency_pays_balance":
+            self.agency_owes_us = max(
+                sale_total - agency_commission - paid_to_us,
+                Decimal("0.00"),
+            )
 
     def save(self, *args, **kwargs):
+        sale_total = self.sale_total or Decimal("0.00")
+
+        self.card_fee_amount = Decimal("0.00")
+        self.final_total_with_card_fee = sale_total
+
+        if self.payment_method == "card":
+                self.card_fee_amount = (
+                    sale_total * self.card_fee_percent
+                ) / Decimal("100.00")
+
+                self.final_total_with_card_fee = (
+                    sale_total + self.card_fee_amount
+                )
+        self.calculate_agency_settlement()
         if self.provider_service:
             if not self.provider_id:
                 self.provider = self.provider_service.provider
