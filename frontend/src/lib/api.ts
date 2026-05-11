@@ -11,7 +11,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("access");
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -515,4 +515,12 @@ export async function deleteAgencyExcursionPrice(id: number) {
   );
 
   return extractData(response.data);
+}
+
+
+export async function updateAgencyAccess(id: number, data: any) {
+  const token = localStorage.getItem("access_token");
+  console.log("TOKEN BEING SENT:", token);
+  const response = await api.patch(`/reservations/agency-access/${id}/`, data);
+  return response.data;
 }
