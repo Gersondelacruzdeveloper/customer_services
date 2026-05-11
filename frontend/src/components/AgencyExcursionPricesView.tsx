@@ -68,7 +68,7 @@ export function AgencyExcursionPricesView() {
         name: item.name,
       }));
 
-      setPrices(priceData);
+      setPrices(priceData as AgencyExcursionPrice[]);
       setAgencies(agencyData);
       setExcursions(excursionData);
 

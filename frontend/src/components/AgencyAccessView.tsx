@@ -26,9 +26,8 @@ export function AgencyAccessView() {
   }, []);
 
   async function loadAgencies() {
-    const data = await getAgencies();
-    console.log("AGENCIES:", data);
-    setAgencies(Array.isArray(data) ? data : []);
+    const data = (await getAgencies()) as Agency[];
+    setAgencies(data);
   }
 
   const filteredAgencies = useMemo(() => {

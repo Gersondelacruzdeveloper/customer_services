@@ -70,8 +70,8 @@ export function AgencySettlementView() {
         getAgencies(),
       ]);
 
-      setReservations(Array.isArray(reservationDataRaw) ? reservationDataRaw : []);
-      setAgencies(Array.isArray(agencyDataRaw) ? agencyDataRaw : []);
+      setReservations(reservationDataRaw as Reservation[]);
+      setAgencies(agencyDataRaw as Agency[]);
     } catch (error) {
       console.error("Error loading agency settlement data:", error);
       setReservations([]);

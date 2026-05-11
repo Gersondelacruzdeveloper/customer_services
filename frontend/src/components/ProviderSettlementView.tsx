@@ -99,8 +99,8 @@ export function ProviderSettlementView() {
         getProviders(),
       ]);
 
-      setOperations(Array.isArray(operationDataRaw) ? operationDataRaw : []);
-      setProviders(Array.isArray(providerDataRaw) ? providerDataRaw : []);
+      setOperations(operationDataRaw as Operation[]);
+      setProviders(providerDataRaw as Provider[]);
     } catch (error) {
       console.error("Error loading provider settlement data:", error);
       setOperations([]);
@@ -417,7 +417,7 @@ export function ProviderSettlementView() {
                     <td className="px-4 py-3">{pax}</td>
                     <td className="px-4 py-3">{money(cost, currency)}</td>
                     <td className="px-4 py-3 capitalize">
-                    {priceType.replaceAll("_", " ")}
+                      {priceType.replace(/_/g, " ")}
                     </td>
 
 
