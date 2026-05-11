@@ -22,7 +22,6 @@ export function AgenciesView() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  console.log("agencies", agencies)
 
   useEffect(() => {
     loadAgencies();
@@ -141,10 +140,10 @@ export function AgenciesView() {
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Agencies</h3>
+            <h3 className="text-lg font-semibold text-slate-900">Agencias</h3>
 
             <p className="text-sm text-slate-500">
-              Manage agencies, partners, contacts and referral sources.
+              Gestiona agencias, socios, contactos y fuentes de referencias.
             </p>
           </div>
 
@@ -152,7 +151,7 @@ export function AgenciesView() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search agencies..."
+              placeholder="Buscar agencias..."
               className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
             />
 
@@ -161,7 +160,7 @@ export function AgenciesView() {
               onClick={openCreateForm}
               className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
             >
-              Add agency
+              Agregar agencia
             </button>
           </div>
         </div>
@@ -173,7 +172,7 @@ export function AgenciesView() {
           >
             <div className="mb-4 flex items-center justify-between">
               <h4 className="font-semibold text-slate-900">
-                {editingId ? "Edit agency" : "Add agency"}
+                {editingId ? "Editar agencia" : "Agregar agencia"}
               </h4>
 
               <button
@@ -181,7 +180,7 @@ export function AgenciesView() {
                 onClick={closeForm}
                 className="text-sm font-medium text-slate-500 hover:text-slate-900"
               >
-                Cancel
+                Cancelar
               </button>
             </div>
 
@@ -189,7 +188,7 @@ export function AgenciesView() {
               <input
                 value={form.name}
                 onChange={(e) => updateFormField("name", e.target.value)}
-                placeholder="Agency name"
+                placeholder=" Nombre de la agencia"
                 required
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
@@ -199,14 +198,14 @@ export function AgenciesView() {
                 onChange={(e) =>
                   updateFormField("contact_name", e.target.value)
                 }
-                placeholder="Contact name"
+                placeholder="Nombre del contacto"
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
 
               <input
                 value={form.phone}
                 onChange={(e) => updateFormField("phone", e.target.value)}
-                placeholder="Phone"
+                placeholder="Teléfono"
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
 
@@ -214,7 +213,7 @@ export function AgenciesView() {
                 type="email"
                 value={form.email}
                 onChange={(e) => updateFormField("email", e.target.value)}
-                placeholder="Email"
+                placeholder="Correo electrónico"
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
 
@@ -226,13 +225,13 @@ export function AgenciesView() {
                     updateFormField("is_active", e.target.checked)
                   }
                 />
-                Active agency
+                Agencia activa
               </label>
 
               <textarea
                 value={form.notes}
                 onChange={(e) => updateFormField("notes", e.target.value)}
-                placeholder="Notes"
+                placeholder="Notas"
                 rows={3}
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm md:col-span-2 lg:col-span-3"
               />
@@ -244,14 +243,14 @@ export function AgenciesView() {
                 onClick={closeForm}
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
               >
-                Cancel
+                Cancelar
               </button>
 
               <button
                 type="submit"
                 className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
               >
-                {editingId ? "Update agency" : "Create agency"}
+                {editingId ? "Actualizar agencia" : "Crear agencia"}
               </button>
             </div>
           </form>
@@ -260,18 +259,18 @@ export function AgenciesView() {
         <div className="mt-5 overflow-x-auto">
           {loading ? (
             <p className="py-6 text-sm text-slate-500">
-              Loading agencies...
+              Cargando agencias...
             </p>
           ) : (
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500">
-                  <th className="py-3 pr-4 font-medium">Agency</th>
-                  <th className="py-3 pr-4 font-medium">Contact</th>
-                  <th className="py-3 pr-4 font-medium">Phone</th>
-                  <th className="py-3 pr-4 font-medium">Email</th>
-                  <th className="py-3 pr-4 font-medium">Status</th>
-                  <th className="py-3 pr-4 font-medium">Actions</th>
+                  <th className="py-3 pr-4 font-medium">Agencia</th>
+                  <th className="py-3 pr-4 font-medium">Contacto</th>
+                  <th className="py-3 pr-4 font-medium">Teléfono</th>
+                  <th className="py-3 pr-4 font-medium">Correo electrónico</th>
+                  <th className="py-3 pr-4 font-medium">Estado</th>
+                  <th className="py-3 pr-4 font-medium">Acciones</th>
                 </tr>
               </thead>
 
@@ -301,7 +300,7 @@ export function AgenciesView() {
                             : "rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
                         }
                       >
-                        {agency.is_active ? "Active" : "Inactive"}
+                        {agency.is_active ? "Activa" : "Inactiva"}
                       </span>
                     </td>
 
@@ -312,7 +311,7 @@ export function AgenciesView() {
                           onClick={() => openEditForm(agency)}
                           className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                         >
-                          Edit
+                          Editar
                         </button>
 
                         <button
@@ -320,7 +319,7 @@ export function AgenciesView() {
                           onClick={() => handleDelete(agency.id)}
                           className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
                         >
-                          Delete
+                          Eliminar
                         </button>
                       </div>
                     </td>
@@ -333,7 +332,7 @@ export function AgenciesView() {
                       colSpan={6}
                       className="py-8 text-center text-sm text-slate-500"
                     >
-                      No agencies found.
+                      No se encontraron agencias.
                     </td>
                   </tr>
                 )}

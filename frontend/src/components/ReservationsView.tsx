@@ -780,7 +780,7 @@ export function ReservationsView() {
     if (!id) return;
 
     const confirmed = window.confirm(
-      "Are you sure you want to delete this reservation?",
+      "¿Estás seguro de que deseas eliminar esta agencia?",
     );
 
     if (!confirmed) return;
@@ -802,12 +802,11 @@ export function ReservationsView() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
-              Reservations
+              Reservas
             </h3>
 
             <p className="text-sm text-slate-500">
-              Manage bookings, clients, hotels, excursions, pickup times and
-              payment balances.
+              Gestiona reservas, clientes, hoteles, excursiones, horarios de recogida y balances de pago.
             </p>
           </div>
 
@@ -818,7 +817,7 @@ export function ReservationsView() {
                   <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-white text-slate-700 shadow-sm">
                     <Filter className="h-4 w-4" />
                   </span>
-                  Search & filters
+                  Búsqueda y filtros
                 </div>
 
                 {filtersActive && (
@@ -828,7 +827,7 @@ export function ReservationsView() {
                     className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100"
                   >
                     <X className="h-4 w-4" />
-                    Clear
+                    Limpiar
                   </button>
                 )}
               </div>
@@ -839,7 +838,7 @@ export function ReservationsView() {
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search client, phone, hotel, excursion..."
+                    placeholder="Buscar cliente, teléfono, hotel, excursión..."
                     className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
                   />
                 </div>
@@ -871,7 +870,7 @@ export function ReservationsView() {
                     onChange={(e) => setStatusFilter(e.target.value)}
                     className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
                   >
-                    <option value="">All statuses</option>
+                    <option value="">Todos los estados</option>
                     {statuses.map(([value, label]) => (
                       <option key={value} value={value}>
                         {label}
@@ -887,7 +886,7 @@ export function ReservationsView() {
                     onChange={(e) => setExcursionFilter(e.target.value)}
                     className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
                   >
-                    <option value="">All excursions</option>
+                    <option value="">Todas las excursiones</option>
                     {excursions.map((excursion) => (
                       <option key={excursion.id} value={excursion.id}>
                         {excursion.name}
@@ -903,7 +902,7 @@ export function ReservationsView() {
                     onChange={(e) => setHotelFilter(e.target.value)}
                     className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
                   >
-                    <option value="">All hotels</option>
+                    <option value="">Todos los hoteles</option>
                     {hotels.map((hotel) => (
                       <option key={hotel.id} value={hotel.id}>
                         {hotel.name}
@@ -921,13 +920,13 @@ export function ReservationsView() {
                     onChange={(e) => setSortBy(e.target.value as SortBy)}
                     className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
                   >
-                    <option value="pickup_time">Order by pickup time</option>
-                    <option value="service_date">Order by service date</option>
-                    <option value="lead_name">Order by client name</option>
-                    <option value="hotel_name">Order by hotel</option>
-                    <option value="excursion_name">Order by excursion</option>
-                    <option value="status">Order by status</option>
-                    <option value="balance_due">Order by balance due</option>
+                    <option value="pickup_time">Ordenar por hora de recogida</option>
+                    <option value="service_date">Ordenar por fecha de servicio</option>
+                    <option value="lead_name">Ordenar por nombre del cliente</option>
+                    <option value="hotel_name">Ordenar por hotel</option>
+                    <option value="excursion_name">Ordenar por excursión</option>
+                    <option value="status">Ordenar por estado</option>
+                    <option value="balance_due">Ordenar por saldo adeudado</option>
                   </select>
                 </div>
 
@@ -945,7 +944,7 @@ export function ReservationsView() {
                 </button>
 
                 <div className="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm">
-                  Showing {filtered.length} / {reservations.length}
+                  Mostrando {filtered.length} / {reservations.length}
                 </div>
               </div>
             </div>
@@ -957,12 +956,12 @@ export function ReservationsView() {
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
               >
                 <Plus className="h-4 w-4" />
-                Add reservation
+                Agregar reserva
               </button>
 
               <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                 <FileSpreadsheet className="h-4 w-4" />
-                Import Excel
+                Importar Excel
                 <input
                   type="file"
                   accept=".xlsx,.xls"
@@ -981,7 +980,7 @@ export function ReservationsView() {
           >
             <div className="flex items-center justify-between">
               <h4 className="font-semibold text-slate-900">
-                {editingId ? "Edit reservation" : "Add reservation"}
+                {editingId ? "Editar reserva" : "Agregar reserva"}
               </h4>
 
               <button
@@ -989,13 +988,13 @@ export function ReservationsView() {
                 onClick={closeForm}
                 className="text-sm font-medium text-slate-500 hover:text-slate-900"
               >
-                Cancel
+                Cancelar
               </button>
             </div>
 
             <section className="rounded-3xl border border-slate-200 bg-white p-4">
               <h5 className="mb-4 text-sm font-semibold text-slate-800">
-                Client information
+                Información del cliente
               </h5>
 
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -1003,7 +1002,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Locator
+                   Localizador
                   </label>
                   <input
                     value={form.locator}
@@ -1015,7 +1014,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Lead name
+                    Nombre del cliente
                   </label>
                   <input
                     value={form.lead_name}
@@ -1029,7 +1028,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Phone
+                    Teléfono
                   </label>
                   <input
                     value={form.phone}
@@ -1040,7 +1039,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Email
+                    Correo electrónico
                   </label>
                   <input
                     type="email"
@@ -1054,13 +1053,13 @@ export function ReservationsView() {
 
             <section className="rounded-3xl border border-slate-200 bg-white p-4">
               <h5 className="mb-4 text-sm font-semibold text-slate-800">
-                Booking details
+                Detalles de la reserva
               </h5>
 
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Excursion
+                    Excursión
                   </label>
                   <select
                     value={form.excursion_id ?? ""}
@@ -1098,7 +1097,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Agency
+                    Agencia
                   </label>
                   <select
                     value={form.agency_id ?? ""}
@@ -1110,7 +1109,7 @@ export function ReservationsView() {
                     }
                     className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   >
-                    <option value="">No agency</option>
+                    <option value="">Sin agencia</option>
 
                     {agencies.map((agency) => (
                       <option key={agency.id} value={agency.id}>
@@ -1122,7 +1121,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Service date
+                    Fecha de servicio
                   </label>
                   <input
                     type="date"
@@ -1138,7 +1137,7 @@ export function ReservationsView() {
                 <div className="space-y-1 lg:col-span-2">
                   <div className="flex items-center justify-between gap-3">
                     <label className="text-xs font-medium text-slate-500">
-                      Pickup time
+                      Hora de recogida
                     </label>
 
                     {suggestedPickupTime ? (
@@ -1147,11 +1146,11 @@ export function ReservationsView() {
                         onClick={useSuggestedPickupTime}
                         className="text-xs font-semibold text-slate-600 hover:text-slate-950"
                       >
-                        Use suggested {formatTime(suggestedPickupTime)}
+                        Usar sugerida {formatTime(suggestedPickupTime)}
                       </button>
                     ) : (
                       <span className="text-xs text-amber-600">
-                        No pickup rule found
+                        No se encontró una regla de recogida
                       </span>
                     )}
                   </div>
@@ -1165,18 +1164,18 @@ export function ReservationsView() {
 
                   <p className="text-xs text-slate-500">
                     {pickupOverridden
-                      ? "Manual override active. This time will be saved."
+                      ? "La modificación manual está activa. Esta hora será guardada."
                       : suggestedPickupTime
-                        ? `Auto-filled from pickup rules: ${formatTime(
+                        ? `Completado automáticamente según las reglas de recogida ${formatTime(
                             suggestedPickupTime,
-                          )}. You can still change it.`
-                        : "Choose an excursion and hotel with a saved pickup rule, or enter the time manually."}
+                          )}.Aún puedes cambiarlo.`
+                        : "Elige una excursión y hotel con una regla de recogida guardada, o introduce la hora manualmente."}
                   </p>
                 </div>
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Language
+                    Idioma
                   </label>
                   <select
                     value={form.language}
@@ -1195,7 +1194,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Status
+                    Estado
                   </label>
                   <select
                     value={form.status}
@@ -1226,7 +1225,7 @@ export function ReservationsView() {
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Adults
+                    Adultos
                   </label>
                   <input
                     type="number"
@@ -1241,7 +1240,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Children
+                    Niños
                   </label>
                   <input
                     type="number"
@@ -1256,8 +1255,8 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Infants
-                  </label>
+                    Infantes
+                  </label>  
                   <input
                     type="number"
                     min={0}
@@ -1274,7 +1273,7 @@ export function ReservationsView() {
             <section className="rounded-3xl border border-slate-200 bg-white p-4">
               <div className="mb-4 flex items-center justify-between">
                 <h5 className="text-sm font-semibold text-slate-800">
-                  Payment details
+                  Detalles de pago
                 </h5>
 
                 <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -1285,7 +1284,7 @@ export function ReservationsView() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Currency
+                    Moneda
                   </label>
                   <select
                     value={form.currency}
@@ -1304,7 +1303,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Price per person
+                    Precio por persona
                   </label>
                   <input
                     type="number"
@@ -1320,7 +1319,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Sale total
+                    Total de venta
                   </label>
                   <input
                     type="number"
@@ -1335,7 +1334,7 @@ export function ReservationsView() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Payment method
+                    Método de pago
                   </label>
                   <select
                     value={form.payment_method}
@@ -1344,17 +1343,17 @@ export function ReservationsView() {
                     }
                     className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   >
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                    <option value="bank_transfer">Bank transfer</option>
-                    <option value="agency_collects">Agency collects</option>
-                    <option value="mixed">Mixed</option>
+                    <option value="cash">Efectivo</option>
+                    <option value="card">Tarjeta</option>
+                    <option value="bank_transfer">Transferencia bancaria</option>
+                    <option value="agency_collects">Recolección en agencia</option>
+                    <option value="mixed">Mixto</option>
                   </select>
                 </div>
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Card fee %
+                    Tarifa de tarjeta %
                   </label>
                   <input
                     type="number"
@@ -1371,7 +1370,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Card fee amount
+                    Cantidad de tarifa de tarjeta
                   </label>
                   <input
                     type="number"
@@ -1383,7 +1382,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Final total with fee
+                    Total final con tarifa
                   </label>
                   <input
                     type="number"
@@ -1395,7 +1394,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Paid amount
+                    Cantidad pagada
                   </label>
                   <input
                     type="number"
@@ -1414,13 +1413,13 @@ export function ReservationsView() {
 
             <section className="rounded-3xl border border-slate-200 bg-white p-4">
               <h5 className="mb-4 text-sm font-semibold text-slate-800">
-                Notes
+                Notas
               </h5>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Customer notes
+                    Notas del cliente
                   </label>
                   <textarea
                     value={form.notes}
@@ -1432,7 +1431,7 @@ export function ReservationsView() {
 
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                    Internal notes
+                    Notas internas
                   </label>
                   <textarea
                     value={form.internal_notes}
@@ -1452,7 +1451,7 @@ export function ReservationsView() {
                 onClick={closeForm}
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
               >
-                Cancel
+                Cancelar
               </button>
 
               <button
@@ -1468,15 +1467,15 @@ export function ReservationsView() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-100 text-xs uppercase text-slate-500">
               <tr>
-                <th className="px-4 py-3">Locator</th>
+                <th className="px-4 py-3">Localizador</th>
                 <th className="px-4 py-3">
                   <span className="inline-flex items-center gap-2">
-                    <UserRound className="h-4 w-4" /> Client
+                    <UserRound className="h-4 w-4" /> Nombre del titular
                   </span>
                 </th>
                 <th className="px-4 py-3">
                   <span className="inline-flex items-center gap-2">
-                    <MapPinned className="h-4 w-4" /> Excursion
+                    <MapPinned className="h-4 w-4" /> Excursión
                   </span>
                 </th>
                 <th className="px-4 py-3">
@@ -1486,16 +1485,16 @@ export function ReservationsView() {
                 </th>
                 <th className="px-4 py-3">
                   <span className="inline-flex items-center gap-2">
-                    <CalendarDays className="h-4 w-4" /> Date
+                    <CalendarDays className="h-4 w-4" /> Fecha
                   </span>
                 </th>
                 <th className="px-4 py-3">
                   <span className="inline-flex items-center gap-2">
-                    <Clock className="h-4 w-4" /> Pickup
+                    <Clock className="h-4 w-4" /> Recogidas
                   </span>
                 </th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3">Estado</th>
+                <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
 
@@ -1516,7 +1515,7 @@ export function ReservationsView() {
                       className="mr-2 inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50"
                     >
                       <Pencil className="h-3.5 w-3.5" />
-                      Edit
+                      Editar
                     </button>
 
                     <button
@@ -1525,7 +1524,7 @@ export function ReservationsView() {
                       className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                      Delete
+                      Eliminar
                     </button>
                   </td>
                 </tr>
@@ -1537,7 +1536,7 @@ export function ReservationsView() {
                     colSpan={8}
                     className="px-4 py-8 text-center text-slate-500"
                   >
-                    No reservations found.
+                    No se encontraron agencias.
                   </td>
                 </tr>
               )}

@@ -266,73 +266,73 @@ export function DashboardView() {
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-slate-950">Dashboard</h2>
+            <h2 className="text-2xl font-bold text-slate-950">Panel</h2>
             <p className="text-sm text-slate-500">
-              Revenue, expenses, excursion performance and monthly projection.
+              Ingresos, gastos, rendimiento de excursiones y proyección mensual.
             </p>
           </div>
 
           <span className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
-            {loading ? "Loading..." : "Live data"}
+            {loading ? "Cargando...." : "Datos en vivo"}
           </span>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          title="Excursions today"
+          title="Excursiones de hoy"
           value={stats.todayExcursionCount}
           subtitle={money(stats.todayRevenue)}
           icon={<CalendarDays className="h-5 w-5" />}
         />
 
         <StatCard
-          title="Excursions tomorrow"
+          title="Excursiones de mañana"
           value={stats.tomorrowExcursionCount}
           subtitle={money(stats.tomorrowRevenue)}
           icon={<Activity className="h-5 w-5" />}
         />
 
         <StatCard
-          title="Generated this month"
+          title="Generado este mes"
           value={money(stats.thisMonthRevenue)}
-          subtitle={`${stats.totalPaxThisMonth} pax this month`}
+          subtitle={`${stats.totalPaxThisMonth} pax este mes`}
           icon={<DollarSign className="h-5 w-5" />}
         />
 
         <StatCard
-          title="Projected next month"
+          title="Proyección próximo mes"
           value={money(stats.nextMonthProjection)}
-          subtitle={`Avg/day: ${money(stats.averagePerDay)}`}
+          subtitle={`Promedio/día: ${money(stats.averagePerDay)}`}
           icon={<TrendingUp className="h-5 w-5" />}
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          title="Total revenue"
+          title="Ingresos totales"
           value={money(stats.totalRevenue)}
           subtitle="From reservation sale totals"
           icon={<DollarSign className="h-5 w-5" />}
         />
 
         <StatCard
-          title="Estimated expenses"
+          title="Gastos estimados"
           value={money(stats.expenseTotal)}
           subtitle="From assigned provider service costs"
           icon={<MapPinned className="h-5 w-5" />}
         />
 
         <StatCard
-          title="Estimated profit"
+          title="Ganancia estimada"
           value={money(stats.profit)}
-          subtitle="Revenue minus estimated expenses"
+          subtitle="Ingresos menos gastos estimados"
           icon={<TrendingUp className="h-5 w-5" />}
         />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <ChartCard title="Monthly revenue">
+        <ChartCard title="Ingresos mensuales">
           <ResponsiveContainer width="100%" height={320}>
             <LineChart data={monthlyRevenue}>
               <XAxis dataKey="month" />
@@ -343,7 +343,7 @@ export function DashboardView() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Top excursions by revenue">
+        <ChartCard title="Mejores excursiones por ingresos">
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={revenueByExcursion}>
               <XAxis dataKey="name" hide />
@@ -356,7 +356,7 @@ export function DashboardView() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <ChartCard title="Top excursions by pax">
+        <ChartCard title="Mejores excursiones por pasajeros">
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={paxByExcursion}>
               <XAxis dataKey="name" hide />
@@ -367,7 +367,7 @@ export function DashboardView() {
           </ResponsiveContainer>
         </ChartCard>
 
-        <ChartCard title="Revenue share by excursion">
+        <ChartCard title="Participación de ingresos por excursiónn">
           <ResponsiveContainer width="100%" height={320}>
             <PieChart>
               <Pie
@@ -389,15 +389,15 @@ export function DashboardView() {
 
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <h3 className="mb-4 text-lg font-semibold text-slate-900">
-          Best performing excursions
+          Excursiones con mejor rendimiento
         </h3>
 
         <div className="overflow-hidden rounded-2xl border border-slate-200">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-100 text-xs uppercase text-slate-500">
               <tr>
-                <th className="px-4 py-3">Excursion</th>
-                <th className="px-4 py-3">Revenue</th>
+                <th className="px-4 py-3">Excursión</th>
+                <th className="px-4 py-3">Ingresos</th>
               </tr>
             </thead>
 
@@ -417,7 +417,7 @@ export function DashboardView() {
                     colSpan={2}
                     className="px-4 py-8 text-center text-slate-500"
                   >
-                    No revenue data yet.
+                    Aún no hay datos de ingresos.
                   </td>
                 </tr>
               )}
