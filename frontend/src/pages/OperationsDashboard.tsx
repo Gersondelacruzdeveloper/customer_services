@@ -13,6 +13,7 @@ import { OperationsView } from "@/components/OperationsView";
 import { AgencyExcursionPricesView } from "@/components/AgencyExcursionPricesView";
 import { DashboardView } from "@/components/DashboardView";
 import { AgencySettlementView } from "@/components/AgencySettlementView";
+import { ProviderSettlementView } from "@/components/ProviderSettlementView";
 
 function CostsView() {
   return (
@@ -108,6 +109,9 @@ export default function EcoAdventuresOperationsDashboard() {
 
       case "agency-settlement":
         return <AgencySettlementView />;
+
+      case "provider-settlement":
+        return <ProviderSettlementView />;
 
       default:
         return <DashboardView />;

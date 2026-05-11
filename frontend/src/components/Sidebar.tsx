@@ -44,6 +44,7 @@ export default function Sidebar({
     ["agencies", "Agencies", Handshake],
     ["agency-prices", "Agency Prices", BadgeDollarSign],
     ["agency-settlement", "Agency Settlement", Handshake],
+    ["provider-settlement", "Provider Settlement", CreditCard],
 
     ["provider-payments", "Provider Payments", CreditCard],
 
