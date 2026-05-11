@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from .models import (
     Zone,
     Provider,
@@ -61,10 +63,30 @@ class PickupTimeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class AgencySerializer(serializers.ModelSerializer):
+    login_username = serializers.CharField(
+        source="user.username",
+        read_only=True,
+    )
+
+    login_email = serializers.EmailField(
+        source="user.email",
+        read_only=True,
+    )
+
     class Meta:
         model = Agency
-        fields = "__all__"
-
+        fields = [
+            "id",
+            "name",
+            "contact_name",
+            "phone",
+            "email",
+            "notes",
+            "is_active",
+            "user",
+            "login_username",
+            "login_email",
+        ]
 
 class ReservationSerializer(serializers.ModelSerializer):
     excursion_name = serializers.CharField(source="excursion.name", read_only=True)
@@ -342,3 +364,70 @@ class AgencyExcursionPriceSerializer(serializers.ModelSerializer):
             "currency",
             "is_active",
         ]
+
+
+
+
+class AgencyAccessSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(
+        write_only=True,
+        required=False,
+        allow_blank=True,
+    )
+
+    email = serializers.EmailField(
+        write_only=True,
+        required=False,
+        allow_blank=True,
+    )
+
+    login_username = serializers.CharField(
+        source="user.username",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Agency
+        fields = [
+            "id",
+            "name",
+            "is_active",
+            "username",
+            "password",
+            "email",
+            "login_username",
+        ]
+
+    def update(self, instance, validated_data):
+        username = validated_data.pop("username", None)
+        password = validated_data.pop("password", None)
+        email = validated_data.pop("email", "")
+
+        instance = super().update(instance, validated_data)
+
+        if instance.user:
+            user = instance.user
+
+            if username:
+                user.username = username
+
+            if email is not None:
+                user.email = email
+
+            if password:
+                user.set_password(password)
+
+            user.save()
+
+        elif username and password:
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                email=email,
+            )
+
+            instance.user = user
+            instance.save()
+
+        return instance

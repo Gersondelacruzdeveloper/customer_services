@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from django.conf import settings
+
 # -----------------------------------------------------------------Zone
 
 class Zone(models.Model):
@@ -184,6 +186,13 @@ class PickupTime(models.Model):
 
 class Agency(models.Model):
     name = models.CharField(max_length=150)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="agency_profile",
+    )
     contact_name = models.CharField(max_length=150, blank=True)
     phone = models.CharField(max_length=50, blank=True)
     email = models.EmailField(blank=True)

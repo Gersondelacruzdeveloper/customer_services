@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
 from .models import (
     Zone,
@@ -35,6 +37,7 @@ from .serializers import (
     AgencyPaymentSerializer,
     OperationSerializer,
     AgencyExcursionPriceSerializer,
+    AgencyAccessSerializer,
 )
 
 
@@ -648,5 +651,9 @@ class AgencyExcursionPriceViewSet(viewsets.ModelViewSet):
         return queryset
     
 
+class AgencyAccessViewSet(viewsets.ModelViewSet):
+    queryset = Agency.objects.all().order_by("name")
+    serializer_class = AgencyAccessSerializer
+    permission_classes = [IsAuthenticated]
 
     
