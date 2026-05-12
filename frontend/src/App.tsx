@@ -1,4 +1,10 @@
-import { Link, Route, Routes, useNavigate, useLocation } from "react-router-dom";
+import {
+  Link,
+  Route,
+  Routes,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import SatisfactionQuestionnaire from "./pages/SatisfactionQuestionnaire";
 import Dashboard from "./pages/Dashboard";
@@ -8,6 +14,8 @@ import ManageOptionsPage from "./pages/ManageOptionsPage";
 import OperationsDashboard from "./pages/OperationsDashboard";
 import { getDeviceLanguage, getText } from "./lib/i18n";
 import type { SupportedLanguage } from "./lib/translations";
+import AgencyLoginPage from "./pages/AgencyLoginPage";
+import AgencyReservationsPage from "./pages/AgencyReservationsPage";
 
 const languageOptions: { value: SupportedLanguage; label: string }[] = [
   { value: "en", label: "🇺🇸 English" },
@@ -29,10 +37,14 @@ export default function App() {
   const t = useMemo(() => getText(lang), [lang]);
   const navigate = useNavigate();
   const location = useLocation();
+  const [isAgencyLoggedIn, setIsAgencyLoggedIn] = useState(false);
 
   useEffect(() => {
     const savedLang = localStorage.getItem("lang") as SupportedLanguage | null;
-    if (savedLang && languageOptions.some((option) => option.value === savedLang)) {
+    if (
+      savedLang &&
+      languageOptions.some((option) => option.value === savedLang)
+    ) {
       setLang(savedLang);
     }
   }, []);
@@ -44,13 +56,15 @@ export default function App() {
   useEffect(() => {
     const token = localStorage.getItem("access");
     const me = localStorage.getItem("me");
-    setIsLoggedIn(!!token && !!me);
+    const agencyPortal = localStorage.getItem("agency_portal");
+    setIsAgencyLoggedIn(!!token && !!agencyPortal);
   }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
     localStorage.removeItem("me");
+    localStorage.removeItem("agency_portal");
     setIsLoggedIn(false);
     navigate("/login");
   };
@@ -76,11 +90,11 @@ export default function App() {
                   {t.dashboard}
                 </Link>
 
-                  <Link
+                <Link
                   to="/questionnaire"
                   className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
                 >
-                 Questionario
+                  Questionario
                 </Link>
 
                 <Link
@@ -108,13 +122,22 @@ export default function App() {
               </select>
             </div>
 
-            {!isLoggedIn ? (
-              <Link
-                to="/login"
-                className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
-              >
-                {t.adminLogin}
-              </Link>
+            {!isLoggedIn && !isAgencyLoggedIn ? (
+              <>
+                <Link
+                  to="/login"
+                  className="rounded-2xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                >
+                  {t.adminLogin}
+                </Link>
+
+                <Link
+                  to="/agency/login"
+                  className="rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100"
+                >
+                  Agency Login
+                </Link>
+              </>
             ) : (
               <button
                 onClick={handleLogout}
@@ -128,21 +151,30 @@ export default function App() {
       </nav>
 
       <Routes>
-        <Route path="/questionnaire" element={<SatisfactionQuestionnaire lang={lang} />} />
-        <Route path="/login" element={<LoginPage  />} />
+        <Route path="/agency/login" element={<AgencyLoginPage />} />
+        <Route
+          path="/agency/reservations"
+          element={<AgencyReservationsPage />}
+        />
+
+        <Route
+          path="/questionnaire"
+          element={<SatisfactionQuestionnaire lang={lang} />}
+        />
+        <Route path="/login" element={<LoginPage />} />
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <OperationsDashboard  />
+              <OperationsDashboard />
             </ProtectedRoute>
           }
         />
-          <Route
+        <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard  />
+              <Dashboard />
             </ProtectedRoute>
           }
         />

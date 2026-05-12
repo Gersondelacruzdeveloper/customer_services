@@ -524,3 +524,10 @@ export async function updateAgencyAccess(id: number, data: any) {
   const response = await api.patch(`/reservations/agency-access/${id}/`, data);
   return response.data;
 }
+
+/* -------------------- Agency Portal -------------------- */
+
+export async function getAgencyPortal() {
+  const res = await api.get("/reservations/agency-portal/");
+  return res.data;
+}
