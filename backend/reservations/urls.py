@@ -15,7 +15,8 @@ from .views import (
     ImportReservationsExcelView,
     OperationViewSet,
     AgencyExcursionPriceViewSet,
-    AgencyAccessViewSet
+    AgencyAccessViewSet,
+    agency_portal
 )
 
 
@@ -39,4 +40,5 @@ router.register(r"agency-access", AgencyAccessViewSet, basename="agency-access")
 urlpatterns = [
     path("", include(router.urls)),
     path("import-excel/", ImportReservationsExcelView.as_view(), name="import-reservations-excel"),
+    path("agency-portal/", agency_portal, name="agency-portal"),
 ]

@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 
 from .models import (
     Zone,
@@ -657,3 +658,20 @@ class AgencyAccessViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def agency_portal(request):
+    user = request.user
+    print(f"Authenticated user: {user.username} (ID: {user.id})")
+
+    agency = getattr(user, "agency_profile", None)
+
+    return Response({
+        "id": user.id,
+        "username": user.username,
+        "is_staff": user.is_staff,
+        "agency_id": agency.id if agency else None,
+        "agency_name": agency.name if agency else None,
+    })
