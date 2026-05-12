@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 
 import { ReservationsView } from "@/components/ReservationsView";
@@ -63,6 +64,16 @@ function ExcelImportsView() {
 
 export default function EcoAdventuresOperationsDashboard() {
   const [active, setActive] = useState("dashboard");
+   const navigate = useNavigate();
+    
+   function handleLogout() {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("me");
+    localStorage.removeItem("agency_portal");
+
+    navigate("/login");
+  }
 
   const content = (() => {
     switch (active) {
@@ -125,8 +136,11 @@ export default function EcoAdventuresOperationsDashboard() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <div className="flex">
-        <Sidebar active={active} onChange={setActive} />
-
+       <Sidebar
+        active={active}
+        onChange={setActive}
+        onLogout={handleLogout}
+      />
         <main className="min-w-0 flex-1">{content}</main>
       </div>
     </div>

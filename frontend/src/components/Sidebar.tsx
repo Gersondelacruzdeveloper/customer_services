@@ -14,8 +14,8 @@ import {
   Handshake,
   CreditCard,
   BadgeDollarSign,
+  LogOut
 } from "lucide-react";
-
 export function classNames(...parts: Array<string | false | null | undefined>) {
   return parts.filter(Boolean).join(" ");
 }
@@ -23,9 +23,11 @@ export function classNames(...parts: Array<string | false | null | undefined>) {
 export default function Sidebar({
   active,
   onChange,
+  onLogout,
 }: {
   active: string;
   onChange: (value: string) => void;
+  onLogout: () => void;
 }) {
   const nav = [
     ["dashboard", "Dashboard", LayoutDashboard],
@@ -85,6 +87,16 @@ export default function Sidebar({
             </button>
           ))}
         </nav>
+        <div className="mt-auto border-t border-white/10 pt-4">
+      <button
+        type="button"
+        onClick={onLogout}
+        className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-slate-300 transition hover:bg-red-500 hover:text-white"
+      >
+        <LogOut className="h-5 w-5" />
+        <span className="font-medium">Logout</span>
+      </button>
+    </div>
 
       </div>
     </aside>

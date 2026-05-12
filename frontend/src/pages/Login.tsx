@@ -32,7 +32,7 @@ export default function LoginPage() {
         return;
       }
 
-      navigate("/dashboard");
+      navigate("/");
     } catch {
       setError("Usuario o contraseña inválidos.");
     } finally {
