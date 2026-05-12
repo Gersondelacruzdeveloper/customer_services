@@ -63,6 +63,10 @@ const emptyForm = {
   currency: "USD",
   language: "en",
   notes: "",
+  payment_method: "cash",
+  card_fee_percent: "12.00",
+  card_fee_amount: "0.00",
+  final_total_with_card_fee: "0.00",
 };
 function getTodayString() {
   return new Date().toISOString().split("T")[0];
@@ -243,6 +247,21 @@ export default function AgencyReservationsPage() {
     agencyExcursionPrices,
     excursions,
   ]);
+  useEffect(() => {
+    const saleTotal = Number(form.sale_total || 0);
+    const cardFeePercent = Number(form.card_fee_percent || 0);
+
+    const cardFeeAmount =
+      form.payment_method === "card" ? (saleTotal * cardFeePercent) / 100 : 0;
+
+    const finalTotal = saleTotal + cardFeeAmount;
+
+    setForm((prev) => ({
+      ...prev,
+      card_fee_amount: cardFeeAmount.toFixed(2),
+      final_total_with_card_fee: finalTotal.toFixed(2),
+    }));
+  }, [form.payment_method, form.sale_total, form.card_fee_percent]);
 
   const filteredReservations = useMemo(() => {
     const term = search.toLowerCase();
@@ -281,13 +300,15 @@ export default function AgencyReservationsPage() {
     setEditingId(reservation.id ?? null);
     setShowForm(true);
 
-  setForm({
+    setForm({
       locator: reservation.locator || "",
       lead_name: reservation.lead_name || "",
       phone: reservation.phone || "",
       email: reservation.email || "",
       hotel_id: String(reservation.hotel_id || reservation.hotel || ""),
-      excursion_id: String(reservation.excursion_id || reservation.excursion || ""),
+      excursion_id: String(
+        reservation.excursion_id || reservation.excursion || "",
+      ),
       service_date: reservation.service_date || "",
       pickup_time: reservation.pickup_time || "",
       adults: reservation.adults || 1,
@@ -299,9 +320,15 @@ export default function AgencyReservationsPage() {
       currency: "USD",
       language: reservation.language || "en",
       notes: reservation.notes || "",
+      payment_method: reservation.payment_method || "cash",
+      card_fee_percent: reservation.card_fee_percent || "12.00",
+      card_fee_amount: reservation.card_fee_amount || "0.00",
+      final_total_with_card_fee:
+        reservation.final_total_with_card_fee ||
+        reservation.sale_total ||
+        "0.00",
     });
   }
-
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -314,7 +341,9 @@ export default function AgencyReservationsPage() {
       !form.excursion_id ||
       !form.service_date
     ) {
-        alert("Please complete locator, client name, phone, hotel, excursion and date.");
+      alert(
+        "Please complete locator, client name, phone, hotel, excursion and date.",
+      );
       return;
     }
 
@@ -322,44 +351,54 @@ export default function AgencyReservationsPage() {
       alert("No pickup time is configured for this excursion and hotel.");
       return;
     }
+    const finalTotal =
+      form.payment_method === "card"
+        ? form.final_total_with_card_fee
+        : form.sale_total;
 
-const payload = {
-  locator: form.locator,
+    const payload = {
+      locator: form.locator,
 
-  lead_name: form.lead_name,
-  phone: form.phone || "",
-  email: form.email || "",
+      lead_name: form.lead_name,
+      phone: form.phone || "",
+      email: form.email || "",
 
-  excursion_id: Number(form.excursion_id),
-  hotel_id: Number(form.hotel_id),
-  agency_id: agencyPortal?.agency_id,
+      excursion_id: Number(form.excursion_id),
+      hotel_id: Number(form.hotel_id),
+      agency_id: agencyPortal?.agency_id,
 
-  service_date: form.service_date,
-  pickup_time: form.pickup_time || null,
+      service_date: form.service_date,
+      pickup_time: form.pickup_time || null,
 
-  adults: Number(form.adults),
-  children: Number(form.children),
-  infants: Number(form.infants),
+      adults: Number(form.adults),
+      children: Number(form.children),
+      infants: Number(form.infants),
 
-  language: form.language || "en",
-  status: "pending",
+      language: form.language || "en",
+      status: "pending",
 
-  sale_price_per_person: form.sale_price_per_person || "0.00",
-  sale_total: form.sale_total || "0.00",
-  paid_amount: "0.00",
-  currency: "USD",
+      sale_price_per_person: form.sale_price_per_person || "0.00",
+      sale_total: finalTotal || "0.00",
+      paid_amount: "0.00",
+      currency: "USD",
 
-  agency_price: form.sale_total || "0.00",
-  agency_paid: "0.00",
+      agency_price:
+        form.payment_method === "agency_collects"
+          ? finalTotal || "0.00"
+          : "0.00",
 
-  payment_method: "agency_collects",
-  card_fee_percent: "12.00",
-  card_fee_amount: "0.00",
-  final_total_with_card_fee: form.sale_total || "0.00",
+      agency_paid: "0.00",
 
-  notes: form.notes || "",
-  internal_notes: "",
-};
+      payment_method: form.payment_method,
+      card_fee_percent: form.card_fee_percent || "12.00",
+      card_fee_amount: form.card_fee_amount || "0.00",
+      final_total_with_card_fee:
+        form.final_total_with_card_fee || finalTotal || "0.00",
+
+      notes: form.notes || "",
+      internal_notes: "",
+    };
+
     try {
       setLoading(true);
 
@@ -409,38 +448,35 @@ const payload = {
   return (
     <div className="min-h-screen bg-slate-50 p-4 sm:p-6">
       <div className="mx-auto max-w-7xl space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-950">
+              {agencyPortal?.agency_name || "Agency"} Reservations
+            </h1>
 
+            <p className="text-sm text-slate-500">
+              View, create and manage your agency reservations.
+            </p>
+          </div>
 
-    <div className="flex flex-wrap items-center justify-between gap-3">
-    <div>
-        <h1 className="text-2xl font-bold text-slate-950">
-        {agencyPortal?.agency_name || "Agency"} Reservations
-        </h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to="/agency/statement"
+              className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700"
+            >
+              View Statement
+            </Link>
 
-        <p className="text-sm text-slate-500">
-        View, create and manage your agency reservations.
-        </p>
-    </div>
-
-    <div className="flex flex-wrap items-center gap-3">
-        <Link
-        to="/agency/statement"
-        className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700"
-        >
-        View Statement
-        </Link>
-
-        <button
-        type="button"
-        onClick={openCreateForm}
-        className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
-        >
-        <Plus className="h-4 w-4" />
-        New Reservation
-        </button>
-    </div>
-    </div>
-        
+            <button
+              type="button"
+              onClick={openCreateForm}
+              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+            >
+              <Plus className="h-4 w-4" />
+              New Reservation
+            </button>
+          </div>
+        </div>
 
         {showForm && (
           <form
@@ -643,6 +679,65 @@ const payload = {
                   className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold"
                 />
               </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-slate-500">
+                  Payment method
+                </label>
+
+                <select
+                  value={form.payment_method}
+                  onChange={(e) =>
+                    setForm({ ...form, payment_method: e.target.value })
+                  }
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+                >
+                  <option value="cash">Customer pays cash</option>
+                  <option value="card">Customer pays card + 12%</option>
+                  <option value="agency_collects">
+                    Agency collects / agency pays
+                  </option>
+                </select>
+              </div>
+
+              {form.payment_method === "card" && (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-500">
+                      Card fee %
+                    </label>
+
+                    <input
+                      value={form.card_fee_percent}
+                      readOnly
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-500">
+                      Card fee amount
+                    </label>
+
+                    <input
+                      value={form.card_fee_amount}
+                      readOnly
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-500">
+                      Final total with card fee
+                    </label>
+
+                    <input
+                      value={form.final_total_with_card_fee}
+                      readOnly
+                      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold"
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-slate-500">
