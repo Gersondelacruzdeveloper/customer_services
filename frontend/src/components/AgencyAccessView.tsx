@@ -59,17 +59,17 @@ export function AgencyAccessView() {
 
   async function handleSaveAccess() {
     if (!selectedAgency) {
-      alert("Please select an agency");
+      alert("Por favor seleccione una agencia");
       return;
     }
 
     if (!username) {
-      alert("Username is required");
+      alert("El nombre de usuario es obligatorio");
       return;
     }
 
     if (!editingAgencyId && !password) {
-      alert("Password is required");
+      alert("La contraseña es obligatoria");
       return;
     }
 
@@ -93,15 +93,15 @@ export function AgencyAccessView() {
 
       alert(
         editingAgencyId
-          ? "Agency login updated successfully"
-          : "Agency login created successfully"
+          ? "Acceso de la agencia actualizado correctamente"
+          : "Acceso de la agencia creado correctamente"
       );
 
       resetForm();
       await loadAgencies();
     } catch (error) {
       console.error(error);
-      alert("Failed to save agency login");
+      alert("Error al guardar el acceso de la agencia");
     } finally {
       setLoading(false);
     }
@@ -117,10 +117,10 @@ export function AgencyAccessView() {
 
           <div>
             <h2 className="text-2xl font-bold text-slate-950">
-              Agency Access
+              Acceso de Agencias
             </h2>
             <p className="text-sm text-slate-500">
-              Create or update agency login credentials.
+              Crear o actualizar credenciales de acceso para agencias.
             </p>
           </div>
         </div>
@@ -131,7 +131,7 @@ export function AgencyAccessView() {
             onChange={(e) => setSelectedAgency(e.target.value)}
             className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
           >
-            <option value="">Select agency</option>
+            <option value="">Seleccionar agencia</option>
             {agencies.map((agency) => (
               <option key={agency.id} value={agency.id}>
                 {agency.name}
@@ -142,7 +142,7 @@ export function AgencyAccessView() {
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
+            placeholder="Nombre de usuario"
             className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
           />
 
@@ -151,7 +151,9 @@ export function AgencyAccessView() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={
-              editingAgencyId ? "New password optional" : "Password"
+              editingAgencyId
+                ? "Nueva contraseña opcional"
+                : "Contraseña"
             }
             className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
           />
@@ -159,7 +161,7 @@ export function AgencyAccessView() {
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email optional"
+            placeholder="Correo electrónico opcional"
             className="rounded-2xl border border-slate-200 px-4 py-3 text-sm"
           />
         </div>
@@ -175,11 +177,12 @@ export function AgencyAccessView() {
           ) : (
             <Save className="h-4 w-4" />
           )}
+
           {loading
-            ? "Saving..."
+            ? "Guardando..."
             : editingAgencyId
-            ? "Update agency login"
-            : "Create agency login"}
+            ? "Actualizar acceso"
+            : "Crear acceso"}
         </button>
 
         {editingAgencyId && (
@@ -188,7 +191,7 @@ export function AgencyAccessView() {
             onClick={resetForm}
             className="ml-3 rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold"
           >
-            Cancel
+            Cancelar
           </button>
         )}
       </div>
@@ -196,15 +199,16 @@ export function AgencyAccessView() {
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between gap-3">
           <h3 className="text-lg font-bold text-slate-950">
-            Agency logins
+            Accesos de agencias
           </h3>
 
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search agency..."
+              placeholder="Buscar agencia..."
               className="w-full rounded-2xl border border-slate-200 py-3 pl-10 pr-4 text-sm"
             />
           </div>
@@ -214,10 +218,10 @@ export function AgencyAccessView() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase text-slate-500">
               <tr>
-                <th className="px-4 py-3">Agency</th>
-                <th className="px-4 py-3">Username</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3 text-right">Action</th>
+                <th className="px-4 py-3">Agencia</th>
+                <th className="px-4 py-3">Usuario</th>
+                <th className="px-4 py-3">Correo</th>
+                <th className="px-4 py-3 text-right">Acción</th>
               </tr>
             </thead>
 
@@ -229,7 +233,7 @@ export function AgencyAccessView() {
                   </td>
 
                   <td className="px-4 py-3">
-                    {agency.login_username || "No login yet"}
+                    {agency.login_username || "Sin acceso todavía"}
                   </td>
 
                   <td className="px-4 py-3">
@@ -243,7 +247,10 @@ export function AgencyAccessView() {
                       className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold"
                     >
                       <Pencil className="h-3.5 w-3.5" />
-                      {agency.login_username ? "Change password" : "Create login"}
+
+                      {agency.login_username
+                        ? "Cambiar contraseña"
+                        : "Crear acceso"}
                     </button>
                   </td>
                 </tr>
@@ -251,8 +258,11 @@ export function AgencyAccessView() {
 
               {filteredAgencies.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-slate-500">
-                    No agencies found.
+                  <td
+                    colSpan={4}
+                    className="px-4 py-8 text-center text-slate-500"
+                  >
+                    No se encontraron agencias.
                   </td>
                 </tr>
               )}

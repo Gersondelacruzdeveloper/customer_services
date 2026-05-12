@@ -26,7 +26,7 @@ export function ZonesView() {
       const data = (await getZones()) as Zone[];
       setZones(data);
     } catch (error) {
-      console.error("Error loading zones:", error);
+      console.error("Error cargando zonas:", error);
       setZones([]);
     } finally {
       setLoading(false);
@@ -86,21 +86,24 @@ export function ZonesView() {
       await loadZones();
       closeForm();
     } catch (error: any) {
-      console.error("Error saving zone:", error.response?.data ?? error);
+      console.error("Error guardando zona:", error.response?.data ?? error);
     }
   }
 
   async function handleDelete(id?: number) {
     if (!id) return;
 
-    const confirmed = window.confirm("Are you sure you want to delete this zone?");
+    const confirmed = window.confirm(
+      "¿Estás seguro de que deseas eliminar esta zona?"
+    );
+
     if (!confirmed) return;
 
     try {
       await deleteZone(id);
       setZones((prev) => prev.filter((zone) => zone.id !== id));
     } catch (error: any) {
-      console.error("Error deleting zone:", error.response?.data ?? error);
+      console.error("Error eliminando zona:", error.response?.data ?? error);
     }
   }
 
@@ -109,9 +112,10 @@ export function ZonesView() {
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Zones</h3>
+            <h3 className="text-lg font-semibold text-slate-900">Zonas</h3>
+
             <p className="text-sm text-slate-500">
-              Manage pickup zones such as Bavaro, Cap Cana, Bayahibe, Boca Chica and Juan Dolio.
+              Gestiona zonas de recogida como Bávaro, Cap Cana, Bayahibe, Boca Chica y Juan Dolio.
             </p>
           </div>
 
@@ -119,7 +123,7 @@ export function ZonesView() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search zones..."
+              placeholder="Buscar zonas..."
               className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
             />
 
@@ -127,7 +131,7 @@ export function ZonesView() {
               onClick={openCreateForm}
               className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
             >
-              Add zone
+              Agregar zona
             </button>
           </div>
         </div>
@@ -139,7 +143,7 @@ export function ZonesView() {
           >
             <div className="mb-4 flex items-center justify-between">
               <h4 className="font-semibold text-slate-900">
-                {editingId ? "Edit zone" : "Add zone"}
+                {editingId ? "Editar zona" : "Agregar zona"}
               </h4>
 
               <button
@@ -147,7 +151,7 @@ export function ZonesView() {
                 onClick={closeForm}
                 className="text-sm font-medium text-slate-500 hover:text-slate-900"
               >
-                Cancel
+                Cancelar
               </button>
             </div>
 
@@ -155,7 +159,7 @@ export function ZonesView() {
               <input
                 value={form.name}
                 onChange={(e) => updateFormField("name", e.target.value)}
-                placeholder="Zone name"
+                placeholder="Nombre de la zona"
                 required
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
@@ -163,14 +167,14 @@ export function ZonesView() {
               <input
                 value={form.code}
                 onChange={(e) => updateFormField("code", e.target.value)}
-                placeholder="Code e.g. ZONA 1"
+                placeholder="Código ej. ZONA 1"
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
 
               <input
                 value={form.description}
                 onChange={(e) => updateFormField("description", e.target.value)}
-                placeholder="Description"
+                placeholder="Descripción"
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
             </div>
@@ -181,14 +185,14 @@ export function ZonesView() {
                 onClick={closeForm}
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
               >
-                Cancel
+                Cancelar
               </button>
 
               <button
                 type="submit"
                 className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
               >
-                {editingId ? "Update zone" : "Create zone"}
+                {editingId ? "Actualizar zona" : "Crear zona"}
               </button>
             </div>
           </form>
@@ -196,15 +200,15 @@ export function ZonesView() {
 
         <div className="mt-5 overflow-x-auto">
           {loading ? (
-            <p className="py-6 text-sm text-slate-500">Loading zones...</p>
+            <p className="py-6 text-sm text-slate-500">Cargando zonas...</p>
           ) : (
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500">
-                  <th className="py-3 pr-4 font-medium">Name</th>
-                  <th className="py-3 pr-4 font-medium">Code</th>
-                  <th className="py-3 pr-4 font-medium">Description</th>
-                  <th className="py-3 pr-4 font-medium">Actions</th>
+                  <th className="py-3 pr-4 font-medium">Nombre</th>
+                  <th className="py-3 pr-4 font-medium">Código</th>
+                  <th className="py-3 pr-4 font-medium">Descripción</th>
+                  <th className="py-3 pr-4 font-medium">Acciones</th>
                 </tr>
               </thead>
 
@@ -219,6 +223,7 @@ export function ZonesView() {
                     </td>
 
                     <td className="py-3 pr-4">{zone.code || "-"}</td>
+
                     <td className="py-3 pr-4">{zone.description || "-"}</td>
 
                     <td className="py-3 pr-4">
@@ -227,14 +232,14 @@ export function ZonesView() {
                           onClick={() => openEditForm(zone)}
                           className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                         >
-                          Edit
+                          Editar
                         </button>
 
                         <button
                           onClick={() => handleDelete(zone.id)}
                           className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
                         >
-                          Delete
+                          Eliminar
                         </button>
                       </div>
                     </td>
@@ -247,7 +252,7 @@ export function ZonesView() {
                       colSpan={4}
                       className="py-8 text-center text-sm text-slate-500"
                     >
-                      No zones found.
+                      No se encontraron zonas.
                     </td>
                   </tr>
                 )}

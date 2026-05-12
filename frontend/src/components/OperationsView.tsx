@@ -170,7 +170,7 @@ export function OperationsView() {
       setOperations(operationData);
       setProviderServices(providerServiceData);
     } catch (error) {
-      console.error("Error loading operations data:", error);
+      console.error("Error cargando datos de operaciones:", error);
     } finally {
       setLoading(false);
     }
@@ -184,7 +184,7 @@ export function OperationsView() {
   if (status === "completed") return "Completed";
   if (status === "cancelled") return "Cancelled";
 
-  return "Update status";
+  return "Actualizar estado";
 }
 
 
@@ -355,17 +355,17 @@ export function OperationsView() {
 
   async function handleSaveOperation() {
     if (!dateFilter) {
-      alert("Please select a date.");
+      alert("Por favor seleccione una fecha.");
       return;
     }
 
     if (!providerId) {
-      alert("Please select a provider.");
+      alert("Por favor seleccione un proveedor.");
       return;
     }
 
     if (!editingOperationId && selectedIds.length === 0) {
-      alert("Please select at least one reservation.");
+      alert("Por favor seleccione al menos una reserva.");
       return;
     }
 
@@ -385,10 +385,10 @@ export function OperationsView() {
     try {
       if (editingOperationId) {
         await updateOperation(editingOperationId, payload);
-        alert("Operation updated.");
+        alert("Operación actualizada.");
       } else {
         await createOperation(payload);
-        alert("Operation created.");
+        alert("Operación creada.");
       }
 
       await loadData();
@@ -401,8 +401,8 @@ export function OperationsView() {
       setNotes("");
       setProviderServiceId("");
     } catch (error) {
-      console.error("Error saving operation:", error);
-      alert("Error saving operation.");
+      console.error("Error guardando operación:", error);
+      alert("Error guardando operación.");
     }
   }
 
@@ -414,7 +414,8 @@ export function OperationsView() {
       await deleteOperation(id);
       setOperations((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
-      console.error("Error deleting operation:", error);
+      console.error("Error eliminando operación:", error);
+      alert("Error eliminando operación.");
     }
   }
 
@@ -423,7 +424,8 @@ export function OperationsView() {
       await markOperationSent(id);
       await loadData();
     } catch (error) {
-      console.error("Error marking operation as sent:", error);
+      console.error("Error marcando operación como enviada:", error);
+      alert("Error marcando operación como enviada.");
     }
   }
 
@@ -511,38 +513,38 @@ export function OperationsView() {
         </head>
 
         <body>
-          <h1>Punta Cana Discovery - Provider Operation</h1>
+          <h1> Operación de Proveedor</h1>
           <div class="muted">${operation.title}</div>
 
           <p>
-            <strong>Date:</strong> ${operation.date}<br/>
+            <strong>Fecha:</strong> ${operation.date}<br/>
            ${
              operation.excursion_name
                ? `<strong>Excursion:</strong> ${operation.excursion_name}<br/>`
                : ""
            }
-            <strong>Provider:</strong> ${operation.provider_name}<br/>
+            <strong>Proveedor:</strong> ${operation.provider_name}<br/>
 
             ${
               operation.provider_service_name
-                ? `<strong>Provider Service:</strong> ${operation.provider_service_name}<br/>`
+                ? `<strong>Servicio del proveedor:</strong> ${operation.provider_service_name}<br/>`
                 : ""
             }
-            <strong>Vehicle/Boat:</strong> ${operation.vehicle_name || "-"}<br/>
-            <strong>Driver/Captain:</strong> ${operation.driver_name || "-"}<br/>
-            <strong>Phone:</strong> ${operation.driver_phone || "-"}
+            <strong>Vehículo/Bote:</strong> ${operation.vehicle_name || "-"}<br/>
+            <strong>Chofer/Capitán:</strong> ${operation.driver_name || "-"}<br/>
+            <strong>Teléfono:</strong> ${operation.driver_phone || "-"}
           </p>
 
           <div class="summary">
-            <div class="box">Adults <strong>${operation.reservations.reduce(
+            <div class="box">Adultos <strong>${operation.reservations.reduce(
               (sum, r) => sum + Number(r.adults || 0),
               0,
             )}</strong></div>
-            <div class="box">Children <strong>${operation.reservations.reduce(
+            <div class="box">Niños <strong>${operation.reservations.reduce(
               (sum, r) => sum + Number(r.children || 0),
               0,
             )}</strong></div>
-            <div class="box">Infants <strong>${operation.reservations.reduce(
+            <div class="box">Infantes <strong>${operation.reservations.reduce(
               (sum, r) => sum + Number(r.infants || 0),
               0,
             )}</strong></div>
@@ -555,22 +557,22 @@ export function OperationsView() {
           <table>
             <thead>
               <tr>
-                <th>Pickup</th>
+                <th>Recogida</th>
                 <th>Hotel</th>
-                <th>Client</th>
+                <th>Cliente</th>
                 <th>Phone</th>
                 <th>Adults</th>
                 <th>Children</th>
                 <th>Infants</th>
                 <th>Total</th>
-                <th>Notes</th>
+                <th>Notas</th>
               </tr>
             </thead>
             <tbody>${rows}</tbody>
           </table>
 
           <p style="margin-top: 24px;">
-            <strong>Operation notes:</strong><br/>
+            <strong>Notas de la operación:</strong><br/>
             ${operation.notes || "-"}
           </p>
         </body>
@@ -594,13 +596,12 @@ export function OperationsView() {
             <div className="flex items-center gap-2">
               <ClipboardList className="h-5 w-5 text-slate-700" />
               <h3 className="text-lg font-semibold text-slate-900">
-                Operations
+                Operaciones
               </h3>
             </div>
 
             <p className="mt-1 text-sm text-slate-500">
-              Select reservations, assign them to a provider, then print or send
-              the pickup list.
+         Seleccione reservas, asígnelas a un proveedor y luego imprima o envíe la lista de recogida.
             </p>
           </div>
 
@@ -612,7 +613,7 @@ export function OperationsView() {
           >
             <Save className="h-4 w-4" />
 
-            {editingOperationId ? "Update operation" : "Create operation"}
+            {editingOperationId ? "Actualizar operación" : "Crear operación"}
           </button>
         </div>
 
@@ -640,7 +641,7 @@ export function OperationsView() {
               }}
               className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
             >
-              <option value="">All excursions</option>
+              <option value="">Todas las excursiones</option>
               {excursions.map((excursion) => (
                 <option key={excursion.id} value={excursion.id}>
                   {excursion.name}
@@ -659,7 +660,7 @@ export function OperationsView() {
               }}
               className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
             >
-              <option value="">Select provider</option>
+              <option value="">Seleccionar proveedor</option>
               {providers.map((provider) => (
                 <option key={provider.id} value={provider.id}>
                   {provider.name}
@@ -679,8 +680,8 @@ export function OperationsView() {
             >
               <option value="">
                 {providerId
-                  ? "Select provider service"
-                  : "Select provider first"}
+                  ? "Seleccionar servicio de proveedor"
+                  : "Seleccionar proveedor primero"}
               </option>
 
               {filteredProviderServices.map((service) => (
@@ -697,7 +698,7 @@ export function OperationsView() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search client, hotel, phone, agency..."
+              placeholder="Buscar cliente, hotel, teléfono, agencia..."
               className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
             />
           </div>
@@ -707,21 +708,21 @@ export function OperationsView() {
           <input
             value={vehicleName}
             onChange={(e) => setVehicleName(e.target.value)}
-            placeholder="Bus / boat / vehicle"
+            placeholder="Autobús / barco / vehículo"
             className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
           />
 
           <input
             value={driverName}
             onChange={(e) => setDriverName(e.target.value)}
-            placeholder="Driver / captain name"
+            placeholder="Teléfono del chofer / capitán"
             className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
           />
 
           <input
             value={driverPhone}
             onChange={(e) => setDriverPhone(e.target.value)}
-            placeholder="Driver / captain phone"
+            placeholder="Teléfono del chofer / capitán"
             className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
           />
           <select
@@ -729,24 +730,24 @@ export function OperationsView() {
             onChange={(e) => setOperationStatus(e.target.value)}
             className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
           >
-            <option value="draft">Draft</option>
-            <option value="sent">Sent to provider</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="Borrador">Draft</option>
+            <option value="sent">Enviado al proveedor</option>
+            <option value="confirmed">Confirmado</option>
+            <option value="completed">Completado</option>
+            <option value="cancelled">Cancelado</option>
           </select>
 
           <input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Operation notes"
+            placeholder="Notas de la operación"
             className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
           />
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-4">
           <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs text-slate-500">Selected</p>
+            <p className="text-xs text-slate-500">Seleccionados</p>
             <p className="text-xl font-bold text-slate-900">
               {selectedIds.length}
             </p>
@@ -775,10 +776,10 @@ export function OperationsView() {
         <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h4 className="font-semibold text-slate-900">
-              Reservations to assign
+              Reservas para asignar
             </h4>
             <p className="text-sm text-slate-500">
-              Ordered by pickup time, then hotel.
+              Ordenado por hora de recogida y luego por hotel.
             </p>
           </div>
 
@@ -788,7 +789,7 @@ export function OperationsView() {
               onClick={selectAllVisible}
               className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
             >
-              Select all visible
+             Seleccionar todos los visibles"
             </button>
 
             <button
@@ -796,7 +797,7 @@ export function OperationsView() {
               onClick={clearSelected}
               className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
             >
-              Clear
+              Limpiar
             </button>
           </div>
         </div>
@@ -804,14 +805,14 @@ export function OperationsView() {
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-100 text-xs uppercase text-slate-500">
             <tr>
-              <th className="px-4 py-3">Select</th>
-              <th className="px-4 py-3">Pickup</th>
+              <th className="px-4 py-3">Seleccionar</th>
+              <th className="px-4 py-3">Recogida</th>
               <th className="px-4 py-3">Hotel</th>
-              <th className="px-4 py-3">Client</th>
-              <th className="px-4 py-3">Phone</th>
-              <th className="px-4 py-3">Excursion</th>
+              <th className="px-4 py-3">Cliente</th>
+              <th className="px-4 py-3">Teléfono</th>
+              <th className="px-4 py-3">Excursión</th>
               <th className="px-4 py-3">Pax</th>
-              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Estados</th>
             </tr>
           </thead>
 
@@ -868,7 +869,7 @@ export function OperationsView() {
                   colSpan={8}
                   className="px-4 py-8 text-center text-slate-500"
                 >
-                  No reservations found for these filters.
+                   No se encontraron reservas para estos filtros.
                 </td>
               </tr>
             )}
@@ -877,7 +878,7 @@ export function OperationsView() {
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h4 className="font-semibold text-slate-900">Created operations</h4>
+        <h4 className="font-semibold text-slate-900">Operaciones creadas</h4>
 
         <div className="mb-4 mt-4 grid gap-3 md:grid-cols-4">
           <div className="relative">
@@ -886,7 +887,7 @@ export function OperationsView() {
             <input
               value={operationSearch}
               onChange={(e) => setOperationSearch(e.target.value)}
-              placeholder="Search operations..."
+              placeholder="Buscar operaciones..."
               className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
             />
           </div>
@@ -903,11 +904,11 @@ export function OperationsView() {
             onChange={(e) => setOperationStatusFilter(e.target.value)}
             className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
           >
-            <option value="">All statuses</option>
-            <option value="draft">Draft</option>
-            <option value="sent">Sent</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="">Todos los estados</option>
+            <option value="draft">Borrador</option>
+            <option value="sent">Enviado</option>
+            <option value="completed">Completado</option>
+            <option value="cancelled">Cancelado</option>
           </select>
 
           <div className="flex gap-2">
@@ -916,7 +917,7 @@ export function OperationsView() {
               onClick={() => setOperationDateFilter(today)}
               className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
             >
-              Today
+              Hoy
             </button>
 
             <button
@@ -929,7 +930,7 @@ export function OperationsView() {
               }}
               className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
             >
-              Tomorrow
+              Mañana
             </button>
 
             <button
@@ -937,7 +938,7 @@ export function OperationsView() {
               onClick={() => setOperationDateFilter("")}
               className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
             >
-              All
+              Todas
             </button>
           </div>
         </div>
@@ -997,14 +998,14 @@ export function OperationsView() {
                     className="flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                   >
                     <Printer className="h-4 w-4" />
-                    Print / PDF
+                    Imprimir / PDF
                   </button>
                   <button
                     type="button"
                     onClick={() => handleEditOperation(operation)}
                     className="flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                   >
-                    Edit
+                    Editar
                   </button>
 
                <button
@@ -1026,7 +1027,7 @@ export function OperationsView() {
                     className="flex items-center gap-2 rounded-2xl bg-red-600 px-3 py-2 text-xs font-semibold text-white"
                   >
                     <Trash2 className="h-4 w-4" />
-                    Delete
+                    Eliminar
                   </button>
                 </div>
               </div>
@@ -1034,7 +1035,7 @@ export function OperationsView() {
           ))}
 
           {operations.length === 0 && (
-            <p className="text-sm text-slate-500">No operations created yet.</p>
+            <p className="text-sm text-slate-500">No se encontraron operaciones para estos filtros.</p>
           )}
         </div>
       </div>

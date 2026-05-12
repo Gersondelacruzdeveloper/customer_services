@@ -78,7 +78,7 @@ export function AgencyExcursionPricesView() {
         excursion: excursionData[0]?.id ?? 0,
       }));
     } catch (error) {
-      console.error("Error loading agency price data:", error);
+      console.error("Error cargando datos de precios de agencias:", error);
     }
   }
 
@@ -129,7 +129,10 @@ export function AgencyExcursionPricesView() {
   async function handleDelete(id?: number) {
     if (!id) return;
 
-    const confirmed = window.confirm("Delete this agency price?");
+    const confirmed = window.confirm(
+      "¿Eliminar este precio de agencia?"
+    );
+
     if (!confirmed) return;
 
     await deleteAgencyExcursionPrice(id);
@@ -142,10 +145,11 @@ export function AgencyExcursionPricesView() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
-              Agency Excursion Prices
+              Precios de Excursiones por Agencia
             </h3>
+
             <p className="text-sm text-slate-500">
-              Set adult and child prices for each agency and excursion.
+              Configura precios de adultos y niños para cada agencia y excursión.
             </p>
           </div>
 
@@ -155,7 +159,7 @@ export function AgencyExcursionPricesView() {
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
           >
             <Plus className="h-4 w-4" />
-            Add price
+            Agregar precio
           </button>
         </div>
 
@@ -167,8 +171,9 @@ export function AgencyExcursionPricesView() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
               <div>
                 <label className="text-xs font-medium text-slate-500">
-                  Agency
+                  Agencia
                 </label>
+
                 <select
                   value={form.agency || ""}
                   onChange={(e) =>
@@ -180,7 +185,7 @@ export function AgencyExcursionPricesView() {
                   className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   required
                 >
-                  <option value="">Select agency</option>
+                  <option value="">Seleccionar agencia</option>
 
                   {agencies.map((agency) => (
                     <option key={agency.id} value={agency.id}>
@@ -192,8 +197,9 @@ export function AgencyExcursionPricesView() {
 
               <div>
                 <label className="text-xs font-medium text-slate-500">
-                  Excursion
+                  Excursión
                 </label>
+
                 <select
                   value={form.excursion || ""}
                   onChange={(e) =>
@@ -205,7 +211,7 @@ export function AgencyExcursionPricesView() {
                   className="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   required
                 >
-                  <option value="">Select excursion</option>
+                  <option value="">Seleccionar excursión</option>
 
                   {excursions.map((excursion) => (
                     <option key={excursion.id} value={excursion.id}>
@@ -217,8 +223,9 @@ export function AgencyExcursionPricesView() {
 
               <div>
                 <label className="text-xs font-medium text-slate-500">
-                  Adult price
+                  Precio adulto
                 </label>
+
                 <input
                   type="number"
                   step="0.01"
@@ -236,8 +243,9 @@ export function AgencyExcursionPricesView() {
 
               <div>
                 <label className="text-xs font-medium text-slate-500">
-                  Child price
+                  Precio niño
                 </label>
+
                 <input
                   type="number"
                   step="0.01"
@@ -255,8 +263,9 @@ export function AgencyExcursionPricesView() {
 
               <div>
                 <label className="text-xs font-medium text-slate-500">
-                  Currency
+                  Moneda
                 </label>
+
                 <select
                   value={form.currency}
                   onChange={(e) =>
@@ -286,7 +295,7 @@ export function AgencyExcursionPricesView() {
                     }))
                   }
                 />
-                Active
+                Activo
               </label>
 
               <div className="flex gap-3">
@@ -295,14 +304,14 @@ export function AgencyExcursionPricesView() {
                   onClick={closeForm}
                   className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
                 >
-                  Cancel
+                  Cancelar
                 </button>
 
                 <button
                   type="submit"
                   className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
                 >
-                  {editingId ? "Update price" : "Create price"}
+                  {editingId ? "Actualizar precio" : "Crear precio"}
                 </button>
               </div>
             </div>
@@ -313,13 +322,13 @@ export function AgencyExcursionPricesView() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-100 text-xs uppercase text-slate-500">
               <tr>
-                <th className="px-4 py-3">Agency</th>
-                <th className="px-4 py-3">Excursion</th>
-                <th className="px-4 py-3">Adult</th>
-                <th className="px-4 py-3">Child</th>
-                <th className="px-4 py-3">Currency</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-4 py-3">Agencia</th>
+                <th className="px-4 py-3">Excursión</th>
+                <th className="px-4 py-3">Adulto</th>
+                <th className="px-4 py-3">Niño</th>
+                <th className="px-4 py-3">Moneda</th>
+                <th className="px-4 py-3">Estado</th>
+                <th className="px-4 py-3 text-right">Acciones</th>
               </tr>
             </thead>
 
@@ -327,18 +336,24 @@ export function AgencyExcursionPricesView() {
               {prices.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-50">
                   <td className="px-4 py-3">{item.agency_name}</td>
+
                   <td className="px-4 py-3">{item.excursion_name}</td>
+
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center gap-1 font-semibold">
                       <DollarSign className="h-4 w-4" />
                       {item.adult_price}
                     </span>
                   </td>
+
                   <td className="px-4 py-3">{item.child_price}</td>
+
                   <td className="px-4 py-3">{item.currency}</td>
+
                   <td className="px-4 py-3">
-                    {item.is_active ? "Active" : "Inactive"}
+                    {item.is_active ? "Activo" : "Inactivo"}
                   </td>
+
                   <td className="px-4 py-3 text-right">
                     <button
                       type="button"
@@ -346,7 +361,7 @@ export function AgencyExcursionPricesView() {
                       className="mr-2 inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50"
                     >
                       <Pencil className="h-3.5 w-3.5" />
-                      Edit
+                      Editar
                     </button>
 
                     <button
@@ -355,7 +370,7 @@ export function AgencyExcursionPricesView() {
                       className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                      Delete
+                      Eliminar
                     </button>
                   </td>
                 </tr>
@@ -367,7 +382,7 @@ export function AgencyExcursionPricesView() {
                     colSpan={7}
                     className="px-4 py-8 text-center text-slate-500"
                   >
-                    No agency prices found.
+                    No se encontraron precios de agencias.
                   </td>
                 </tr>
               )}

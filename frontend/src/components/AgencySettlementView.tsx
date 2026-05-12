@@ -73,7 +73,7 @@ export function AgencySettlementView() {
       setReservations(reservationDataRaw as Reservation[]);
       setAgencies(agencyDataRaw as Agency[]);
     } catch (error) {
-      console.error("Error loading agency settlement data:", error);
+      console.error("Error cargando datos de liquidación de agencias:", error);
       setReservations([]);
       setAgencies([]);
     }
@@ -230,10 +230,10 @@ export function AgencySettlementView() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-slate-950">
-              Agency Settlement
+              Liquidación de agencias
             </h2>
             <p className="text-sm text-slate-500">
-              Track agency balances, payments, and pending amounts.
+              Controla balances, pagos y montos pendientes de agencias.
             </p>
           </div>
 
@@ -243,7 +243,7 @@ export function AgencySettlementView() {
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white print:hidden"
           >
             <Printer className="h-4 w-4" />
-            Print statement
+            Imprimir estado
           </button>
         </div>
 
@@ -253,7 +253,7 @@ export function AgencySettlementView() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search client, locator, agency..."
+              placeholder="Buscar cliente, localizador, agencia..."
               className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
             />
           </div>
@@ -263,7 +263,7 @@ export function AgencySettlementView() {
             onChange={(e) => setAgencyFilter(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
           >
-            <option value="">All agencies</option>
+            <option value="">Todas las agencias</option>
             {agencies
               .filter((agency) => agency.id)
               .map((agency) => (
@@ -299,7 +299,7 @@ export function AgencySettlementView() {
             onChange={(e) => setCurrencyFilter(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
           >
-            <option value="">All currencies</option>
+            <option value="">Todas las monedas</option>
             {currencies.map((currency) => (
               <option key={currency} value={currency}>
                 {currency}
@@ -312,17 +312,17 @@ export function AgencySettlementView() {
             onChange={(e) => setBalanceFilter(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
           >
-            <option value="">All balances</option>
-            <option value="unpaid">Unpaid balance</option>
-            <option value="paid">Fully paid</option>
-            <option value="overpaid">Overpaid</option>
+            <option value="">Todos los balances</option>
+            <option value="unpaid">Balance pendiente</option>
+            <option value="paid">Pagado completamente</option>
+            <option value="overpaid">Sobrepagado</option>
           </select>
 
           <input
             type="number"
             value={minBalance}
             onChange={(e) => setMinBalance(e.target.value)}
-            placeholder="Min balance"
+            placeholder="Balance mínimo"
             className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
           />
 
@@ -330,7 +330,7 @@ export function AgencySettlementView() {
             type="number"
             value={maxBalance}
             onChange={(e) => setMaxBalance(e.target.value)}
-            placeholder="Max balance"
+            placeholder="Balance máximo"
             className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
           />
 
@@ -341,11 +341,11 @@ export function AgencySettlementView() {
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm"
             >
-              <option value="date_desc">Newest first</option>
-              <option value="date_asc">Oldest first</option>
-              <option value="balance_high">Highest balance</option>
-              <option value="balance_low">Lowest balance</option>
-              <option value="client_asc">Client A-Z</option>
+              <option value="date_desc">Más recientes primero</option>
+              <option value="date_asc">Más antiguas primero</option>
+              <option value="balance_high">Mayor balance</option>
+              <option value="balance_low">Menor balance</option>
+              <option value="client_asc">Cliente A-Z</option>
             </select>
           </div>
 
@@ -355,32 +355,32 @@ export function AgencySettlementView() {
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
           >
             <Filter className="h-4 w-4" />
-            Clear filters
+            Limpiar filtros
           </button>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         <SummaryCard
-          title="Reservations"
+          title="Reservas"
           value={String(totals.totalReservations)}
           icon={<CalendarDays className="h-5 w-5" />}
         />
 
         <SummaryCard
-          title="Agency total due"
+          title="Total pendiente agencia"
           value={money(totals.agencyTotalDue, totals.currency)}
           icon={<DollarSign className="h-5 w-5" />}
         />
 
         <SummaryCard
-          title="Agency paid"
+          title="Pagado a agencia"
           value={money(totals.agencyPaid, totals.currency)}
           icon={<Handshake className="h-5 w-5" />}
         />
 
         <SummaryCard
-          title="Remaining balance"
+          title="Balance restante"
           value={money(totals.agencyRemaining, totals.currency)}
           icon={<CalendarDays className="h-5 w-5" />}
         />
@@ -391,14 +391,14 @@ export function AgencySettlementView() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-100 text-xs uppercase text-slate-500">
               <tr>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Locator</th>
-                <th className="px-4 py-3">Client</th>
-                <th className="px-4 py-3">Agency</th>
-                <th className="px-4 py-3">Sale total</th>
-                <th className="px-4 py-3">Agency total due</th>
-                <th className="px-4 py-3">Agency paid</th>
-                <th className="px-4 py-3">Remaining balance</th>
+                <th className="px-4 py-3">Fecha</th>
+                <th className="px-4 py-3">Localizador</th>
+                <th className="px-4 py-3">Cliente</th>
+                <th className="px-4 py-3">Agencia</th>
+                <th className="px-4 py-3">Total venta</th>
+                <th className="px-4 py-3">Total pendiente agencia</th>
+                <th className="px-4 py-3">Pagado agencia</th>
+                <th className="px-4 py-3">Balance restante</th>
               </tr>
             </thead>
 
@@ -439,7 +439,7 @@ export function AgencySettlementView() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
-                    No agency settlement records found.
+                    No se encontraron registros de liquidación de agencias.
                   </td>
                 </tr>
               )}

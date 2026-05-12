@@ -49,32 +49,32 @@ export function ExcursionsView() {
 
   
   async function handleExcelImport(e: React.ChangeEvent<HTMLInputElement>) {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const result = await importExcursionsExcel(file);
+      const result = await importExcursionsExcel(file);
 
-    await loadExcursions();
+      await loadExcursions();
 
-    if (result.errors?.length) {
-      console.warn("Import errors:", result.errors);
-      alert(
-        `Imported ${result.created_or_updated} excursions with ${result.errors.length} errors.`,
-      );
-    } else {
-      alert(`Imported ${result.created_or_updated} excursions successfully.`);
+      if (result.errors?.length) {
+        console.warn("Errores de importación:", result.errors);
+        alert(
+          `Se importaron ${result.created_or_updated} excursiones con ${result.errors.length} errores.`,
+        );
+      } else {
+        alert(`Se importaron ${result.created_or_updated} excursiones correctamente.`);
+      }
+    } catch (error: any) {
+      console.error("Error al importar:", error.response?.data ?? error);
+      alert("Error al importar el archivo Excel de excursiones.");
+    } finally {
+      setLoading(false);
+      e.target.value = "";
     }
-  } catch (error: any) {
-    console.error("Import error:", error.response?.data ?? error);
-    alert("Error importing excursions Excel file.");
-  } finally {
-    setLoading(false);
-    e.target.value = "";
   }
-}
 
   async function loadInitialData() {
     try {
@@ -88,7 +88,7 @@ export function ExcursionsView() {
       setExcursions(excursionsData);
       setProviders(providersData);
     } catch (error) {
-      console.error("Error loading excursions:", error);
+      console.error("Error cargando excursiones:", error);
       setExcursions([]);
     } finally {
       setLoading(false);
@@ -183,21 +183,21 @@ export function ExcursionsView() {
       await loadExcursions();
       closeForm();
     } catch (error: any) {
-      console.error("Error saving excursion:", error.response?.data ?? error);
+      console.error("Error guardando excursión:", error.response?.data ?? error);
     }
   }
 
   async function handleDelete(id?: number) {
     if (!id) return;
 
-    if (!window.confirm("Are you sure you want to delete this excursion?"))
+    if (!window.confirm("¿Estás seguro de que deseas eliminar esta excursión?"))
       return;
 
     try {
       await deleteRExcursion(id);
       setExcursions((prev) => prev.filter((e) => e.id !== id));
     } catch (error: any) {
-      console.error("Error deleting excursion:", error.response?.data ?? error);
+      console.error("Error eliminando excursión:", error.response?.data ?? error);
     }
   }
 
@@ -206,10 +206,10 @@ export function ExcursionsView() {
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">Excursions</h3>
+            <h3 className="text-lg font-semibold text-slate-900">Excursiones</h3>
 
             <p className="text-sm text-slate-500">
-              Manage excursions, pricing and providers.
+              Gestiona excursiones, precios y proveedores.
             </p>
           </div>
 
@@ -217,7 +217,7 @@ export function ExcursionsView() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search excursions..."
+              placeholder="Buscar excursiones..."
               className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
             />
 
@@ -225,18 +225,18 @@ export function ExcursionsView() {
               onClick={openCreateForm}
               className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
             >
-              Add excursion
+              Agregar excursión
             </button>
 
             <label className="cursor-pointer rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700">
-            Import Excel
-            <input
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={handleExcelImport}
-              className="hidden"
-            />
-          </label>
+              Importar Excel
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleExcelImport}
+                className="hidden"
+              />
+            </label>
           </div>
         </div>
 
@@ -247,7 +247,7 @@ export function ExcursionsView() {
           >
             <div className="mb-4 flex justify-between">
               <h4 className="font-semibold text-slate-900">
-                {editingId ? "Edit excursion" : "Add excursion"}
+                {editingId ? "Editar excursión" : "Agregar excursión"}
               </h4>
 
               <button
@@ -255,7 +255,7 @@ export function ExcursionsView() {
                 onClick={closeForm}
                 className="text-sm text-slate-500"
               >
-                Cancel
+                Cancelar
               </button>
             </div>
 
@@ -263,7 +263,7 @@ export function ExcursionsView() {
               <input
                 value={form.name}
                 onChange={(e) => updateFormField("name", e.target.value)}
-                placeholder="Excursion name"
+                placeholder="Nombre de la excursión"
                 required
                 className="rounded-2xl border px-4 py-2.5 text-sm"
               />
@@ -273,7 +273,7 @@ export function ExcursionsView() {
                 onChange={(e) =>
                   updateFormField("default_sale_price", e.target.value)
                 }
-                placeholder="Price"
+                placeholder="Precio"
                 className="rounded-2xl border px-4 py-2.5 text-sm"
               />
 
@@ -287,7 +287,7 @@ export function ExcursionsView() {
                 }
                 className="rounded-2xl border px-4 py-2.5 text-sm"
               >
-                <option value="">No provider</option>
+                <option value="">Sin proveedor</option>
                 {providers.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
@@ -298,7 +298,7 @@ export function ExcursionsView() {
               <textarea
                 value={form.description}
                 onChange={(e) => updateFormField("description", e.target.value)}
-                placeholder="Description"
+                placeholder="Descripción"
                 rows={3}
                 className="rounded-2xl border px-4 py-2.5 text-sm md:col-span-2 lg:col-span-3"
               />
@@ -311,7 +311,7 @@ export function ExcursionsView() {
                     updateFormField("is_active", e.target.checked)
                   }
                 />
-                Active
+                Activo
               </label>
             </div>
 
@@ -321,11 +321,11 @@ export function ExcursionsView() {
                 onClick={closeForm}
                 className="rounded-2xl border px-4 py-2.5 text-sm"
               >
-                Cancel
+                Cancelar
               </button>
 
               <button className="rounded-2xl bg-slate-950 text-white px-4 py-2.5 text-sm font-semibold">
-                {editingId ? "Update" : "Create"}
+                {editingId ? "Actualizar" : "Crear"}
               </button>
             </div>
           </form>
@@ -333,16 +333,16 @@ export function ExcursionsView() {
 
         <div className="mt-5 overflow-x-auto">
           {loading ? (
-            <p className="py-6 text-sm text-slate-500">Loading...</p>
+            <p className="py-6 text-sm text-slate-500">Cargando...</p>
           ) : (
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b text-slate-500">
-                  <th className="py-3 pr-4">Name</th>
-                  <th className="py-3 pr-4">Price</th>
-                  <th className="py-3 pr-4">Provider</th>
-                  <th className="py-3 pr-4">Status</th>
-                  <th className="py-3 pr-4">Actions</th>
+                  <th className="py-3 pr-4">Nombre</th>
+                  <th className="py-3 pr-4">Precio</th>
+                  <th className="py-3 pr-4">Proveedor</th>
+                  <th className="py-3 pr-4">Estado</th>
+                  <th className="py-3 pr-4">Acciones</th>
                 </tr>
               </thead>
 
@@ -355,16 +355,17 @@ export function ExcursionsView() {
                       {e.default_provider_name ||
                         getProviderName(e.default_provider)}
                     </td>
-                   <td className="py-3 pr-4">
-                    <span
+
+                    <td className="py-3 pr-4">
+                      <span
                         className={
-                        e.is_active
+                          e.is_active
                             ? "rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700"
                             : "rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
                         }
-                    >
-                        {e.is_active ? "Active" : "Inactive"}
-                    </span>
+                      >
+                        {e.is_active ? "Activo" : "Inactivo"}
+                      </span>
                     </td>
 
                     <td className="py-3 pr-4">
@@ -374,7 +375,7 @@ export function ExcursionsView() {
                           onClick={() => openEditForm(e)}
                           className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                         >
-                          Edit
+                          Editar
                         </button>
 
                         <button
@@ -382,7 +383,7 @@ export function ExcursionsView() {
                           onClick={() => handleDelete(e.id)}
                           className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
                         >
-                          Delete
+                          Eliminar
                         </button>
                       </div>
                     </td>
@@ -392,7 +393,7 @@ export function ExcursionsView() {
                 {filtered.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-6 text-center text-slate-500">
-                      No excursions found.
+                      No se encontraron excursiones.
                     </td>
                   </tr>
                 )}

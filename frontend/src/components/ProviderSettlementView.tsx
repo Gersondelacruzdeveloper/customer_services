@@ -102,7 +102,7 @@ export function ProviderSettlementView() {
       setOperations(operationDataRaw as Operation[]);
       setProviders(providerDataRaw as Provider[]);
     } catch (error) {
-      console.error("Error loading provider settlement data:", error);
+      console.error("Error cargando datos de liquidación de proveedores:", error);
       setOperations([]);
       setProviders([]);
     }
@@ -124,7 +124,8 @@ export function ProviderSettlementView() {
         .join(" ")
         .toLowerCase();
 
-      const matchesSearch = !query || searchText.includes(query.toLowerCase());
+      const matchesSearch =
+        !query || searchText.includes(query.toLowerCase());
 
       const matchesProvider =
         !providerFilter || Number(providerId) === Number(providerFilter);
@@ -136,7 +137,8 @@ export function ProviderSettlementView() {
 
       const matchesDateTo = !dateTo || item.date <= dateTo;
 
-      const matchesStatus = !statusFilter || item.status === statusFilter;
+      const matchesStatus =
+        !statusFilter || item.status === statusFilter;
 
       const matchesBalance =
         !balanceFilter ||
@@ -163,6 +165,7 @@ export function ProviderSettlementView() {
       if (sortBy === "date_desc") return b.date.localeCompare(a.date);
       if (sortBy === "balance_high") return balanceB - balanceA;
       if (sortBy === "balance_low") return balanceA - balanceB;
+
       if (sortBy === "provider_asc") {
         return String(a.provider_name || "").localeCompare(
           String(b.provider_name || ""),
@@ -226,10 +229,11 @@ export function ProviderSettlementView() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-slate-950">
-              Provider Settlement
+              Liquidación de proveedores
             </h2>
+
             <p className="text-sm text-slate-500">
-              Track how much you owe providers for assigned operations.
+              Lleva el control de cuánto debes a los proveedores por operaciones asignadas.
             </p>
           </div>
 
@@ -239,17 +243,18 @@ export function ProviderSettlementView() {
             className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white print:hidden"
           >
             <Printer className="h-4 w-4" />
-            Print statement
+            Imprimir estado
           </button>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-4 print:hidden">
           <div className="relative md:col-span-2">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search provider, service, status..."
+              placeholder="Buscar proveedor, servicio, estado..."
               className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
             />
           </div>
@@ -259,7 +264,8 @@ export function ProviderSettlementView() {
             onChange={(e) => setProviderFilter(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
           >
-            <option value="">All providers</option>
+            <option value="">Todos los proveedores</option>
+
             {providers
               .filter((provider) => provider.id)
               .map((provider) => (
@@ -295,12 +301,12 @@ export function ProviderSettlementView() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
           >
-            <option value="">All statuses</option>
-            <option value="draft">Draft</option>
-            <option value="sent">Sent to provider</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="">Todos los estados</option>
+            <option value="draft">Borrador</option>
+            <option value="sent">Enviado al proveedor</option>
+            <option value="confirmed">Confirmado</option>
+            <option value="completed">Completado</option>
+            <option value="cancelled">Cancelado</option>
           </select>
 
           <select
@@ -308,24 +314,25 @@ export function ProviderSettlementView() {
             onChange={(e) => setBalanceFilter(e.target.value)}
             className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
           >
-            <option value="">All balances</option>
-            <option value="unpaid">We still owe</option>
-            <option value="paid">Fully paid</option>
-            <option value="overpaid">Overpaid</option>
+            <option value="">Todos los balances</option>
+            <option value="unpaid">Aún debemos</option>
+            <option value="paid">Pagado completamente</option>
+            <option value="overpaid">Pagado de más</option>
           </select>
 
           <div className="relative">
             <ArrowUpDown className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm"
             >
-              <option value="date_desc">Newest first</option>
-              <option value="date_asc">Oldest first</option>
-              <option value="balance_high">Highest balance</option>
-              <option value="balance_low">Lowest balance</option>
-              <option value="provider_asc">Provider A-Z</option>
+              <option value="date_desc">Más recientes primero</option>
+              <option value="date_asc">Más antiguos primero</option>
+              <option value="balance_high">Mayor balance</option>
+              <option value="balance_low">Menor balance</option>
+              <option value="provider_asc">Proveedor A-Z</option>
             </select>
           </div>
 
@@ -335,32 +342,32 @@ export function ProviderSettlementView() {
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
           >
             <Filter className="h-4 w-4" />
-            Clear filters
+            Limpiar filtros
           </button>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         <SummaryCard
-          title="Operations"
+          title="Operaciones"
           value={String(totals.totalOperations)}
           icon={<CalendarDays className="h-5 w-5" />}
         />
 
         <SummaryCard
-          title="Provider total due"
+          title="Total a pagar"
           value={money(totals.providerTotalDue, totals.currency)}
           icon={<DollarSign className="h-5 w-5" />}
         />
 
         <SummaryCard
-          title="Provider paid"
+          title="Pagado al proveedor"
           value={money(totals.providerPaid, totals.currency)}
           icon={<Handshake className="h-5 w-5" />}
         />
 
         <SummaryCard
-          title="We still owe"
+          title="Aún debemos"
           value={money(totals.providerRemaining, totals.currency)}
           icon={<CalendarDays className="h-5 w-5" />}
         />
@@ -371,24 +378,31 @@ export function ProviderSettlementView() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-100 text-xs uppercase text-slate-500">
               <tr>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Provider</th>
-                <th className="px-4 py-3">Service</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Fecha</th>
+                <th className="px-4 py-3">Proveedor</th>
+                <th className="px-4 py-3">Servicio</th>
+                <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Pax</th>
-                <th className="px-4 py-3">Cost</th>
-                <th className="px-4 py-3">Price type</th>
-                <th className="px-4 py-3">Total due</th>
-                <th className="px-4 py-3">Paid</th>
+                <th className="px-4 py-3">Costo</th>
+                <th className="px-4 py-3">Tipo de precio</th>
+                <th className="px-4 py-3">Total a pagar</th>
+                <th className="px-4 py-3">Pagado</th>
                 <th className="px-4 py-3">Balance</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-200 bg-white">
               {filtered.map((item) => {
-                const currency = item.provider_service_currency || "USD";
-                const cost = Number(item.provider_service_cost || 0);
-                const priceType = item.provider_service_price_type || "fixed";
+                const currency =
+                  item.provider_service_currency || "USD";
+
+                const cost = Number(
+                  item.provider_service_cost || 0,
+                );
+
+                const priceType =
+                  item.provider_service_price_type || "fixed";
+
                 const pax =
                   item.reservations?.reduce(
                     (total, reservation) =>
@@ -398,6 +412,7 @@ export function ProviderSettlementView() {
                       Number(reservation.infants || 0),
                     0,
                   ) || 0;
+
                 const total = getProviderTotal(item);
                 const paid = getProviderPaid(item);
                 const balance = getProviderBalance(item);
@@ -405,26 +420,37 @@ export function ProviderSettlementView() {
                 return (
                   <tr key={item.id}>
                     <td className="px-4 py-3">{item.date}</td>
+
                     <td className="px-4 py-3 font-semibold">
                       {item.provider_name || "—"}
                     </td>
+
                     <td className="px-4 py-3">
                       {item.provider_service_name || "—"}
                     </td>
+
                     <td className="px-4 py-3 capitalize">
                       {item.status || "—"}
                     </td>
+
                     <td className="px-4 py-3">{pax}</td>
-                    <td className="px-4 py-3">{money(cost, currency)}</td>
+
+                    <td className="px-4 py-3">
+                      {money(cost, currency)}
+                    </td>
+
                     <td className="px-4 py-3 capitalize">
                       {priceType.replace(/_/g, " ")}
                     </td>
 
-
                     <td className="px-4 py-3 font-semibold">
                       {money(total, currency)}
                     </td>
-                    <td className="px-4 py-3">{money(paid, currency)}</td>
+
+                    <td className="px-4 py-3">
+                      {money(paid, currency)}
+                    </td>
+
                     <td
                       className={`px-4 py-3 font-semibold ${
                         balance > 0
@@ -446,7 +472,7 @@ export function ProviderSettlementView() {
                     colSpan={10}
                     className="px-4 py-8 text-center text-slate-500"
                   >
-                    No provider settlement records found.
+                    No se encontraron registros de liquidación de proveedores.
                   </td>
                 </tr>
               )}
@@ -473,8 +499,13 @@ function SummaryCard({
         {icon}
       </div>
 
-      <p className="text-sm font-medium text-slate-500">{title}</p>
-      <h3 className="mt-1 text-2xl font-bold text-slate-950">{value}</h3>
+      <p className="text-sm font-medium text-slate-500">
+        {title}
+      </p>
+
+      <h3 className="mt-1 text-2xl font-bold text-slate-950">
+        {value}
+      </h3>
     </div>
   );
 }

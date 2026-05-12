@@ -38,10 +38,10 @@ const emptyForm: ProviderService = {
 };
 
 const priceTypes = [
-  ["per_person", "Per person"],
-  ["per_trip", "Per trip"],
-  ["per_group", "Per group"],
-  ["fixed", "Fixed"],
+  ["per_person", "Por persona"],
+  ["per_trip", "Por viaje"],
+  ["per_group", "Por grupo"],
+  ["fixed", "Fijo"],
 ];
 
 const currencies = ["USD", "DOP", "EUR"];
@@ -76,7 +76,7 @@ export function ProviderServicesView() {
         provider: Number(providersData[0]?.id ?? 0),
       }));
     } catch (error) {
-      console.error("Error loading provider services:", error);
+      console.error("Error cargando servicios del proveedor:", error);
       setServices([]);
       setProviders([]);
     } finally {
@@ -89,7 +89,7 @@ export function ProviderServicesView() {
       const data = await getProviderServices() as ProviderService[];
       setServices(data);
     } catch (error) {
-      console.error("Error loading provider services:", error);
+      console.error("Error cargando servicios del proveedor:", error);
       setServices([]);
     }
   }
@@ -189,7 +189,7 @@ export function ProviderServicesView() {
       closeForm();
     } catch (error: any) {
       console.error(
-        "Error saving provider service:",
+        "Error guardando servicio del proveedor:",
         error.response?.data ?? error
       );
     }
@@ -199,7 +199,7 @@ export function ProviderServicesView() {
     if (!id) return;
 
     const confirmed = window.confirm(
-      "Are you sure you want to delete this provider service?"
+      "¿Estás seguro de que deseas eliminar este servicio del proveedor?"
     );
 
     if (!confirmed) return;
@@ -209,7 +209,7 @@ export function ProviderServicesView() {
       setServices((prev) => prev.filter((service) => service.id !== id));
     } catch (error: any) {
       console.error(
-        "Error deleting provider service:",
+        "Error eliminando servicio del proveedor:",
         error.response?.data ?? error
       );
     }
@@ -225,11 +225,11 @@ export function ProviderServicesView() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
-              Provider Services
+              Servicios de Proveedores
             </h3>
 
             <p className="text-sm text-slate-500">
-              Manage prices for transport, boats, food, guides and excursion suppliers.
+              Gestiona precios de transporte, botes, comida, guías y suplidores de excursiones.
             </p>
           </div>
 
@@ -237,7 +237,7 @@ export function ProviderServicesView() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search services..."
+              placeholder="Buscar servicios..."
               className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
             />
 
@@ -246,7 +246,7 @@ export function ProviderServicesView() {
               onClick={openCreateForm}
               className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
             >
-              Add service
+              Agregar servicio
             </button>
           </div>
         </div>
@@ -258,7 +258,7 @@ export function ProviderServicesView() {
           >
             <div className="mb-4 flex items-center justify-between">
               <h4 className="font-semibold text-slate-900">
-                {editingId ? "Edit service" : "Add service"}
+                {editingId ? "Editar servicio" : "Agregar servicio"}
               </h4>
 
               <button
@@ -266,7 +266,7 @@ export function ProviderServicesView() {
                 onClick={closeForm}
                 className="text-sm font-medium text-slate-500 hover:text-slate-900"
               >
-                Cancel
+                Cancelar
               </button>
             </div>
 
@@ -289,7 +289,7 @@ export function ProviderServicesView() {
               <input
                 value={form.name}
                 onChange={(e) => updateFormField("name", e.target.value)}
-                placeholder="Service name e.g. Bus 25 seats"
+                placeholder="Nombre del servicio ej. Bus 25 asientos"
                 required
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
@@ -297,7 +297,7 @@ export function ProviderServicesView() {
               <input
                 value={form.category}
                 onChange={(e) => updateFormField("category", e.target.value)}
-                placeholder="Category e.g. transport, food, boat"
+                placeholder="Categoría ej. transporte, comida, bote"
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
 
@@ -307,7 +307,7 @@ export function ProviderServicesView() {
                 step="0.01"
                 value={form.cost_price}
                 onChange={(e) => updateFormField("cost_price", e.target.value)}
-                placeholder="Cost price"
+                placeholder="Precio de costo"
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
 
@@ -343,7 +343,7 @@ export function ProviderServicesView() {
                     updateFormField("is_active", e.target.checked)
                   }
                 />
-                Active service
+                Servicio activo
               </label>
 
               <textarea
@@ -351,7 +351,7 @@ export function ProviderServicesView() {
                 onChange={(e) =>
                   updateFormField("description", e.target.value)
                 }
-                placeholder="Description"
+                placeholder="Descripción"
                 rows={3}
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm md:col-span-2"
               />
@@ -363,14 +363,14 @@ export function ProviderServicesView() {
                 onClick={closeForm}
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
               >
-                Cancel
+                Cancelar
               </button>
 
               <button
                 type="submit"
                 className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
               >
-                {editingId ? "Update service" : "Create service"}
+                {editingId ? "Actualizar servicio" : "Crear servicio"}
               </button>
             </div>
           </form>
@@ -379,19 +379,19 @@ export function ProviderServicesView() {
         <div className="mt-5 overflow-x-auto">
           {loading ? (
             <p className="py-6 text-sm text-slate-500">
-              Loading provider services...
+              Cargando servicios de proveedores...
             </p>
           ) : (
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500">
-                  <th className="py-3 pr-4 font-medium">Provider</th>
-                  <th className="py-3 pr-4 font-medium">Service</th>
-                  <th className="py-3 pr-4 font-medium">Category</th>
-                  <th className="py-3 pr-4 font-medium">Cost</th>
-                  <th className="py-3 pr-4 font-medium">Price Type</th>
-                  <th className="py-3 pr-4 font-medium">Status</th>
-                  <th className="py-3 pr-4 font-medium">Actions</th>
+                  <th className="py-3 pr-4 font-medium">Proveedor</th>
+                  <th className="py-3 pr-4 font-medium">Servicio</th>
+                  <th className="py-3 pr-4 font-medium">Categoría</th>
+                  <th className="py-3 pr-4 font-medium">Costo</th>
+                  <th className="py-3 pr-4 font-medium">Tipo de precio</th>
+                  <th className="py-3 pr-4 font-medium">Estado</th>
+                  <th className="py-3 pr-4 font-medium">Acciones</th>
                 </tr>
               </thead>
 
@@ -424,7 +424,7 @@ export function ProviderServicesView() {
                             : "rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
                         }
                       >
-                        {service.is_active ? "Active" : "Inactive"}
+                        {service.is_active ? "Activo" : "Inactivo"}
                       </span>
                     </td>
 
@@ -435,7 +435,7 @@ export function ProviderServicesView() {
                           onClick={() => openEditForm(service)}
                           className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                         >
-                          Edit
+                          Editar
                         </button>
 
                         <button
@@ -443,7 +443,7 @@ export function ProviderServicesView() {
                           onClick={() => handleDelete(service.id)}
                           className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
                         >
-                          Delete
+                          Eliminar
                         </button>
                       </div>
                     </td>
@@ -456,7 +456,7 @@ export function ProviderServicesView() {
                       colSpan={7}
                       className="py-8 text-center text-sm text-slate-500"
                     >
-                      No provider services found.
+                      No se encontraron servicios de proveedores.
                     </td>
                   </tr>
                 )}

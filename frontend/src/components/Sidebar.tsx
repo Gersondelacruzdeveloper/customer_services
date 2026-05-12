@@ -34,25 +34,26 @@ export default function Sidebar({
   onLogout: () => void;
 }) {
   const [surveysOpen, setSurveysOpen] = useState(false);
+
   const nav = [
-    ["dashboard", "Dashboard", LayoutDashboard],
+    ["dashboard", "Panel", LayoutDashboard],
 
-    ["reservations", "Reservations", CalendarDays],
+    ["reservations", "Reservas", CalendarDays],
 
-    ["excursions", "Excursions", MapPinned],
-    ["hotels", "Hotels", Hotel],
-    ["zones", "Zones", Layers],
-    ["pickup_times", "Pickup Times", Clock],
-    ["operations", "Operations", CheckCircle2],
+    ["excursions", "Excursiones", MapPinned],
+    ["hotels", "Hoteles", Hotel],
+    ["zones", "Zonas", Layers],
+    ["pickup_times", "Horarios de Recogida", Clock],
+    ["operations", "Operaciones", CheckCircle2],
 
-    ["providers", "Providers", Building2],
-    ["provider_services", "Provider Services", Bus],
+    ["providers", "Proveedores", Building2],
+    ["provider_services", "Servicios de Proveedores", Bus],
 
-    ["agencies", "Agencies", Handshake],
-    ["agency-prices", "Agency Prices", BadgeDollarSign],
-    ["agency-settlement", "Agency Settlement", Handshake],
-    ["provider-settlement", "Provider Settlement", CreditCard],
-    ["agency-access", "Agency Access", CreditCard],
+    ["agencies", "Agencias", Handshake],
+    ["agency-prices", "Precios de Agencias", BadgeDollarSign],
+    ["agency-settlement", "Liquidación de Agencias", Handshake],
+    ["provider-settlement", "Liquidación de Proveedores", CreditCard],
+    ["agency-access", "Acceso de Agencias", CreditCard],
   ] as const;
 
   return (
@@ -68,8 +69,8 @@ export default function Sidebar({
           </div>
 
           <p className="mt-3 text-sm text-slate-400">
-            Reservations, hotels, pickups, providers, agencies and costs in one
-            place.
+            Reservas, hoteles, recogidas, proveedores, agencias y costos en un
+            solo lugar.
           </p>
         </div>
 
@@ -91,28 +92,28 @@ export default function Sidebar({
           ))}
 
           <div>
-  <button
-  type="button"
-  onClick={() => setSurveysOpen((prev) => !prev)}
-  className={classNames(
-    "flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition",
-    active.startsWith("survey")
-      ? "bg-white text-slate-950"
-      : "text-slate-300 hover:bg-white/10 hover:text-white",
-  )}
->
-  <div className="flex items-center gap-3">
-    <UserRound className="h-5 w-5" />
-    <span className="font-medium">Surveys</span>
-  </div>
+            <button
+              type="button"
+              onClick={() => setSurveysOpen((prev) => !prev)}
+              className={classNames(
+                "flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition",
+                active.startsWith("survey")
+                  ? "bg-white text-slate-950"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white",
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <UserRound className="h-5 w-5" />
+                <span className="font-medium">Encuestas</span>
+              </div>
 
-  <ChevronDown
-    className={classNames(
-      "h-4 w-4 transition-transform duration-200",
-      surveysOpen && "rotate-180",
-    )}
-  />
-</button>
+              <ChevronDown
+                className={classNames(
+                  "h-4 w-4 transition-transform duration-200",
+                  surveysOpen && "rotate-180",
+                )}
+              />
+            </button>
 
             {surveysOpen && (
               <div className="ml-8 mt-2 space-y-1">
@@ -127,7 +128,7 @@ export default function Sidebar({
                         : "text-slate-400 hover:bg-white/10 hover:text-white",
                     )}
                   >
-                    Survey Form
+                    Formulario de Encuesta
                   </button>
 
                   <button
@@ -140,7 +141,7 @@ export default function Sidebar({
                         : "text-slate-400 hover:bg-white/10 hover:text-white",
                     )}
                   >
-                    Survey Results
+                    Resultados de Encuestas
                   </button>
 
                   <button
@@ -153,13 +154,14 @@ export default function Sidebar({
                         : "text-slate-400 hover:bg-white/10 hover:text-white",
                     )}
                   >
-                    Survey Options
+                    Opciones de Encuesta
                   </button>
                 </div>
               </div>
             )}
           </div>
         </nav>
+
         <div className="mt-auto border-t border-white/10 pt-4">
           <button
             type="button"
@@ -167,7 +169,7 @@ export default function Sidebar({
             className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-slate-300 transition hover:bg-red-500 hover:text-white"
           >
             <LogOut className="h-5 w-5" />
-            <span className="font-medium">Logout</span>
+            <span className="font-medium">Cerrar sesión</span>
           </button>
         </div>
       </div>

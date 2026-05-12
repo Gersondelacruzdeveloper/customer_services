@@ -523,7 +523,7 @@ export async function updateAgencyAccess(id: number, data: any) {
   console.log("TOKEN BEING SENT:", token);
   const response = await api.patch(`/reservations/agency-access/${id}/`, data);
   return response.data;
-}
+} 
 
 /* -------------------- Agency Portal -------------------- */
 

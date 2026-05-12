@@ -33,34 +33,36 @@ export function PickupTimesView() {
     loadInitialData();
   }, []);
 
-
   async function handleExcelImport(e: React.ChangeEvent<HTMLInputElement>) {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const result = await importPickupTimesExcel(file);
+      const result = await importPickupTimesExcel(file);
 
-    await loadPickupTimes();
+      await loadPickupTimes();
 
-    if (result.errors?.length) {
-      console.warn("Pickup time import errors:", result.errors);
-      alert(
-        `Imported ${result.created_or_updated} pickup times with ${result.errors.length} errors.`,
-      );
-    } else {
-      alert(`Imported ${result.created_or_updated} pickup times successfully.`);
+      if (result.errors?.length) {
+        console.warn("Errores de importación de horarios:", result.errors);
+        alert(
+          `Se importaron ${result.created_or_updated} horarios de recogida con ${result.errors.length} errores.`,
+        );
+      } else {
+        alert(
+          `Se importaron ${result.created_or_updated} horarios de recogida correctamente.`,
+        );
+      }
+    } catch (error: any) {
+      console.error("Error de importación:", error.response?.data ?? error);
+      alert("Error al importar el archivo Excel de horarios de recogida.");
+    } finally {
+      setLoading(false);
+      e.target.value = "";
     }
-  } catch (error: any) {
-    console.error("Import error:", error.response?.data ?? error);
-    alert("Error importing pickup times Excel file.");
-  } finally {
-    setLoading(false);
-    e.target.value = "";
   }
-}
+
   async function loadInitialData() {
     try {
       setLoading(true);
@@ -81,7 +83,7 @@ export function PickupTimesView() {
         excursion: Number(excursionsData[0]?.id ?? 0),
       }));
     } catch (error) {
-      console.error("Error loading pickup times:", error);
+      console.error("Error cargando horarios de recogida:", error);
       setPickupTimes([]);
     } finally {
       setLoading(false);
@@ -90,10 +92,10 @@ export function PickupTimesView() {
 
   async function loadPickupTimes() {
     try {
-      const data = await getPickupTimes() as PickupTime[];
+      const data = (await getPickupTimes()) as PickupTime[];
       setPickupTimes(data);
     } catch (error) {
-      console.error("Error loading pickup times:", error);
+      console.error("Error cargando horarios de recogida:", error);
       setPickupTimes([]);
     }
   }
@@ -103,11 +105,14 @@ export function PickupTimesView() {
   };
 
   const getExcursionName = (id: number) => {
-    return excursions.find((excursion) => Number(excursion.id) === id)?.name ?? "";
+    return (
+      excursions.find((excursion) => Number(excursion.id) === id)?.name ?? ""
+    );
   };
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
+
     if (!q) return pickupTimes;
 
     return pickupTimes.filter((item) =>
@@ -132,6 +137,7 @@ export function PickupTimesView() {
       hotel: Number(hotels[0]?.id ?? 0),
       excursion: Number(excursions[0]?.id ?? 0),
     });
+
     setEditingId(null);
     setShowForm(true);
   }
@@ -156,6 +162,7 @@ export function PickupTimesView() {
       hotel: Number(hotels[0]?.id ?? 0),
       excursion: Number(excursions[0]?.id ?? 0),
     });
+
     setEditingId(null);
     setShowForm(false);
   }
@@ -188,7 +195,10 @@ export function PickupTimesView() {
       await loadPickupTimes();
       closeForm();
     } catch (error: any) {
-      console.error("Error saving pickup time:", error.response?.data ?? error);
+      console.error(
+        "Error guardando horario de recogida:",
+        error.response?.data ?? error
+      );
     }
   }
 
@@ -196,7 +206,7 @@ export function PickupTimesView() {
     if (!id) return;
 
     const confirmed = window.confirm(
-      "Are you sure you want to delete this pickup time?"
+      "¿Estás seguro de que deseas eliminar este horario de recogida?"
     );
 
     if (!confirmed) return;
@@ -205,7 +215,10 @@ export function PickupTimesView() {
       await deletePickupTime(id);
       setPickupTimes((prev) => prev.filter((item) => item.id !== id));
     } catch (error: any) {
-      console.error("Error deleting pickup time:", error.response?.data ?? error);
+      console.error(
+        "Error eliminando horario de recogida:",
+        error.response?.data ?? error
+      );
     }
   }
 
@@ -215,11 +228,11 @@ export function PickupTimesView() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
-              Pickup Times
+              Horarios de Recogida
             </h3>
 
             <p className="text-sm text-slate-500">
-              Manage pickup times by excursion and hotel.
+              Gestiona horarios de recogida por excursión y hotel.
             </p>
           </div>
 
@@ -227,7 +240,7 @@ export function PickupTimesView() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search pickup times..."
+              placeholder="Buscar horarios de recogida..."
               className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
             />
 
@@ -235,18 +248,18 @@ export function PickupTimesView() {
               onClick={openCreateForm}
               className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
             >
-              Add pickup time
+              Agregar horario de recogida
             </button>
 
             <label className="cursor-pointer rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700">
-            Import Excel
-            <input
-              type="file"
-              accept=".xlsx,.xls"
-              onChange={handleExcelImport}
-              className="hidden"
-            />
-          </label>
+              Importar Excel
+              <input
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleExcelImport}
+                className="hidden"
+              />
+            </label>
           </div>
         </div>
 
@@ -257,7 +270,9 @@ export function PickupTimesView() {
           >
             <div className="mb-4 flex items-center justify-between">
               <h4 className="font-semibold text-slate-900">
-                {editingId ? "Edit pickup time" : "Add pickup time"}
+                {editingId
+                  ? "Editar horario de recogida"
+                  : "Agregar horario de recogida"}
               </h4>
 
               <button
@@ -265,7 +280,7 @@ export function PickupTimesView() {
                 onClick={closeForm}
                 className="text-sm font-medium text-slate-500 hover:text-slate-900"
               >
-                Cancel
+                Cancelar
               </button>
             </div>
 
@@ -311,7 +326,7 @@ export function PickupTimesView() {
               <input
                 value={form.notes}
                 onChange={(e) => updateFormField("notes", e.target.value)}
-                placeholder="Notes"
+                placeholder="Notas"
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
             </div>
@@ -322,14 +337,16 @@ export function PickupTimesView() {
                 onClick={closeForm}
                 className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
               >
-                Cancel
+                Cancelar
               </button>
 
               <button
                 type="submit"
                 className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
               >
-                {editingId ? "Update pickup time" : "Create pickup time"}
+                {editingId
+                  ? "Actualizar horario"
+                  : "Crear horario de recogida"}
               </button>
             </div>
           </form>
@@ -338,18 +355,18 @@ export function PickupTimesView() {
         <div className="mt-5 overflow-x-auto">
           {loading ? (
             <p className="py-6 text-sm text-slate-500">
-              Loading pickup times...
+              Cargando horarios de recogida...
             </p>
           ) : (
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500">
-                  <th className="py-3 pr-4 font-medium">Excursion</th>
+                  <th className="py-3 pr-4 font-medium">Excursión</th>
                   <th className="py-3 pr-4 font-medium">Hotel</th>
-                  <th className="py-3 pr-4 font-medium">Zone</th>
-                  <th className="py-3 pr-4 font-medium">Time</th>
-                  <th className="py-3 pr-4 font-medium">Notes</th>
-                  <th className="py-3 pr-4 font-medium">Actions</th>
+                  <th className="py-3 pr-4 font-medium">Zona</th>
+                  <th className="py-3 pr-4 font-medium">Hora</th>
+                  <th className="py-3 pr-4 font-medium">Notas</th>
+                  <th className="py-3 pr-4 font-medium">Acciones</th>
                 </tr>
               </thead>
 
@@ -360,7 +377,8 @@ export function PickupTimesView() {
                     className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
                   >
                     <td className="py-3 pr-4 font-semibold text-slate-900">
-                      {item.excursion_name || getExcursionName(item.excursion)}
+                      {item.excursion_name ||
+                        getExcursionName(item.excursion)}
                     </td>
 
                     <td className="py-3 pr-4">
@@ -381,14 +399,14 @@ export function PickupTimesView() {
                           onClick={() => openEditForm(item)}
                           className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                         >
-                          Edit
+                          Editar
                         </button>
 
                         <button
                           onClick={() => handleDelete(item.id)}
                           className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
                         >
-                          Delete
+                          Eliminar
                         </button>
                       </div>
                     </td>
@@ -401,7 +419,7 @@ export function PickupTimesView() {
                       colSpan={6}
                       className="py-8 text-center text-sm text-slate-500"
                     >
-                      No pickup times found.
+                      No se encontraron horarios de recogida.
                     </td>
                   </tr>
                 )}
