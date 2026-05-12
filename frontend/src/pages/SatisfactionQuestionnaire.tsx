@@ -12,9 +12,10 @@ import type { SupportedLanguage } from "../lib/translations";
 
 type Props = {
   lang: SupportedLanguage;
+  setLang?: (value: SupportedLanguage) => void;
 };
 
-export default function SatisfactionQuestionnaire({ lang }: Props) {
+export default function SatisfactionQuestionnaire({ lang, setLang }: Props) {
   const t = getText(lang);
 
   const ratings = [
@@ -58,54 +59,66 @@ export default function SatisfactionQuestionnaire({ lang }: Props) {
   const [operators, setOperators] = useState<OptionItem[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
-useEffect(() => {
-  Promise.all([getHotels(), getGuides(), getExcursions(), getOperators()])
-    .then(([hotelsData, guidesData, excursionsData, operatorsData]) => {
+  const languageOptions: { value: SupportedLanguage; label: string }[] = [
+    { value: "en", label: "🇺🇸 English" },
+    { value: "es", label: "🇪🇸 Español" },
+    { value: "pt", label: "🇧🇷 Português" },
+    { value: "fr", label: "🇫🇷 Français" },
+    { value: "de", label: "🇩🇪 Deutsch" },
+    { value: "it", label: "🇮🇹 Italiano" },
+    { value: "nl", label: "🇳🇱 Nederlands" },
+    { value: "ru", label: "🇷🇺 Русский" },
+    { value: "pl", label: "🇵🇱 Polski" },
+    { value: "zh", label: "🇨🇳 中文" },
+  ];
 
+  useEffect(() => {
+    Promise.all([getHotels(), getGuides(), getExcursions(), getOperators()])
+      .then(([hotelsData, guidesData, excursionsData, operatorsData]) => {
         const hotelOptions = hotelsData
-        .filter(h => h.id !== undefined)
-        .map(h => ({
-          id: h.id!,
-          name: h.name, 
+          .filter((h) => h.id !== undefined)
+          .map((h) => ({
+            id: h.id!,
+            name: h.name,
+          }));
+
+        const excursionOptions = excursionsData.map((e) => ({
+          id: Number(e.id),
+          name: e.name,
         }));
 
-      const excursionOptions = excursionsData.map(e => ({
-        id: Number(e.id),
-        name: e.name, 
-      }));
-
-      setHotels(hotelOptions);
-      setGuides(guidesData);
-      setExcursions(excursionOptions);
-      setOperators(operatorsData);
-    })
-    .catch(() => {
-      setMessage(t.failedToLoadOptions);
-    });
-}, [t.failedToLoadOptions]);
+        setHotels(hotelOptions);
+        setGuides(guidesData);
+        setExcursions(excursionOptions);
+        setOperators(operatorsData);
+      })
+      .catch(() => {
+        setMessage(t.failedToLoadOptions);
+      });
+  }, [t.failedToLoadOptions]);
 
   const hotelId = useMemo(
     () => hotels.find((item) => item.name === form.hotel)?.id ?? null,
-    [hotels, form.hotel]
+    [hotels, form.hotel],
   );
 
   const guideId = useMemo(
     () => guides.find((item) => item.name === form.guideName)?.id ?? null,
-    [guides, form.guideName]
+    [guides, form.guideName],
   );
 
   const excursionId = useMemo(
     () => excursions.find((item) => item.name === form.excursion)?.id ?? null,
-    [excursions, form.excursion]
+    [excursions, form.excursion],
   );
 
   const operatorId = useMemo(
     () => operators.find((item) => item.name === form.tourOperator)?.id ?? null,
-    [operators, form.tourOperator]
+    [operators, form.tourOperator],
   );
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -202,17 +215,41 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50 px-4 py-6">
       <div className="mx-auto max-w-6xl">
-        <form onSubmit={handleSubmit} className="rounded-3xl bg-white shadow-xl">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-3xl bg-white shadow-xl"
+        >
           <div className="rounded-t-3xl bg-slate-900 p-6 text-white">
-            <div className="flex items-center gap-4">
-              <img
-                src="https://ecoadventurespc.com/wp-content/uploads/2018/12/cropped-logo1.png"
-                className="h-14 w-14"
-              />
-              <div>
-                <h1 className="text-xl font-bold">{t.customerSatisfactionSurvey}</h1>
-                <p className="text-sm text-slate-300">{t.helpUsImproveService}</p>
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-4">
+                <img
+                  src="https://ecoadventurespc.com/wp-content/uploads/2018/12/cropped-logo1.png"
+                  className="h-14 w-14"
+                />
+
+                <div>
+                  <h1 className="text-xl font-bold">
+                    {t.customerSatisfactionSurvey}
+                  </h1>
+                  <p className="text-sm text-slate-300">
+                    {t.helpUsImproveService}
+                  </p>
+                </div>
               </div>
+
+              {setLang && (
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value as SupportedLanguage)}
+                  className="rounded-2xl border border-white/20 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm outline-none"
+                >
+                  {languageOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 
@@ -378,7 +415,7 @@ function AutocompleteField({
   const [open, setOpen] = useState(false);
 
   const filtered = options.filter((o) =>
-    o.toLowerCase().includes(value.toLowerCase())
+    o.toLowerCase().includes(value.toLowerCase()),
   );
 
   return (

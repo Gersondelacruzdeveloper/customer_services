@@ -8,7 +8,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import SatisfactionQuestionnaire from "./pages/SatisfactionQuestionnaire";
-import Dashboard from "./pages/Dashboard";
+import SurveyResultsDashboard from "./pages/SurveyResultsDashboard";
 import LoginPage from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ManageOptionsPage from "./pages/ManageOptionsPage";
@@ -105,7 +105,7 @@ export default function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <SurveyResultsDashboard />
             </ProtectedRoute>
           }
         />

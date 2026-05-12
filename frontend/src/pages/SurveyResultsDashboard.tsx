@@ -49,7 +49,7 @@ type DashboardStats = {
 
 
 
-export default function Dashboard() {
+export default function SurveyResultsDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
