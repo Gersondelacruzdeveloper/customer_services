@@ -16,6 +16,7 @@ import { getDeviceLanguage, getText } from "./lib/i18n";
 import type { SupportedLanguage } from "./lib/translations";
 import AgencyLoginPage from "./pages/AgencyLoginPage";
 import AgencyReservationsPage from "./pages/AgencyReservationsPage";
+import AgencyStatementPage from "./pages/AgencyStatementPage";
 
 const languageOptions: { value: SupportedLanguage; label: string }[] = [
   { value: "en", label: "🇺🇸 English" },
@@ -151,6 +152,7 @@ export default function App() {
       </nav>
 
       <Routes>
+        <Route path="/agency/statement" element={<AgencyStatementPage />} />
         <Route path="/agency/login" element={<AgencyLoginPage />} />
         <Route
           path="/agency/reservations"

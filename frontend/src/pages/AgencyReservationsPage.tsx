@@ -11,6 +11,7 @@ import {
 } from "../lib/api";
 import { Pencil, Trash2, Plus, X, Save, Clock } from "lucide-react";
 import { Reservation } from "@/types/types";
+import { Link } from "react-router-dom";
 
 type AgencyPortal = {
   id: number;
@@ -408,25 +409,38 @@ const payload = {
   return (
     <div className="min-h-screen bg-slate-50 p-4 sm:p-6">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-950">
-              {agencyPortal?.agency_name || "Agency"} Reservations
-            </h1>
-            <p className="text-sm text-slate-500">
-              View, create and manage your agency reservations.
-            </p>
-          </div>
 
-          <button
-            type="button"
-            onClick={openCreateForm}
-            className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
-          >
-            <Plus className="h-4 w-4" />
-            New Reservation
-          </button>
-        </div>
+
+    <div className="flex flex-wrap items-center justify-between gap-3">
+    <div>
+        <h1 className="text-2xl font-bold text-slate-950">
+        {agencyPortal?.agency_name || "Agency"} Reservations
+        </h1>
+
+        <p className="text-sm text-slate-500">
+        View, create and manage your agency reservations.
+        </p>
+    </div>
+
+    <div className="flex flex-wrap items-center gap-3">
+        <Link
+        to="/agency/statement"
+        className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700"
+        >
+        View Statement
+        </Link>
+
+        <button
+        type="button"
+        onClick={openCreateForm}
+        className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+        >
+        <Plus className="h-4 w-4" />
+        New Reservation
+        </button>
+    </div>
+    </div>
+        
 
         {showForm && (
           <form
