@@ -10,7 +10,6 @@ import {
   getAgencyExcursionPrices,
 } from "../lib/api";
 import { Pencil, Trash2, Plus, X, Save, Clock } from "lucide-react";
-import { Reservation } from "@/types/types";
 import { Link } from "react-router-dom";
 
 type AgencyPortal = {
@@ -19,6 +18,35 @@ type AgencyPortal = {
   agency_id: number;
   agency_name: string;
 };
+type Reservation ={
+    id?: number;
+    locator: string;
+    lead_name: string;
+    phone: string;
+    email?: string;
+    hotel_id: number;
+    hotel_name?: string;
+    excursion_id: number;
+    excursion_name?: string;
+    service_date: string;
+    pickup_time?: string;
+    adults: number;
+    children: number;
+    infants: number;
+    sale_price_per_person: string;
+    sale_total: string;
+    paid_amount: string;
+    currency: string;
+    language: string;
+    notes: string;
+    payment_method: string;
+    card_fee_percent: string;
+    card_fee_amount: string;
+    final_total_with_card_fee: string;
+    status?: string;
+    hotel?: number;
+    excursion?: number;
+}
 
 type PickupTime = {
   id?: number;
@@ -437,6 +465,10 @@ export default function AgencyReservationsPage() {
     if (!confirmed) return;
 
     try {
+      if (!reservation.id) {
+        alert("Invalid reservation ID.");
+        return;
+      }
       await deleteReservation(reservation.id);
       await loadData();
     } catch (error) {

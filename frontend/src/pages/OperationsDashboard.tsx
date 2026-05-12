@@ -180,9 +180,6 @@ useEffect(() => {
         active={active}
         onChange={setActive}
         onLogout={handleLogout}
-        lang={lang}
-        setLang={setLang}
-        languageOptions={languageOptions}
       />
         <main className="min-w-0 flex-1">{content}</main>
       </div>
