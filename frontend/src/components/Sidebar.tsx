@@ -28,10 +28,14 @@ export default function Sidebar({
   active,
   onChange,
   onLogout,
+  open,
+  onClose,
 }: {
   active: string;
   onChange: (value: string) => void;
   onLogout: () => void;
+  open: boolean;
+  onClose: () => void;
 }) {
   const [surveysOpen, setSurveysOpen] = useState(false);
 
@@ -56,8 +60,30 @@ export default function Sidebar({
     ["agency-access", "Acceso de Agencias", CreditCard],
   ] as const;
 
-  return (
-    <aside className="sticky top-0 hidden h-screen w-72 shrink-0 border-r border-slate-200 bg-slate-950 text-white xl:block">
+return (
+  <>
+    {/* Mobile overlay */}
+    {open && (
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-40 bg-black/50 xl:hidden"
+      />
+    )}
+
+    <aside
+      className={classNames(
+        "fixed inset-y-0 left-0 z-50 h-screen w-72 shrink-0 border-r border-slate-200 bg-slate-950 text-white transition-transform duration-300 xl:sticky xl:translate-x-0",
+        open ? "translate-x-0" : "-translate-x-full xl:translate-x-0",
+      )}
+    >
+      {/* Mobile close button */}
+      <button
+        onClick={onClose}
+        className="absolute right-4 top-4 rounded-lg bg-white/10 px-3 py-1 text-sm text-white xl:hidden"
+      >
+        ✕
+      </button>
+
       <div className="flex h-full flex-col p-5">
         <div className="mb-8 rounded-3xl border border-white/10 bg-white/5 p-4">
           <div className="flex items-center gap-3">
@@ -117,46 +143,44 @@ export default function Sidebar({
 
             {surveysOpen && (
               <div className="ml-8 mt-2 space-y-1">
-                <div className="ml-8 mt-2 space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => onChange("survey-form")}
-                    className={classNames(
-                      "block w-full rounded-xl px-3 py-2 text-left text-sm transition",
-                      active === "survey-form"
-                        ? "bg-white text-slate-950"
-                        : "text-slate-400 hover:bg-white/10 hover:text-white",
-                    )}
-                  >
-                    Formulario de Encuesta
-                  </button>
+                <button
+                  type="button"
+                  onClick={() => onChange("survey-form")}
+                  className={classNames(
+                    "block w-full rounded-xl px-3 py-2 text-left text-sm transition",
+                    active === "survey-form"
+                      ? "bg-white text-slate-950"
+                      : "text-slate-400 hover:bg-white/10 hover:text-white",
+                  )}
+                >
+                  Formulario de Encuesta
+                </button>
 
-                  <button
-                    type="button"
-                    onClick={() => onChange("survey-results")}
-                    className={classNames(
-                      "block w-full rounded-xl px-3 py-2 text-left text-sm transition",
-                      active === "survey-results"
-                        ? "bg-white text-slate-950"
-                        : "text-slate-400 hover:bg-white/10 hover:text-white",
-                    )}
-                  >
-                    Resultados de Encuestas
-                  </button>
+                <button
+                  type="button"
+                  onClick={() => onChange("survey-results")}
+                  className={classNames(
+                    "block w-full rounded-xl px-3 py-2 text-left text-sm transition",
+                    active === "survey-results"
+                      ? "bg-white text-slate-950"
+                      : "text-slate-400 hover:bg-white/10 hover:text-white",
+                  )}
+                >
+                  Resultados de Encuestas
+                </button>
 
-                  <button
-                    type="button"
-                    onClick={() => onChange("survey-options")}
-                    className={classNames(
-                      "block w-full rounded-xl px-3 py-2 text-left text-sm transition",
-                      active === "survey-options"
-                        ? "bg-white text-slate-950"
-                        : "text-slate-400 hover:bg-white/10 hover:text-white",
-                    )}
-                  >
-                    Opciones de Encuesta
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => onChange("survey-options")}
+                  className={classNames(
+                    "block w-full rounded-xl px-3 py-2 text-left text-sm transition",
+                    active === "survey-options"
+                      ? "bg-white text-slate-950"
+                      : "text-slate-400 hover:bg-white/10 hover:text-white",
+                  )}
+                >
+                  Opciones de Encuesta
+                </button>
               </div>
             )}
           </div>
@@ -174,5 +198,6 @@ export default function Sidebar({
         </div>
       </div>
     </aside>
-  );
+  </>
+);
 }

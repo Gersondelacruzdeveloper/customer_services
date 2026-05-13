@@ -413,18 +413,16 @@ export function ReservationsView() {
     }));
   }, [form.payment_method, form.sale_total, form.card_fee_percent]);
 
-    useEffect(() => {
-      if (form.payment_method !== "agency_collects") {
-        return;
-      }
+  useEffect(() => {
+    if (form.payment_method !== "agency_collects") {
+      return;
+    }
 
-      setForm((prev) => ({
-        ...prev,
-        agency_price: prev.sale_total || "0.00",
-      }));
-    }, [form.payment_method, form.sale_total]);
-
-
+    setForm((prev) => ({
+      ...prev,
+      agency_price: prev.sale_total || "0.00",
+    }));
+  }, [form.payment_method, form.sale_total]);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -759,7 +757,8 @@ export function ReservationsView() {
       payment_method: form.payment_method || "cash",
       card_fee_percent: form.card_fee_percent || "12.00",
       card_fee_amount: form.card_fee_amount || "0.00",
-      final_total_with_card_fee: form.final_total_with_card_fee || form.sale_total || "0.00",
+      final_total_with_card_fee:
+        form.final_total_with_card_fee || form.sale_total || "0.00",
     };
 
     try {
@@ -797,16 +796,15 @@ export function ReservationsView() {
   }
 
   return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="w-full max-w-full overflow-x-hidden space-y-6 p-3 sm:p-6">
+      <div className="w-full max-w-full overflow-hidden rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">
-              Reservas
-            </h3>
+            <h3 className="text-lg font-semibold text-slate-900">Reservas</h3>
 
             <p className="text-sm text-slate-500">
-              Gestiona reservas, clientes, hoteles, excursiones, horarios de recogida y balances de pago.
+              Gestiona reservas, clientes, hoteles, excursiones, horarios de
+              recogida y balances de pago.
             </p>
           </div>
 
@@ -920,13 +918,23 @@ export function ReservationsView() {
                     onChange={(e) => setSortBy(e.target.value as SortBy)}
                     className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
                   >
-                    <option value="pickup_time">Ordenar por hora de recogida</option>
-                    <option value="service_date">Ordenar por fecha de servicio</option>
-                    <option value="lead_name">Ordenar por nombre del cliente</option>
+                    <option value="pickup_time">
+                      Ordenar por hora de recogida
+                    </option>
+                    <option value="service_date">
+                      Ordenar por fecha de servicio
+                    </option>
+                    <option value="lead_name">
+                      Ordenar por nombre del cliente
+                    </option>
                     <option value="hotel_name">Ordenar por hotel</option>
-                    <option value="excursion_name">Ordenar por excursión</option>
+                    <option value="excursion_name">
+                      Ordenar por excursión
+                    </option>
                     <option value="status">Ordenar por estado</option>
-                    <option value="balance_due">Ordenar por saldo adeudado</option>
+                    <option value="balance_due">
+                      Ordenar por saldo adeudado
+                    </option>
                   </select>
                 </div>
 
@@ -998,11 +1006,9 @@ export function ReservationsView() {
               </h5>
 
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-
-
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
-                   Localizador
+                    Localizador
                   </label>
                   <input
                     value={form.locator}
@@ -1256,7 +1262,7 @@ export function ReservationsView() {
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
                     Infantes
-                  </label>  
+                  </label>
                   <input
                     type="number"
                     min={0}
@@ -1345,8 +1351,12 @@ export function ReservationsView() {
                   >
                     <option value="cash">Efectivo</option>
                     <option value="card">Tarjeta</option>
-                    <option value="bank_transfer">Transferencia bancaria</option>
-                    <option value="agency_collects">Recolección en agencia</option>
+                    <option value="bank_transfer">
+                      Transferencia bancaria
+                    </option>
+                    <option value="agency_collects">
+                      Recolección en agencia
+                    </option>
                     <option value="mixed">Mixto</option>
                   </select>
                 </div>
@@ -1407,7 +1417,6 @@ export function ReservationsView() {
                     className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
-
               </div>
             </section>
 
@@ -1463,8 +1472,8 @@ export function ReservationsView() {
             </div>
           </form>
         )}
-        <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200">
-          <table className="w-full text-left text-sm">
+        <div className="-mx-3 mt-6 overflow-x-auto border-y border-slate-200 sm:mx-0 sm:rounded-3xl sm:border">
+          <table className="w-max min-w-[900px] text-left text-sm">
             <thead className="bg-slate-100 text-xs uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Localizador</th>
@@ -1508,7 +1517,7 @@ export function ReservationsView() {
                   <td className="px-4 py-3">{item.service_date}</td>
                   <td className="px-4 py-3">{formatTime(item.pickup_time)}</td>
                   <td className="px-4 py-3">{item.status}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
                     <button
                       type="button"
                       onClick={() => openEditForm(item)}

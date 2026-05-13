@@ -80,6 +80,7 @@ export default function EcoAdventuresOperationsDashboard() {
   const [active, setActive] = useState("dashboard");
   const [lang, setLang] = useState<SupportedLanguage>(getDeviceLanguage());
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
   const savedLang = localStorage.getItem("lang") as SupportedLanguage | null;
@@ -172,17 +173,33 @@ useEffect(() => {
         return <DashboardView />;
     }
   })();
-
-  return (
-    <div className="min-h-screen bg-slate-100 text-slate-900">
-      <div className="flex">
+return (
+  <div className="min-h-screen bg-slate-100 text-slate-900">
+    <div className="flex">
       <Sidebar
         active={active}
-        onChange={setActive}
+        onChange={(value) => {
+          setActive(value);
+          setSidebarOpen(false);
+        }}
         onLogout={handleLogout}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
-        <main className="min-w-0 flex-1">{content}</main>
+
+      <div className="flex-1">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="m-4 rounded-xl bg-slate-950 px-4 py-2 text-white xl:hidden"
+        >
+          Menu
+        </button>
+
+        <main className="min-w-0">{content}</main>
       </div>
     </div>
-  );
+  </div>
+);
+
+
 }
