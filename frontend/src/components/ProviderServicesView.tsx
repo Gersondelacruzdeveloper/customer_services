@@ -219,252 +219,353 @@ export function ProviderServicesView() {
     return priceTypes.find(([key]) => key === value)?.[1] ?? value;
   }
 
-  return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900">
-              Servicios de Proveedores
-            </h3>
+return (
+  <div className="space-y-4 p-3 sm:p-6">
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-slate-900">
+            Servicios de Proveedores
+          </h3>
 
-            <p className="text-sm text-slate-500">
-              Gestiona precios de transporte, botes, comida, guías y suplidores de excursiones.
-            </p>
-          </div>
+          <p className="text-sm text-slate-500">
+            Gestiona precios de transporte, botes, comida, guías y suplidores.
+          </p>
+        </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar servicios..."
-              className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
-            />
+        <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar servicios..."
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400 sm:w-64"
+          />
+
+          <button
+            type="button"
+            onClick={openCreateForm}
+            className="w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white sm:w-auto"
+          >
+            Agregar servicio
+          </button>
+        </div>
+      </div>
+
+      {showForm && (
+        <form
+          onSubmit={handleSubmit}
+          className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
+        >
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h4 className="font-semibold text-slate-900">
+              {editingId ? "Editar servicio" : "Agregar servicio"}
+            </h4>
 
             <button
               type="button"
-              onClick={openCreateForm}
-              className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
+              onClick={closeForm}
+              className="text-sm font-medium text-slate-500"
             >
-              Agregar servicio
+              Cancelar
             </button>
           </div>
-        </div>
 
-        {showForm && (
-          <form
-            onSubmit={handleSubmit}
-            className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5"
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <h4 className="font-semibold text-slate-900">
-                {editingId ? "Editar servicio" : "Agregar servicio"}
-              </h4>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <select
+              value={form.provider}
+              onChange={(e) =>
+                updateFormField("provider", Number(e.target.value))
+              }
+              required
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            >
+              {providers.map((provider) => (
+                <option key={provider.id} value={provider.id}>
+                  {provider.name}
+                </option>
+              ))}
+            </select>
 
-              <button
-                type="button"
-                onClick={closeForm}
-                className="text-sm font-medium text-slate-500 hover:text-slate-900"
-              >
-                Cancelar
-              </button>
-            </div>
+            <input
+              value={form.name}
+              onChange={(e) => updateFormField("name", e.target.value)}
+              placeholder="Nombre del servicio"
+              required
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            />
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <select
-                value={form.provider}
+            <input
+              value={form.category}
+              onChange={(e) => updateFormField("category", e.target.value)}
+              placeholder="Categoría"
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            />
+
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={form.cost_price}
+              onChange={(e) => updateFormField("cost_price", e.target.value)}
+              placeholder="Precio de costo"
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            />
+
+            <select
+              value={form.currency}
+              onChange={(e) => updateFormField("currency", e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            >
+              {currencies.map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={form.price_type}
+              onChange={(e) => updateFormField("price_type", e.target.value)}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            >
+              {priceTypes.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+
+            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700">
+              <input
+                type="checkbox"
+                checked={form.is_active}
                 onChange={(e) =>
-                  updateFormField("provider", Number(e.target.value))
+                  updateFormField("is_active", e.target.checked)
                 }
-                required
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              >
-                {providers.map((provider) => (
-                  <option key={provider.id} value={provider.id}>
-                    {provider.name}
-                  </option>
-                ))}
-              </select>
-
-              <input
-                value={form.name}
-                onChange={(e) => updateFormField("name", e.target.value)}
-                placeholder="Nombre del servicio ej. Bus 25 asientos"
-                required
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
               />
+              Servicio activo
+            </label>
 
-              <input
-                value={form.category}
-                onChange={(e) => updateFormField("category", e.target.value)}
-                placeholder="Categoría ej. transporte, comida, bote"
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+            <textarea
+              value={form.description}
+              onChange={(e) =>
+                updateFormField("description", e.target.value)
+              }
+              placeholder="Descripción"
+              rows={3}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400 sm:col-span-2 lg:col-span-2"
+            />
+          </div>
 
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={form.cost_price}
-                onChange={(e) => updateFormField("cost_price", e.target.value)}
-                placeholder="Precio de costo"
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              />
+          <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={closeForm}
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 sm:w-auto"
+            >
+              Cancelar
+            </button>
 
-              <select
-                value={form.currency}
-                onChange={(e) => updateFormField("currency", e.target.value)}
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              >
-                {currencies.map((currency) => (
-                  <option key={currency} value={currency}>
-                    {currency}
-                  </option>
-                ))}
-              </select>
+            <button
+              type="submit"
+              className="w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white sm:w-auto"
+            >
+              {editingId ? "Actualizar servicio" : "Crear servicio"}
+            </button>
+          </div>
+        </form>
+      )}
 
-              <select
-                value={form.price_type}
-                onChange={(e) => updateFormField("price_type", e.target.value)}
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
-              >
-                {priceTypes.map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
+      <div className="mt-5">
+        {loading ? (
+          <p className="py-6 text-sm text-slate-500">
+            Cargando servicios...
+          </p>
+        ) : (
+          <>
+            {/* MOBILE CARDS */}
+            <div className="space-y-3 md:hidden">
+              {filtered.map((service) => (
+                <div
+                  key={service.id}
+                  className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="font-semibold text-slate-900">
+                        {service.name}
+                      </h4>
 
-              <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm">
-                <input
-                  type="checkbox"
-                  checked={form.is_active}
-                  onChange={(e) =>
-                    updateFormField("is_active", e.target.checked)
-                  }
-                />
-                Servicio activo
-              </label>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {service.provider_name ||
+                          getProviderName(service.provider)}
+                      </p>
+                    </div>
 
-              <textarea
-                value={form.description}
-                onChange={(e) =>
-                  updateFormField("description", e.target.value)
-                }
-                placeholder="Descripción"
-                rows={3}
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm md:col-span-2"
-              />
-            </div>
-
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={closeForm}
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="submit"
-                className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
-              >
-                {editingId ? "Actualizar servicio" : "Crear servicio"}
-              </button>
-            </div>
-          </form>
-        )}
-
-        <div className="mt-5 overflow-x-auto">
-          {loading ? (
-            <p className="py-6 text-sm text-slate-500">
-              Cargando servicios de proveedores...
-            </p>
-          ) : (
-            <table className="min-w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 text-slate-500">
-                  <th className="py-3 pr-4 font-medium">Proveedor</th>
-                  <th className="py-3 pr-4 font-medium">Servicio</th>
-                  <th className="py-3 pr-4 font-medium">Categoría</th>
-                  <th className="py-3 pr-4 font-medium">Costo</th>
-                  <th className="py-3 pr-4 font-medium">Tipo de precio</th>
-                  <th className="py-3 pr-4 font-medium">Estado</th>
-                  <th className="py-3 pr-4 font-medium">Acciones</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filtered.map((service) => (
-                  <tr
-                    key={service.id}
-                    className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
-                  >
-                    <td className="py-3 pr-4 font-semibold text-slate-900">
-                      {service.provider_name || getProviderName(service.provider)}
-                    </td>
-
-                    <td className="py-3 pr-4">{service.name}</td>
-                    <td className="py-3 pr-4">{service.category || "-"}</td>
-
-                    <td className="py-3 pr-4 font-semibold text-slate-900">
-                      {service.cost_price} {service.currency}
-                    </td>
-
-                    <td className="py-3 pr-4">
-                      {getPriceTypeLabel(service.price_type)}
-                    </td>
-
-                    <td className="py-3 pr-4">
-                      <span
-                        className={
-                          service.is_active
-                            ? "rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700"
-                            : "rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
-                        }
-                      >
-                        {service.is_active ? "Activo" : "Inactivo"}
-                      </span>
-                    </td>
-
-                    <td className="py-3 pr-4">
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={() => openEditForm(service)}
-                          className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                        >
-                          Editar
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(service.id)}
-                          className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-
-                {filtered.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="py-8 text-center text-sm text-slate-500"
+                    <span
+                      className={
+                        service.is_active
+                          ? "shrink-0 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                          : "shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
+                      }
                     >
-                      No se encontraron servicios de proveedores.
-                    </td>
+                      {service.is_active ? "Activo" : "Inactivo"}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid gap-3">
+                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                      <p className="text-xs font-medium text-slate-500">
+                        Categoría
+                      </p>
+
+                      <p className="text-sm font-semibold text-slate-900">
+                        {service.category || "-"}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                      <p className="text-xs font-medium text-slate-500">
+                        Costo
+                      </p>
+
+                      <p className="text-sm font-semibold text-slate-900">
+                        {service.cost_price} {service.currency}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-slate-50 px-4 py-3">
+                      <p className="text-xs font-medium text-slate-500">
+                        Tipo de precio
+                      </p>
+
+                      <p className="text-sm font-semibold text-slate-900">
+                        {getPriceTypeLabel(service.price_type)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openEditForm(service)}
+                      className="rounded-2xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(service.id)}
+                      className="rounded-2xl bg-red-50 px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {filtered.length === 0 && (
+                <div className="rounded-3xl border border-slate-200 p-6 text-center text-sm text-slate-500">
+                  No se encontraron servicios de proveedores.
+                </div>
+              )}
+            </div>
+
+            {/* DESKTOP TABLE */}
+            <div className="hidden overflow-x-auto md:block">
+              <table className="min-w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-500">
+                    <th className="py-3 pr-4 font-medium">Proveedor</th>
+                    <th className="py-3 pr-4 font-medium">Servicio</th>
+                    <th className="py-3 pr-4 font-medium">Categoría</th>
+                    <th className="py-3 pr-4 font-medium">Costo</th>
+                    <th className="py-3 pr-4 font-medium">
+                      Tipo de precio
+                    </th>
+                    <th className="py-3 pr-4 font-medium">Estado</th>
+                    <th className="py-3 pr-4 font-medium">Acciones</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          )}
-        </div>
+                </thead>
+
+                <tbody>
+                  {filtered.map((service) => (
+                    <tr
+                      key={service.id}
+                      className="border-b border-slate-100 last:border-0 hover:bg-slate-50"
+                    >
+                      <td className="py-3 pr-4 font-semibold text-slate-900">
+                        {service.provider_name ||
+                          getProviderName(service.provider)}
+                      </td>
+
+                      <td className="py-3 pr-4">{service.name}</td>
+
+                      <td className="py-3 pr-4">
+                        {service.category || "-"}
+                      </td>
+
+                      <td className="py-3 pr-4 font-semibold text-slate-900">
+                        {service.cost_price} {service.currency}
+                      </td>
+
+                      <td className="py-3 pr-4">
+                        {getPriceTypeLabel(service.price_type)}
+                      </td>
+
+                      <td className="py-3 pr-4">
+                        <span
+                          className={
+                            service.is_active
+                              ? "rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700"
+                              : "rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
+                          }
+                        >
+                          {service.is_active ? "Activo" : "Inactivo"}
+                        </span>
+                      </td>
+
+                      <td className="py-3 pr-4">
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openEditForm(service)}
+                            className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                          >
+                            Editar
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(service.id)}
+                            className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="py-8 text-center text-sm text-slate-500"
+                      >
+                        No se encontraron servicios de proveedores.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </div>
     </div>
-  );
+  </div>
+);
+
 }

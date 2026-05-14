@@ -588,221 +588,285 @@ export function OperationsView() {
     printWindow.print();
   }
 
-  return (
-    <div className="space-y-6 p-4 sm:p-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <ClipboardList className="h-5 w-5 text-slate-700" />
-              <h3 className="text-lg font-semibold text-slate-900">
-                Operaciones
-              </h3>
-            </div>
-
-            <p className="mt-1 text-sm text-slate-500">
-         Seleccione reservas, asígnelas a un proveedor y luego imprima o envíe la lista de recogida.
-            </p>
+return (
+  <div className="space-y-6 p-3 sm:p-6">
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-slate-700" />
+            <h3 className="text-lg font-semibold text-slate-900">
+              Operaciones
+            </h3>
           </div>
 
-          <button
-            type="button"
-            onClick={handleSaveOperation}
-            disabled={loading}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-          >
-            <Save className="h-4 w-4" />
-
-            {editingOperationId ? "Actualizar operación" : "Crear operación"}
-          </button>
+          <p className="mt-1 text-sm text-slate-500">
+            Seleccione reservas, asígnelas a un proveedor y luego imprima o envíe la lista de recogida.
+          </p>
         </div>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          <div className="relative">
-            <CalendarDays className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => {
-                setDateFilter(e.target.value);
-                setSelectedIds([]);
-              }}
-              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
-            />
-          </div>
+        <button
+          type="button"
+          onClick={handleSaveOperation}
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white disabled:opacity-60 sm:w-auto"
+        >
+          <Save className="h-4 w-4" />
+          {editingOperationId ? "Actualizar operación" : "Crear operación"}
+        </button>
+      </div>
 
-          <div className="relative">
-            <MapPinned className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <select
-              value={excursionFilter}
-              onChange={(e) => {
-                setExcursionFilter(e.target.value);
-                setSelectedIds([]);
-              }}
-              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
-            >
-              <option value="">Todas las excursiones</option>
-              {excursions.map((excursion) => (
-                <option key={excursion.id} value={excursion.id}>
-                  {excursion.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <select
-              value={providerId}
-              onChange={(e) => {
-                setProviderId(e.target.value);
-                setProviderServiceId("");
-              }}
-              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
-            >
-              <option value="">Seleccionar proveedor</option>
-              {providers.map((provider) => (
-                <option key={provider.id} value={provider.id}>
-                  {provider.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="relative">
-            <Bus className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-            <select
-              value={providerServiceId}
-              onChange={(e) => setProviderServiceId(e.target.value)}
-              disabled={!providerId}
-              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400"
-            >
-              <option value="">
-                {providerId
-                  ? "Seleccionar servicio de proveedor"
-                  : "Seleccionar proveedor primero"}
-              </option>
-
-              {filteredProviderServices.map((service) => (
-                <option key={service.id} value={service.id}>
-                  {service.name} - {service.cost_price} {service.currency} /{" "}
-                  {service.price_type}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="relative xl:col-span-2">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar cliente, hotel, teléfono, agencia..."
-              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
-            />
-          </div>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="relative">
+          <CalendarDays className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={(e) => {
+              setDateFilter(e.target.value);
+              setSelectedIds([]);
+            }}
+            className="w-full rounded-2xl border border-slate-200 py-3 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
+          />
         </div>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-4">
-          <input
-            value={vehicleName}
-            onChange={(e) => setVehicleName(e.target.value)}
-            placeholder="Autobús / barco / vehículo"
-            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
-          />
-
-          <input
-            value={driverName}
-            onChange={(e) => setDriverName(e.target.value)}
-            placeholder="Teléfono del chofer / capitán"
-            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
-          />
-
-          <input
-            value={driverPhone}
-            onChange={(e) => setDriverPhone(e.target.value)}
-            placeholder="Teléfono del chofer / capitán"
-            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
-          />
+        <div className="relative">
+          <MapPinned className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <select
-            value={operationStatus}
-            onChange={(e) => setOperationStatus(e.target.value)}
-            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
+            value={excursionFilter}
+            onChange={(e) => {
+              setExcursionFilter(e.target.value);
+              setSelectedIds([]);
+            }}
+            className="w-full rounded-2xl border border-slate-200 py-3 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
           >
-            <option value="Borrador">Draft</option>
-            <option value="sent">Enviado al proveedor</option>
-            <option value="confirmed">Confirmado</option>
-            <option value="completed">Completado</option>
-            <option value="cancelled">Cancelado</option>
+            <option value="">Todas las excursiones</option>
+            {excursions.map((excursion) => (
+              <option key={excursion.id} value={excursion.id}>
+                {excursion.name}
+              </option>
+            ))}
           </select>
-
-          <input
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Notas de la operación"
-            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
-          />
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-4">
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs text-slate-500">Seleccionados</p>
-            <p className="text-xl font-bold text-slate-900">
-              {selectedIds.length}
-            </p>
-          </div>
+        <div className="relative">
+          <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <select
+            value={providerId}
+            onChange={(e) => {
+              setProviderId(e.target.value);
+              setProviderServiceId("");
+            }}
+            className="w-full rounded-2xl border border-slate-200 py-3 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
+          >
+            <option value="">Seleccionar proveedor</option>
+            {providers.map((provider) => (
+              <option key={provider.id} value={provider.id}>
+                {provider.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs text-slate-500">Adults</p>
-            <p className="text-xl font-bold text-slate-900">{totalAdults}</p>
-          </div>
+        <div className="relative">
+          <Bus className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <select
+            value={providerServiceId}
+            onChange={(e) => setProviderServiceId(e.target.value)}
+            disabled={!providerId}
+            className="w-full rounded-2xl border border-slate-200 py-3 pl-9 pr-4 text-sm outline-none focus:border-slate-400 disabled:bg-slate-100 disabled:text-slate-400"
+          >
+            <option value="">
+              {providerId
+                ? "Seleccionar servicio de proveedor"
+                : "Seleccionar proveedor primero"}
+            </option>
 
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs text-slate-500">Children / Infants</p>
-            <p className="text-xl font-bold text-slate-900">
-              {totalChildren} / {totalInfants}
-            </p>
-          </div>
+            {filteredProviderServices.map((service) => (
+              <option key={service.id} value={service.id}>
+                {service.name} - {service.cost_price} {service.currency} /{" "}
+                {service.price_type}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div className="rounded-2xl bg-slate-950 p-4 text-white">
-            <p className="text-xs text-slate-300">Total pax</p>
-            <p className="text-xl font-bold">{totalPax}</p>
-          </div>
+        <div className="relative sm:col-span-2 xl:col-span-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar cliente, hotel, teléfono, agencia..."
+            className="w-full rounded-2xl border border-slate-200 py-3 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
+          />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h4 className="font-semibold text-slate-900">
-              Reservas para asignar
-            </h4>
-            <p className="text-sm text-slate-500">
-              Ordenado por hora de recogida y luego por hotel.
-            </p>
-          </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <input
+          value={vehicleName}
+          onChange={(e) => setVehicleName(e.target.value)}
+          placeholder="Autobús / barco / vehículo"
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+        />
 
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={selectAllVisible}
-              className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-            >
-             Seleccionar todos los visibles"
-            </button>
+        <input
+          value={driverName}
+          onChange={(e) => setDriverName(e.target.value)}
+          placeholder="Nombre del chofer / capitán"
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+        />
 
-            <button
-              type="button"
-              onClick={clearSelected}
-              className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              Limpiar
-            </button>
-          </div>
+        <input
+          value={driverPhone}
+          onChange={(e) => setDriverPhone(e.target.value)}
+          placeholder="Teléfono del chofer / capitán"
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+        />
+
+        <select
+          value={operationStatus}
+          onChange={(e) => setOperationStatus(e.target.value)}
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+        >
+          <option value="draft">Borrador</option>
+          <option value="sent">Enviado al proveedor</option>
+          <option value="confirmed">Confirmado</option>
+          <option value="completed">Completado</option>
+          <option value="cancelled">Cancelado</option>
+        </select>
+
+        <input
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Notas de la operación"
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400 sm:col-span-2 lg:col-span-4"
+        />
+      </div>
+
+      <div className="mt-5 grid gap-3 grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-2xl bg-slate-50 p-4">
+          <p className="text-xs text-slate-500">Seleccionados</p>
+          <p className="text-xl font-bold text-slate-900">{selectedIds.length}</p>
         </div>
 
-        <table className="w-full text-left text-sm">
+        <div className="rounded-2xl bg-slate-50 p-4">
+          <p className="text-xs text-slate-500">Adultos</p>
+          <p className="text-xl font-bold text-slate-900">{totalAdults}</p>
+        </div>
+
+        <div className="rounded-2xl bg-slate-50 p-4">
+          <p className="text-xs text-slate-500">Niños / Infantes</p>
+          <p className="text-xl font-bold text-slate-900">
+            {totalChildren} / {totalInfants}
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-slate-950 p-4 text-white">
+          <p className="text-xs text-slate-300">Total pax</p>
+          <p className="text-xl font-bold">{totalPax}</p>
+        </div>
+      </div>
+    </div>
+
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h4 className="font-semibold text-slate-900">
+            Reservas para asignar
+          </h4>
+          <p className="text-sm text-slate-500">
+            Ordenado por hora de recogida y luego por hotel.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 sm:flex">
+          <button
+            type="button"
+            onClick={selectAllVisible}
+            className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Seleccionar visibles
+          </button>
+
+          <button
+            type="button"
+            onClick={clearSelected}
+            className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Limpiar
+          </button>
+        </div>
+      </div>
+
+      <div className="block md:hidden">
+        {filteredReservations.map((item) => {
+          const selected = item.id ? selectedIds.includes(item.id) : false;
+
+          return (
+            <div key={item.id} className="border-b border-slate-200 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-semibold text-slate-900">{item.lead_name}</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {item.excursion_name}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => toggleReservation(item.id)}
+                  className="rounded-xl border border-slate-200 p-2 text-slate-700"
+                >
+                  {selected ? (
+                    <CheckSquare className="h-5 w-5" />
+                  ) : (
+                    <Square className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-xs text-slate-400">Recogida</p>
+                  <p className="font-semibold">{formatTime(item.pickup_time)}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-slate-400">Pax</p>
+                  <p className="font-semibold">{paxTotal(item)}</p>
+                </div>
+
+                <div className="col-span-2">
+                  <p className="text-xs text-slate-400">Hotel</p>
+                  <p>{item.hotel_name}</p>
+                </div>
+
+                <div className="col-span-2">
+                  <p className="text-xs text-slate-400">Teléfono</p>
+                  <p>{item.phone || "-"}</p>
+                </div>
+
+                <div className="col-span-2">
+                  <p className="text-xs text-slate-400">Estado</p>
+                  <span className="mt-1 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {item.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {filteredReservations.length === 0 && (
+          <p className="p-6 text-center text-sm text-slate-500">
+            No se encontraron reservas para estos filtros.
+          </p>
+        )}
+      </div>
+
+      <div className="hidden overflow-x-auto md:block">
+        <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="bg-slate-100 text-xs uppercase text-slate-500">
             <tr>
               <th className="px-4 py-3">Seleccionar</th>
@@ -812,7 +876,7 @@ export function OperationsView() {
               <th className="px-4 py-3">Teléfono</th>
               <th className="px-4 py-3">Excursión</th>
               <th className="px-4 py-3">Pax</th>
-              <th className="px-4 py-3">Estados</th>
+              <th className="px-4 py-3">Estado</th>
             </tr>
           </thead>
 
@@ -865,180 +929,175 @@ export function OperationsView() {
 
             {filteredReservations.length === 0 && (
               <tr>
-                <td
-                  colSpan={8}
-                  className="px-4 py-8 text-center text-slate-500"
-                >
-                   No se encontraron reservas para estos filtros.
+                <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
+                  No se encontraron reservas para estos filtros.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+    </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h4 className="font-semibold text-slate-900">Operaciones creadas</h4>
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+      <h4 className="font-semibold text-slate-900">Operaciones creadas</h4>
 
-        <div className="mb-4 mt-4 grid gap-3 md:grid-cols-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-            <input
-              value={operationSearch}
-              onChange={(e) => setOperationSearch(e.target.value)}
-              placeholder="Buscar operaciones..."
-              className="w-full rounded-2xl border border-slate-200 py-2.5 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
-            />
-          </div>
-
+      <div className="mb-4 mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
-            type="date"
-            value={operationDateFilter}
-            onChange={(e) => setOperationDateFilter(e.target.value)}
-            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
+            value={operationSearch}
+            onChange={(e) => setOperationSearch(e.target.value)}
+            placeholder="Buscar operaciones..."
+            className="w-full rounded-2xl border border-slate-200 py-3 pl-9 pr-4 text-sm outline-none focus:border-slate-400"
           />
-
-          <select
-            value={operationStatusFilter}
-            onChange={(e) => setOperationStatusFilter(e.target.value)}
-            className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm outline-none focus:border-slate-400"
-          >
-            <option value="">Todos los estados</option>
-            <option value="draft">Borrador</option>
-            <option value="sent">Enviado</option>
-            <option value="completed">Completado</option>
-            <option value="cancelled">Cancelado</option>
-          </select>
-
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setOperationDateFilter(today)}
-              className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
-            >
-              Hoy
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                const tomorrow = new Date();
-                tomorrow.setDate(tomorrow.getDate() + 1);
-
-                setOperationDateFilter(tomorrow.toISOString().split("T")[0]);
-              }}
-              className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
-            >
-              Mañana
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setOperationDateFilter("")}
-              className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
-            >
-              Todas
-            </button>
-          </div>
         </div>
 
-        <div className="mt-4 space-y-3"></div>
+        <input
+          type="date"
+          value={operationDateFilter}
+          onChange={(e) => setOperationDateFilter(e.target.value)}
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+        />
 
-        <div className="mt-4 space-y-3">
-          {filteredOperations.map((operation) => (
-            <div
-              key={operation.id}
-              className="rounded-3xl border border-slate-200 p-4"
-            >
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <h5 className="font-semibold text-slate-900">
-                    {operation.vehicle_name}
-                  </h5>
+        <select
+          value={operationStatusFilter}
+          onChange={(e) => setOperationStatusFilter(e.target.value)}
+          className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+        >
+          <option value="">Todos los estados</option>
+          <option value="draft">Borrador</option>
+          <option value="sent">Enviado</option>
+          <option value="completed">Completado</option>
+          <option value="cancelled">Cancelado</option>
+        </select>
 
-                  <p className="mt-1 text-sm font-bold tracking-tight text-slate-900">
-                    {operation.excursion_name
-                      ? `${operation.excursion_name} • `
-                      : ""}
-                    {operation.provider_name}
-                    {operation.provider_service_name
-                      ? ` • ${operation.provider_service_name}`
-                      : ""}
-                    • {operation.total_pax} pax
-                  </p>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => setOperationDateFilter(today)}
+            className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
+          >
+            Hoy
+          </button>
 
-                  <p className="mt-1 text-xs text-slate-500">
-                    Vehicle: {operation.vehicle_name || "-"} • Driver:{" "}
-                    {operation.driver_name || "-"} • Phone:{" "}
-                    {operation.driver_phone || "-"}
-                  </p>
-                </div>
+          <button
+            type="button"
+            onClick={() => {
+              const tomorrow = new Date();
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              setOperationDateFilter(tomorrow.toISOString().split("T")[0]);
+            }}
+            className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
+          >
+            Mañana
+          </button>
 
-                <div className="flex flex-wrap gap-2">
-                  <span
-                    className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-                      operation.status === "draft"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : operation.status === "sent"
-                          ? "bg-blue-100 text-blue-800"
-                          : operation.status === "confirmed"
-                            ? "bg-green-100 text-green-800"
-                            : operation.status === "completed"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {operation.status}
-                  </span>
+          <button
+            type="button"
+            onClick={() => setOperationDateFilter("")}
+            className="rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700"
+          >
+            Todas
+          </button>
+        </div>
+      </div>
 
-                  <button
-                    type="button"
-                    onClick={() => printOperation(operation)}
-                    className="flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                  >
-                    <Printer className="h-4 w-4" />
-                    Imprimir / PDF
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleEditOperation(operation)}
-                    className="flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                  >
-                    Editar
-                  </button>
+      <div className="mt-4 space-y-3">
+        {filteredOperations.map((operation) => (
+          <div
+            key={operation.id}
+            className="rounded-3xl border border-slate-200 p-4"
+          >
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h5 className="font-semibold text-slate-900">
+                  {operation.vehicle_name || "Operación"}
+                </h5>
 
-               <button
+                <p className="mt-1 text-sm font-bold tracking-tight text-slate-900">
+                  {operation.excursion_name ? `${operation.excursion_name} • ` : ""}
+                  {operation.provider_name}
+                  {operation.provider_service_name
+                    ? ` • ${operation.provider_service_name}`
+                    : ""}
+                  • {operation.total_pax} pax
+                </p>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Vehicle: {operation.vehicle_name || "-"} • Driver:{" "}
+                  {operation.driver_name || "-"} • Phone:{" "}
+                  {operation.driver_phone || "-"}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                <span
+                  className={`inline-flex items-center justify-center rounded-full px-3 py-2 text-xs font-semibold ${
+                    operation.status === "draft"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : operation.status === "sent"
+                        ? "bg-blue-100 text-blue-800"
+                        : operation.status === "confirmed"
+                          ? "bg-green-100 text-green-800"
+                          : operation.status === "completed"
+                            ? "bg-emerald-100 text-emerald-800"
+                            : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {operation.status}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => printOperation(operation)}
+                  className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                  <Printer className="h-4 w-4" />
+                  PDF
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleEditOperation(operation)}
+                  className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                >
+                  Editar
+                </button>
+
+                <button
                   type="button"
                   onClick={() => handleMarkSent(operation.id)}
                   disabled={
                     operation.status === "completed" ||
                     operation.status === "cancelled"
                   }
-                  className="flex items-center gap-2 rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
                 >
                   <Send className="h-4 w-4" />
                   {getOperationActionLabel(operation.status)}
                 </button>
 
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteOperation(operation.id)}
-                    className="flex items-center gap-2 rounded-2xl bg-red-600 px-3 py-2 text-xs font-semibold text-white"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    Eliminar
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteOperation(operation.id)}
+                  className="col-span-2 flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-3 py-2 text-xs font-semibold text-white sm:col-span-1"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Eliminar
+                </button>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
 
-          {operations.length === 0 && (
-            <p className="text-sm text-slate-500">No se encontraron operaciones para estos filtros.</p>
-          )}
-        </div>
+        {filteredOperations.length === 0 && (
+          <p className="text-sm text-slate-500">
+            No se encontraron operaciones para estos filtros.
+          </p>
+        )}
       </div>
     </div>
-  );
+  </div>
+);
 }

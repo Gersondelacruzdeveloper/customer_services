@@ -476,439 +476,520 @@ export default function AgencyReservationsPage() {
       alert("Failed to delete reservation.");
     }
   }
+return (
+  <div className="min-h-screen bg-slate-50 p-3 sm:p-6">
+    <div className="mx-auto max-w-7xl space-y-4">
+      {/* HEADER */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-950">
+            Reservas de {agencyPortal?.agency_name || "Agencia"}
+          </h1>
 
-  return (
-    <div className="min-h-screen bg-slate-50 p-4 sm:p-6">
-      <div className="mx-auto max-w-7xl space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-950">
-              {agencyPortal?.agency_name || "Agency"} Reservations
-            </h1>
+          <p className="text-sm text-slate-500">
+            Visualiza, crea y administra las reservas de tu agencia.
+          </p>
+        </div>
 
-            <p className="text-sm text-slate-500">
-              View, create and manage your agency reservations.
-            </p>
-          </div>
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <Link
+            to="/agency/statement"
+            className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-center text-sm font-semibold text-slate-700"
+          >
+            Ver Estado de Cuenta
+          </Link>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              to="/agency/statement"
-              className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700"
-            >
-              View Statement
-            </Link>
+          <button
+            type="button"
+            onClick={openCreateForm}
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+          >
+            <Plus className="h-4 w-4" />
+            Nueva Reserva
+          </button>
+        </div>
+      </div>
+
+      {/* FORM */}
+      {showForm && (
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6"
+        >
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <h2 className="text-lg font-bold text-slate-950">
+              {editingId
+                ? "Actualizar Reserva"
+                : "Crear Reserva"}
+            </h2>
 
             <button
               type="button"
-              onClick={openCreateForm}
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white"
+              onClick={resetForm}
+              className="rounded-xl border border-slate-200 p-2"
             >
-              <Plus className="h-4 w-4" />
-              New Reservation
+              <X className="h-4 w-4" />
             </button>
           </div>
-        </div>
 
-        {showForm && (
-          <form
-            onSubmit={handleSubmit}
-            className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-          >
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-950">
-                {editingId ? "Update Reservation" : "Create Reservation"}
-              </h2>
-
-              <button
-                type="button"
-                onClick={resetForm}
-                className="rounded-xl border border-slate-200 p-2"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-500">
-                Locator
+                Localizador
               </label>
+
               <input
                 value={form.locator}
-                onChange={(e) => setForm({ ...form, locator: e.target.value })}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    locator: e.target.value,
+                  })
+                }
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
               />
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Client name
-                </label>
-                <input
-                  value={form.lead_name}
-                  onChange={(e) =>
-                    setForm({ ...form, lead_name: e.target.value })
-                  }
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                />
-              </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Nombre del cliente
+              </label>
 
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Phone
-                </label>
-                <input
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                />
-              </div>
+              <input
+                value={form.lead_name}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    lead_name: e.target.value,
+                  })
+                }
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              />
+            </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Email optional
-                </label>
-                <input
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                />
-              </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Teléfono
+              </label>
 
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Excursion
-                </label>
-                <select
-                  value={form.excursion_id}
-                  onChange={(e) =>
-                    setForm({ ...form, excursion_id: e.target.value })
-                  }
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                >
-                  <option value="">Select excursion</option>
-                  {excursions.map((excursion) => (
-                    <option key={excursion.id} value={excursion.id}>
-                      {excursion.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <input
+                value={form.phone}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    phone: e.target.value,
+                  })
+                }
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              />
+            </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Hotel
-                </label>
-                <select
-                  value={form.hotel_id}
-                  onChange={(e) =>
-                    setForm({ ...form, hotel_id: e.target.value })
-                  }
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                >
-                  <option value="">Select hotel</option>
-                  {hotels.map((hotel) => (
-                    <option key={hotel.id} value={hotel.id}>
-                      {hotel.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Correo electrónico opcional
+              </label>
+
+              <input
+                value={form.email}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    email: e.target.value,
+                  })
+                }
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Excursión
+              </label>
+
+              <select
+                value={form.excursion_id}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    excursion_id: e.target.value,
+                  })
+                }
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              >
+                <option value="">Seleccionar excursión</option>
+
+                {excursions.map((excursion) => (
+                  <option
+                    key={excursion.id}
+                    value={excursion.id}
+                  >
+                    {excursion.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Hotel
+              </label>
+
+              <select
+                value={form.hotel_id}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    hotel_id: e.target.value,
+                  })
+                }
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              >
+                <option value="">Seleccionar hotel</option>
+
+                {hotels.map((hotel) => (
+                  <option key={hotel.id} value={hotel.id}>
+                    {hotel.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Fecha del servicio
+              </label>
 
               <input
                 type="date"
                 min={getTodayString()}
                 value={form.service_date}
                 onChange={(e) =>
-                  setForm({ ...form, service_date: e.target.value })
+                  setForm({
+                    ...form,
+                    service_date: e.target.value,
+                  })
                 }
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
               />
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Pickup time
-                </label>
-                <input
-                  value={
-                    suggestedPickupTime
-                      ? formatTime(suggestedPickupTime)
-                      : "No pickup rule found"
-                  }
-                  readOnly
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold"
-                />
-                {!suggestedPickupTime && (
-                  <p className="text-xs text-amber-600">
-                    No pickup time is configured for this excursion and hotel.
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Adults
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={form.adults}
-                  onChange={(e) =>
-                    setForm({ ...form, adults: Number(e.target.value) })
-                  }
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Children
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={form.children}
-                  onChange={(e) =>
-                    setForm({ ...form, children: Number(e.target.value) })
-                  }
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Infants
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={form.infants}
-                  onChange={(e) =>
-                    setForm({ ...form, infants: Number(e.target.value) })
-                  }
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Price per adult
-                </label>
-                <input
-                  value={form.sale_price_per_person}
-                  readOnly
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Sale total
-                </label>
-                <input
-                  value={form.sale_total}
-                  readOnly
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Payment method
-                </label>
-
-                <select
-                  value={form.payment_method}
-                  onChange={(e) =>
-                    setForm({ ...form, payment_method: e.target.value })
-                  }
-                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-                >
-                  <option value="cash">Customer pays cash</option>
-                  <option value="card">Customer pays card + 12%</option>
-                  <option value="agency_collects">
-                    Agency collects / agency pays
-                  </option>
-                </select>
-              </div>
-
-              {form.payment_method === "card" && (
-                <>
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-slate-500">
-                      Card fee %
-                    </label>
-
-                    <input
-                      value={form.card_fee_percent}
-                      readOnly
-                      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-slate-500">
-                      Card fee amount
-                    </label>
-
-                    <input
-                      value={form.card_fee_amount}
-                      readOnly
-                      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-slate-500">
-                      Final total with card fee
-                    </label>
-
-                    <input
-                      value={form.final_total_with_card_fee}
-                      readOnly
-                      className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold"
-                    />
-                  </div>
-                </>
-              )}
-
-              <div className="space-y-1">
-                <label className="text-xs font-medium text-slate-500">
-                  Currency
-                </label>
-                <input
-                  value="USD"
-                  readOnly
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold"
-                />
-              </div>
             </div>
 
-            <div className="mt-4 space-y-1">
+            <div className="space-y-1">
               <label className="text-xs font-medium text-slate-500">
-                Notes
+                Hora de recogida
               </label>
-              <textarea
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+
+              <input
+                value={
+                  suggestedPickupTime
+                    ? formatTime(suggestedPickupTime)
+                    : "No se encontró horario"
+                }
+                readOnly
+                className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold"
+              />
+
+              {!suggestedPickupTime && (
+                <p className="text-xs text-amber-600">
+                  No hay horario configurado.
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Adultos
+              </label>
+
+              <input
+                type="number"
+                min="1"
+                value={form.adults}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    adults: Number(e.target.value),
+                  })
+                }
                 className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
-            >
-              <Save className="h-4 w-4" />
-              {loading
-                ? "Saving..."
-                : editingId
-                  ? "Update Reservation"
-                  : "Create Reservation"}
-            </button>
-          </form>
-        )}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Niños
+              </label>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search reservations..."
-            className="mb-5 w-full max-w-md rounded-2xl border border-slate-200 px-4 py-3 text-sm"
-          />
+              <input
+                type="number"
+                min="0"
+                value={form.children}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    children: Number(e.target.value),
+                  })
+                }
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              />
+            </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-                <tr>
-                  <th className="px-4 py-3">Locator</th>
-                  <th className="px-4 py-3">Client</th>
-                  <th className="px-4 py-3">Excursion</th>
-                  <th className="px-4 py-3">Hotel</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Pickup</th>
-                  <th className="px-4 py-3">Pax</th>
-                  <th className="px-4 py-3">Total</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Infantes
+              </label>
 
-              <tbody className="divide-y divide-slate-100">
-                {filteredReservations.map((reservation) => {
-                  const canEdit = canUpdateReservation(
-                    reservation.service_date,
-                  );
-                  const canDelete = canDeleteReservation(
-                    reservation.service_date,
-                  );
+              <input
+                type="number"
+                min="0"
+                value={form.infants}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    infants: Number(e.target.value),
+                  })
+                }
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              />
+            </div>
 
-                  return (
-                    <tr key={reservation.id}>
-                      <td className="px-4 py-3 font-semibold">
-                        {reservation.locator || reservation.id}
-                      </td>
-                      <td className="px-4 py-3">{reservation.lead_name}</td>
-                      <td className="px-4 py-3">
-                        {reservation.excursion_name}
-                      </td>
-                      <td className="px-4 py-3">{reservation.hotel_name}</td>
-                      <td className="px-4 py-3">{reservation.service_date}</td>
-                      <td className="px-4 py-3">
-                        <span className="inline-flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-slate-400" />
-                          {formatTime(reservation.pickup_time)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        {(reservation.adults || 0) +
-                          (reservation.children || 0) +
-                          (reservation.infants || 0)}
-                      </td>
-                      <td className="px-4 py-3">
-                        USD {reservation.sale_total || "0.00"}
-                      </td>
-                      <td className="px-4 py-3">{reservation.status}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            type="button"
-                            disabled={!canEdit}
-                            onClick={() => handleEdit(reservation)}
-                            className="rounded-xl border border-slate-200 p-2 disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Precio por adulto
+              </label>
 
-                          <button
-                            type="button"
-                            disabled={!canDelete}
-                            onClick={() => handleDelete(reservation)}
-                            className="rounded-xl border border-red-200 p-2 text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+              <input
+                value={form.sale_price_per_person}
+                readOnly
+                className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm"
+              />
+            </div>
 
-                {filteredReservations.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={10}
-                      className="px-4 py-10 text-center text-slate-500"
-                    >
-                      No reservations found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Total venta
+              </label>
+
+              <input
+                value={form.sale_total}
+                readOnly
+                className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Método de pago
+              </label>
+
+              <select
+                value={form.payment_method}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    payment_method: e.target.value,
+                  })
+                }
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+              >
+                <option value="cash">
+                  Cliente paga en efectivo
+                </option>
+
+                <option value="card">
+                  Cliente paga con tarjeta + 12%
+                </option>
+
+                <option value="agency_collects">
+                  Agencia cobra / agencia paga
+                </option>
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-500">
+                Moneda
+              </label>
+
+              <input
+                value="USD"
+                readOnly
+                className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold"
+              />
+            </div>
           </div>
+
+          <div className="mt-4 space-y-1">
+            <label className="text-xs font-medium text-slate-500">
+              Notas
+            </label>
+
+            <textarea
+              value={form.notes}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  notes: e.target.value,
+                })
+              }
+              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60 sm:w-auto"
+          >
+            <Save className="h-4 w-4" />
+
+            {loading
+              ? "Guardando..."
+              : editingId
+                ? "Actualizar Reserva"
+                : "Crear Reserva"}
+          </button>
+        </form>
+      )}
+
+      {/* RESERVATIONS */}
+      <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar reservas..."
+          className="mb-5 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm sm:max-w-md"
+        />
+
+        {/* MOBILE CARDS */}
+        <div className="space-y-3 md:hidden">
+          {filteredReservations.map((reservation) => {
+            const canEdit = canUpdateReservation(
+              reservation.service_date,
+            );
+
+            const canDelete = canDeleteReservation(
+              reservation.service_date,
+            );
+
+            return (
+              <div
+                key={reservation.id}
+                className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h4 className="font-semibold text-slate-900">
+                      {reservation.lead_name}
+                    </h4>
+
+                    <p className="mt-1 text-sm text-slate-500">
+                      {reservation.excursion_name}
+                    </p>
+                  </div>
+
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {reservation.status}
+                  </span>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl bg-slate-50 p-3">
+                    <p className="text-xs text-slate-500">
+                      Localizador
+                    </p>
+
+                    <p className="mt-1 font-semibold">
+                      {reservation.locator || reservation.id}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-50 p-3">
+                    <p className="text-xs text-slate-500">
+                      Fecha
+                    </p>
+
+                    <p className="mt-1 font-semibold">
+                      {reservation.service_date}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-50 p-3">
+                    <p className="text-xs text-slate-500">
+                      Recogida
+                    </p>
+
+                    <p className="mt-1 font-semibold">
+                      {formatTime(reservation.pickup_time)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-50 p-3">
+                    <p className="text-xs text-slate-500">
+                      Personas
+                    </p>
+
+                    <p className="mt-1 font-semibold">
+                      {(reservation.adults || 0) +
+                        (reservation.children || 0) +
+                        (reservation.infants || 0)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 rounded-2xl bg-slate-50 p-3">
+                  <p className="text-xs text-slate-500">
+                    Hotel
+                  </p>
+
+                  <p className="mt-1 font-semibold">
+                    {reservation.hotel_name}
+                  </p>
+                </div>
+
+                <div className="mt-3 rounded-2xl bg-slate-50 p-3">
+                  <p className="text-xs text-slate-500">
+                    Total
+                  </p>
+
+                  <p className="mt-1 font-bold text-slate-900">
+                    USD {reservation.sale_total || "0.00"}
+                  </p>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    disabled={!canEdit}
+                    onClick={() => handleEdit(reservation)}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-3 py-2.5 text-sm font-semibold disabled:opacity-40"
+                  >
+                    <Pencil className="h-4 w-4" />
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={!canDelete}
+                    onClick={() => handleDelete(reservation)}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-200 px-3 py-2.5 text-sm font-semibold text-red-600 disabled:opacity-40"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          {filteredReservations.length === 0 && (
+            <div className="rounded-3xl border border-slate-200 p-6 text-center text-sm text-slate-500">
+              No se encontraron reservas.
+            </div>
+          )}
         </div>
       </div>
     </div>
-  );
+  </div>
+);
+
 }

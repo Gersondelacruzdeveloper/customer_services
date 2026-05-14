@@ -795,198 +795,186 @@ export function ReservationsView() {
     }
   }
 
-  return (
-    <div className="w-full max-w-full overflow-x-hidden space-y-6 p-3 sm:p-6">
-      <div className="w-full max-w-full overflow-hidden rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900">Reservas</h3>
+return (
+  <div className="w-full max-w-full overflow-x-hidden bg-slate-50 p-2 sm:p-4 lg:p-6">
+    <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:rounded-3xl sm:p-5">
+      <div className="flex flex-col gap-4">
+        <div>
+          <h3 className="text-lg font-semibold text-slate-900">Reservas</h3>
 
-            <p className="text-sm text-slate-500">
-              Gestiona reservas, clientes, hoteles, excursiones, horarios de
-              recogida y balances de pago.
-            </p>
-          </div>
+          <p className="mt-1 text-sm leading-6 text-slate-500">
+            Gestiona reservas, clientes, hoteles, excursiones, horarios de
+            recogida y balances de pago.
+          </p>
+        </div>
 
-          <div className="flex w-full flex-col gap-3 lg:w-auto">
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-3">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-white text-slate-700 shadow-sm">
-                    <Filter className="h-4 w-4" />
-                  </span>
-                  Búsqueda y filtros
-                </div>
-
-                {filtersActive && (
-                  <button
-                    type="button"
-                    onClick={clearFilters}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100"
-                  >
-                    <X className="h-4 w-4" />
-                    Limpiar
-                  </button>
-                )}
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
-                <div className="relative sm:col-span-2 xl:col-span-2">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Buscar cliente, teléfono, hotel, excursión..."
-                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                  />
-                </div>
-
-                <div className="relative">
-                  <CalendarDays className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                  />
-                </div>
-
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="time"
-                    value={timeFilter}
-                    onChange={(e) => setTimeFilter(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                  />
-                </div>
-
-                <div className="relative">
-                  <CheckCircle2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                  >
-                    <option value="">Todos los estados</option>
-                    {statuses.map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="relative">
-                  <MapPinned className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <select
-                    value={excursionFilter}
-                    onChange={(e) => setExcursionFilter(e.target.value)}
-                    className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                  >
-                    <option value="">Todas las excursiones</option>
-                    {excursions.map((excursion) => (
-                      <option key={excursion.id} value={excursion.id}>
-                        {excursion.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="relative">
-                  <Hotel className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <select
-                    value={hotelFilter}
-                    onChange={(e) => setHotelFilter(e.target.value)}
-                    className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                  >
-                    <option value="">Todos los hoteles</option>
-                    {hotels.map((hotel) => (
-                      <option key={hotel.id} value={hotel.id}>
-                        {hotel.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto]">
-                <div className="relative">
-                  <ArrowUpDown className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as SortBy)}
-                    className="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                  >
-                    <option value="pickup_time">
-                      Ordenar por hora de recogida
-                    </option>
-                    <option value="service_date">
-                      Ordenar por fecha de servicio
-                    </option>
-                    <option value="lead_name">
-                      Ordenar por nombre del cliente
-                    </option>
-                    <option value="hotel_name">Ordenar por hotel</option>
-                    <option value="excursion_name">
-                      Ordenar por excursión
-                    </option>
-                    <option value="status">Ordenar por estado</option>
-                    <option value="balance_due">
-                      Ordenar por saldo adeudado
-                    </option>
-                  </select>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={toggleSortDirection}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-                >
-                  {sortDirection === "asc" ? (
-                    <ArrowUp className="h-4 w-4" />
-                  ) : (
-                    <ArrowDown className="h-4 w-4" />
-                  )}
-                  {sortDirection === "asc" ? "Ascending" : "Descending"}
-                </button>
-
-                <div className="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm">
-                  Mostrando {filtered.length} / {reservations.length}
-                </div>
-              </div>
+        {/* FILTERS */}
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:rounded-3xl sm:p-4">
+          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-white text-slate-700 shadow-sm">
+                <Filter className="h-4 w-4" />
+              </span>
+              Búsqueda y filtros
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            {filtersActive && (
               <button
                 type="button"
-                onClick={openCreateForm}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+                onClick={clearFilters}
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 sm:w-auto"
               >
-                <Plus className="h-4 w-4" />
-                Agregar reserva
+                <X className="h-4 w-4" />
+                Limpiar
               </button>
+            )}
+          </div>
 
-              <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-                <FileSpreadsheet className="h-4 w-4" />
-                Importar Excel
-                <input
-                  type="file"
-                  accept=".xlsx,.xls"
-                  onChange={handleExcelImport}
-                  className="hidden"
-                />
-              </label>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="relative sm:col-span-2">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar cliente, teléfono, hotel, excursión..."
+                className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+              />
+            </div>
+
+            <div className="relative">
+              <CalendarDays className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+              />
+            </div>
+
+            <div className="relative">
+              <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="time"
+                value={timeFilter}
+                onChange={(e) => setTimeFilter(e.target.value)}
+                className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+              />
+            </div>
+
+            <div className="relative">
+              <CheckCircle2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="min-h-11 w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+              >
+                <option value="">Todos los estados</option>
+                {statuses.map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative">
+              <MapPinned className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <select
+                value={excursionFilter}
+                onChange={(e) => setExcursionFilter(e.target.value)}
+                className="min-h-11 w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+              >
+                <option value="">Todas las excursiones</option>
+                {excursions.map((excursion) => (
+                  <option key={excursion.id} value={excursion.id}>
+                    {excursion.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative">
+              <Hotel className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <select
+                value={hotelFilter}
+                onChange={(e) => setHotelFilter(e.target.value)}
+                className="min-h-11 w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+              >
+                <option value="">Todos los hoteles</option>
+                {hotels.map((hotel) => (
+                  <option key={hotel.id} value={hotel.id}>
+                    {hotel.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative sm:col-span-2">
+              <ArrowUpDown className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortBy)}
+                className="min-h-11 w-full appearance-none rounded-2xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+              >
+                <option value="pickup_time">Ordenar por hora de recogida</option>
+                <option value="service_date">Ordenar por fecha de servicio</option>
+                <option value="lead_name">Ordenar por nombre del cliente</option>
+                <option value="hotel_name">Ordenar por hotel</option>
+                <option value="excursion_name">Ordenar por excursión</option>
+                <option value="status">Ordenar por estado</option>
+                <option value="balance_due">Ordenar por saldo adeudado</option>
+              </select>
+            </div>
+
+            <button
+              type="button"
+              onClick={toggleSortDirection}
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              {sortDirection === "asc" ? (
+                <ArrowUp className="h-4 w-4" />
+              ) : (
+                <ArrowDown className="h-4 w-4" />
+              )}
+              {sortDirection === "asc" ? "Ascendente" : "Descendente"}
+            </button>
+
+            <div className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm">
+              Mostrando {filtered.length} / {reservations.length}
             </div>
           </div>
         </div>
 
+        {/* ACTION BUTTONS */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:flex lg:justify-end">
+          <button
+            type="button"
+            onClick={openCreateForm}
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 sm:w-auto"
+          >
+            <Plus className="h-4 w-4" />
+            Agregar reserva
+          </button>
+
+          <label className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 sm:w-auto">
+            <FileSpreadsheet className="h-4 w-4" />
+            Importar Excel
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleExcelImport}
+              className="hidden"
+            />
+          </label>
+        </div>
+
+        {/* FORM */}
         {showForm && (
           <form
             onSubmit={handleSubmit}
-            className="mt-6 space-y-5 rounded-3xl border border-slate-200 bg-slate-50 p-5"
+            className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:rounded-3xl sm:p-5"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h4 className="font-semibold text-slate-900">
                 {editingId ? "Editar reserva" : "Agregar reserva"}
               </h4>
@@ -994,18 +982,18 @@ export function ReservationsView() {
               <button
                 type="button"
                 onClick={closeForm}
-                className="text-sm font-medium text-slate-500 hover:text-slate-900"
+                className="min-h-10 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 sm:border-0 sm:bg-transparent"
               >
                 Cancelar
               </button>
             </div>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-4">
+            <section className="rounded-2xl border border-slate-200 bg-white p-3 sm:rounded-3xl sm:p-4">
               <h5 className="mb-4 text-sm font-semibold text-slate-800">
                 Información del cliente
               </h5>
 
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
                     Localizador
@@ -1014,7 +1002,7 @@ export function ReservationsView() {
                     value={form.locator}
                     onChange={(e) => updateFormField("locator", e.target.value)}
                     required
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
 
@@ -1024,11 +1012,9 @@ export function ReservationsView() {
                   </label>
                   <input
                     value={form.lead_name}
-                    onChange={(e) =>
-                      updateFormField("lead_name", e.target.value)
-                    }
+                    onChange={(e) => updateFormField("lead_name", e.target.value)}
                     required
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
 
@@ -1039,7 +1025,7 @@ export function ReservationsView() {
                   <input
                     value={form.phone}
                     onChange={(e) => updateFormField("phone", e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
 
@@ -1051,29 +1037,27 @@ export function ReservationsView() {
                     type="email"
                     value={form.email}
                     onChange={(e) => updateFormField("email", e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-4">
+            <section className="rounded-2xl border border-slate-200 bg-white p-3 sm:rounded-3xl sm:p-4">
               <h5 className="mb-4 text-sm font-semibold text-slate-800">
                 Detalles de la reserva
               </h5>
 
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
                     Excursión
                   </label>
                   <select
                     value={form.excursion_id ?? ""}
-                    onChange={(e) =>
-                      handleExcursionChange(Number(e.target.value))
-                    }
+                    onChange={(e) => handleExcursionChange(Number(e.target.value))}
                     required
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   >
                     {excursions.map((excursion) => (
                       <option key={excursion.id} value={excursion.id}>
@@ -1091,7 +1075,7 @@ export function ReservationsView() {
                     value={form.hotel_id ?? ""}
                     onChange={(e) => handleHotelChange(Number(e.target.value))}
                     required
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   >
                     {hotels.map((hotel) => (
                       <option key={hotel.id} value={hotel.id}>
@@ -1113,10 +1097,9 @@ export function ReservationsView() {
                         e.target.value ? Number(e.target.value) : null,
                       )
                     }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   >
                     <option value="">Sin agencia</option>
-
                     {agencies.map((agency) => (
                       <option key={agency.id} value={agency.id}>
                         {agency.name}
@@ -1136,12 +1119,12 @@ export function ReservationsView() {
                       updateFormField("service_date", e.target.value)
                     }
                     required
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
 
-                <div className="space-y-1 lg:col-span-2">
-                  <div className="flex items-center justify-between gap-3">
+                <div className="space-y-1 sm:col-span-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <label className="text-xs font-medium text-slate-500">
                       Hora de recogida
                     </label>
@@ -1150,7 +1133,7 @@ export function ReservationsView() {
                       <button
                         type="button"
                         onClick={useSuggestedPickupTime}
-                        className="text-xs font-semibold text-slate-600 hover:text-slate-950"
+                        className="text-left text-xs font-semibold text-slate-600 hover:text-slate-950 sm:text-right"
                       >
                         Usar sugerida {formatTime(suggestedPickupTime)}
                       </button>
@@ -1165,16 +1148,16 @@ export function ReservationsView() {
                     type="time"
                     value={form.pickup_time ?? ""}
                     onChange={(e) => handlePickupTimeChange(e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
 
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs leading-5 text-slate-500">
                     {pickupOverridden
                       ? "La modificación manual está activa. Esta hora será guardada."
                       : suggestedPickupTime
                         ? `Completado automáticamente según las reglas de recogida ${formatTime(
                             suggestedPickupTime,
-                          )}.Aún puedes cambiarlo.`
+                          )}. Aún puedes cambiarlo.`
                         : "Elige una excursión y hotel con una regla de recogida guardada, o introduce la hora manualmente."}
                   </p>
                 </div>
@@ -1185,10 +1168,8 @@ export function ReservationsView() {
                   </label>
                   <select
                     value={form.language}
-                    onChange={(e) =>
-                      updateFormField("language", e.target.value)
-                    }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    onChange={(e) => updateFormField("language", e.target.value)}
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   >
                     {languages.map(([value, label]) => (
                       <option key={value} value={value}>
@@ -1205,7 +1186,7 @@ export function ReservationsView() {
                   <select
                     value={form.status}
                     onChange={(e) => updateFormField("status", e.target.value)}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   >
                     {statuses.map(([value, label]) => (
                       <option key={value} value={value}>
@@ -1217,18 +1198,18 @@ export function ReservationsView() {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-4">
-              <div className="mb-4 flex items-center justify-between">
+            <section className="rounded-2xl border border-slate-200 bg-white p-3 sm:rounded-3xl sm:p-4">
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h5 className="text-sm font-semibold text-slate-800">
-                  Passengers
+                  Pasajeros
                 </h5>
 
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                   Total pax: {totalPax}
                 </span>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
                     Adultos
@@ -1240,7 +1221,7 @@ export function ReservationsView() {
                     onChange={(e) =>
                       updateFormField("adults", Number(e.target.value))
                     }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
 
@@ -1255,7 +1236,7 @@ export function ReservationsView() {
                     onChange={(e) =>
                       updateFormField("children", Number(e.target.value))
                     }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
 
@@ -1270,34 +1251,32 @@ export function ReservationsView() {
                     onChange={(e) =>
                       updateFormField("infants", Number(e.target.value))
                     }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-4">
-              <div className="mb-4 flex items-center justify-between">
+            <section className="rounded-2xl border border-slate-200 bg-white p-3 sm:rounded-3xl sm:p-4">
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h5 className="text-sm font-semibold text-slate-800">
                   Detalles de pago
                 </h5>
 
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                <span className="w-fit rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
                   Balance: {balanceDue.toFixed(2)} {form.currency}
                 </span>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
                     Moneda
                   </label>
                   <select
                     value={form.currency}
-                    onChange={(e) =>
-                      updateFormField("currency", e.target.value)
-                    }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    onChange={(e) => updateFormField("currency", e.target.value)}
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   >
                     {currencies.map((currency) => (
                       <option key={currency} value={currency}>
@@ -1319,7 +1298,7 @@ export function ReservationsView() {
                     onChange={(e) =>
                       updateFormField("sale_price_per_person", e.target.value)
                     }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
 
@@ -1332,12 +1311,11 @@ export function ReservationsView() {
                     min={0}
                     step="0.01"
                     value={form.sale_total}
-                    onChange={(e) =>
-                      updateFormField("sale_total", e.target.value)
-                    }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    onChange={(e) => updateFormField("sale_total", e.target.value)}
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
+
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
                     Método de pago
@@ -1347,16 +1325,12 @@ export function ReservationsView() {
                     onChange={(e) =>
                       updateFormField("payment_method", e.target.value)
                     }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   >
                     <option value="cash">Efectivo</option>
                     <option value="card">Tarjeta</option>
-                    <option value="bank_transfer">
-                      Transferencia bancaria
-                    </option>
-                    <option value="agency_collects">
-                      Recolección en agencia
-                    </option>
+                    <option value="bank_transfer">Transferencia bancaria</option>
+                    <option value="agency_collects">Recolección en agencia</option>
                     <option value="mixed">Mixto</option>
                   </select>
                 </div>
@@ -1374,7 +1348,7 @@ export function ReservationsView() {
                       updateFormField("card_fee_percent", e.target.value)
                     }
                     disabled={form.payment_method !== "card"}
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm disabled:bg-slate-100"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm disabled:bg-slate-100"
                   />
                 </div>
 
@@ -1386,7 +1360,7 @@ export function ReservationsView() {
                     type="number"
                     value={cardFeeAmount.toFixed(2)}
                     readOnly
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm"
                   />
                 </div>
 
@@ -1398,7 +1372,7 @@ export function ReservationsView() {
                     type="number"
                     value={finalTotalWithCardFee.toFixed(2)}
                     readOnly
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm font-semibold"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm font-semibold"
                   />
                 </div>
 
@@ -1414,18 +1388,18 @@ export function ReservationsView() {
                     onChange={(e) =>
                       updateFormField("paid_amount", e.target.value)
                     }
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
+                    className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm"
                   />
                 </div>
               </div>
             </section>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-4">
+            <section className="rounded-2xl border border-slate-200 bg-white p-3 sm:rounded-3xl sm:p-4">
               <h5 className="mb-4 text-sm font-semibold text-slate-800">
                 Notas
               </h5>
 
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-slate-500">
                     Notas del cliente
@@ -1454,105 +1428,172 @@ export function ReservationsView() {
               </div>
             </section>
 
-            <div className="flex justify-end gap-3">
+            <div className="sticky bottom-0 -mx-3 flex flex-col gap-3 border-t border-slate-200 bg-white/95 p-3 backdrop-blur sm:static sm:mx-0 sm:flex-row sm:justify-end sm:border-0 sm:bg-transparent sm:p-0">
               <button
                 type="button"
                 onClick={closeForm}
-                className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700"
+                className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 sm:w-auto"
               >
                 Cancelar
               </button>
 
               <button
                 type="submit"
-                className="rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
+                className="min-h-11 w-full rounded-2xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white sm:w-auto"
               >
-                {editingId ? "Update reservation" : "Create reservation"}
+                {editingId ? "Actualizar reserva" : "Crear reserva"}
               </button>
             </div>
           </form>
         )}
-        <div className="-mx-3 mt-6 overflow-x-auto border-y border-slate-200 sm:mx-0 sm:rounded-3xl sm:border">
-          <table className="w-max min-w-[900px] text-left text-sm">
-            <thead className="bg-slate-100 text-xs uppercase text-slate-500">
-              <tr>
-                <th className="px-4 py-3">Localizador</th>
-                <th className="px-4 py-3">
-                  <span className="inline-flex items-center gap-2">
-                    <UserRound className="h-4 w-4" /> Nombre del titular
-                  </span>
-                </th>
-                <th className="px-4 py-3">
-                  <span className="inline-flex items-center gap-2">
-                    <MapPinned className="h-4 w-4" /> Excursión
-                  </span>
-                </th>
-                <th className="px-4 py-3">
-                  <span className="inline-flex items-center gap-2">
-                    <Hotel className="h-4 w-4" /> Hotel
-                  </span>
-                </th>
-                <th className="px-4 py-3">
-                  <span className="inline-flex items-center gap-2">
-                    <CalendarDays className="h-4 w-4" /> Fecha
-                  </span>
-                </th>
-                <th className="px-4 py-3">
-                  <span className="inline-flex items-center gap-2">
-                    <Clock className="h-4 w-4" /> Recogidas
-                  </span>
-                </th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3 text-right">Acciones</th>
-              </tr>
-            </thead>
 
-            <tbody className="divide-y divide-slate-200 bg-white">
-              {filtered.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-semibold">{item.locator}</td>
-                  <td className="px-4 py-3">{item.lead_name}</td>
-                  <td className="px-4 py-3">{item.excursion_name}</td>
-                  <td className="px-4 py-3">{item.hotel_name}</td>
-                  <td className="px-4 py-3">{item.service_date}</td>
-                  <td className="px-4 py-3">{formatTime(item.pickup_time)}</td>
-                  <td className="px-4 py-3">{item.status}</td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <button
-                      type="button"
-                      onClick={() => openEditForm(item)}
-                      className="mr-2 inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                      Editar
-                    </button>
+        {/* RESERVATIONS */}
+        <div className="mt-2">
+          <div className="grid gap-3 lg:hidden">
+            {filtered.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-slate-400">
+                      Localizador
+                    </p>
+                    <h4 className="text-base font-bold text-slate-900">
+                      {item.locator}
+                    </h4>
+                  </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(item.id)}
-                      className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {item.status}
+                  </span>
+                </div>
 
-              {filtered.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="px-4 py-8 text-center text-slate-500"
+                <div className="space-y-2 text-sm text-slate-700">
+                  <p>
+                    <span className="font-semibold">Cliente:</span>{" "}
+                    {item.lead_name}
+                  </p>
+
+                  <p>
+                    <span className="font-semibold">Excursión:</span>{" "}
+                    {item.excursion_name}
+                  </p>
+
+                  <p>
+                    <span className="font-semibold">Hotel:</span>{" "}
+                    {item.hotel_name}
+                  </p>
+
+                  <p>
+                    <span className="font-semibold">Fecha:</span>{" "}
+                    {item.service_date}
+                  </p>
+
+                  <p>
+                    <span className="font-semibold">Recogida:</span>{" "}
+                    {formatTime(item.pickup_time)}
+                  </p>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openEditForm(item)}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
                   >
-                    No se encontraron agencias.
-                  </td>
+                    <Pencil className="h-4 w-4" />
+                    Editar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(item.id)}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {filtered.length === 0 && (
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
+                No se encontraron reservas.
+              </div>
+            )}
+          </div>
+
+          <div className="hidden overflow-x-auto rounded-3xl border border-slate-200 lg:block">
+            <table className="min-w-full text-left text-sm">
+              <thead className="bg-slate-100 text-xs uppercase text-slate-500">
+                <tr>
+                  <th className="px-4 py-3">Localizador</th>
+                  <th className="px-4 py-3">Nombre del titular</th>
+                  <th className="px-4 py-3">Excursión</th>
+                  <th className="px-4 py-3">Hotel</th>
+                  <th className="px-4 py-3">Fecha</th>
+                  <th className="px-4 py-3">Recogida</th>
+                  <th className="px-4 py-3">Estado</th>
+                  <th className="px-4 py-3 text-right">Acciones</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody className="divide-y divide-slate-200 bg-white">
+                {filtered.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 font-semibold">
+                      {item.locator}
+                    </td>
+                    <td className="px-4 py-3">{item.lead_name}</td>
+                    <td className="px-4 py-3">{item.excursion_name}</td>
+                    <td className="px-4 py-3">{item.hotel_name}</td>
+                    <td className="px-4 py-3">{item.service_date}</td>
+                    <td className="px-4 py-3">
+                      {formatTime(item.pickup_time)}
+                    </td>
+                    <td className="px-4 py-3">{item.status}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => openEditForm(item)}
+                        className="mr-2 inline-flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(item.id)}
+                        className="inline-flex items-center gap-1 rounded-xl bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {filtered.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="px-4 py-8 text-center text-slate-500"
+                    >
+                      No se encontraron reservas.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
+
 }
